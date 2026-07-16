@@ -1,0 +1,7 @@
+TEAM_ID=
+
+PRODUCT_NAME=IBMSIspBillingManagementSystem
+PRODUCT_BUNDLE_IDENTIFIER=com.puregoldgo.ibms.IBMSIspBillingManagementSystem$(TEAM_ID)
+
+CURRENT_PROJECT_VERSION=1
+MARKETING_VERSION=1.0
