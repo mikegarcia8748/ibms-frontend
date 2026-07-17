@@ -18,8 +18,6 @@ import com.puregoldgo.ibms.ui.screen.provider.ProviderListScreen
 fun AppNavigation() {
     val backStack = rememberNavBackStack(navSavedStateConfig, Route.Login)
 
-    val navController = rememberNavController()
-
     NavDisplay(
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },

@@ -1,0 +1,11 @@
+<resources>
+    <string name="login_top_bar_title">IBMS</string>
+    <string name="login_menu_content_description">Menu</string>
+    <string name="login_logo_content_description">Puregold logo</string>
+    <string name="login_title">ISP Billing Management System</string>
+    <string name="login_subtitle">Secure enterprise portal for managing store connectivity infrastructures and ledger reconciliations.</string>
+    <string name="login_username_label">Username</string>
+    <string name="login_password_label">Password</string>
+    <string name="login_button">Log In</string>
+    <string name="login_footer">© 2026 Puregold Price Club, Inc.</string>
+</resources>

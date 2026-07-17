@@ -98,7 +98,7 @@ private fun ProviderFormContent(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(Dimensions.spacingLg),
+            .padding(Dimensions.viewPadding16),
     ) {
         OutlinedTextField(
             value = uiState.name,
@@ -111,7 +111,7 @@ private fun ProviderFormContent(
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
         )
 
-        Spacer(Modifier.height(Dimensions.spacingMd))
+        Spacer(Modifier.height(Dimensions.viewPadding12))
 
         OutlinedTextField(
             value = uiState.code,
@@ -127,7 +127,7 @@ private fun ProviderFormContent(
             ),
         )
 
-        Spacer(Modifier.height(Dimensions.spacingMd))
+        Spacer(Modifier.height(Dimensions.viewPadding12))
 
         OutlinedTextField(
             value = uiState.contactEmail,
@@ -140,7 +140,7 @@ private fun ProviderFormContent(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         )
 
-        Spacer(Modifier.height(Dimensions.spacingMd))
+        Spacer(Modifier.height(Dimensions.viewPadding12))
 
         OutlinedTextField(
             value = uiState.contactPhone,
@@ -151,16 +151,16 @@ private fun ProviderFormContent(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
         )
 
-        Spacer(Modifier.height(Dimensions.spacingXl))
+        Spacer(Modifier.height(Dimensions.viewPadding24))
 
         Button(
             onClick = callback.onSave,
-            modifier = Modifier.fillMaxWidth().height(Dimensions.buttonHeight),
+            modifier = Modifier.fillMaxWidth().height(Dimensions.viewHeight48),
             enabled = !uiState.isSaving,
         ) {
             if (uiState.isSaving) {
                 CircularProgressIndicator(
-                    modifier = Modifier.height(Dimensions.progressIndicatorMedium),
+                    modifier = Modifier.height(Dimensions.viewSize24),
                     color = MaterialTheme.colorScheme.onPrimary,
                 )
             } else {

@@ -97,7 +97,7 @@ private fun ProviderListContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text("No providers yet", style = MaterialTheme.typography.bodyLarge)
-                    Spacer(Modifier.height(Dimensions.spacingSm))
+                    Spacer(Modifier.height(Dimensions.viewPadding8))
                     Text(
                         "Tap + to add your first provider",
                         style = MaterialTheme.typography.bodyMedium,
@@ -107,27 +107,27 @@ private fun ProviderListContent(
             }
             uiState.errorMessage != null && uiState.providers.isEmpty() -> {
                 Column(
-                    modifier = Modifier.align(Alignment.Center).padding(Dimensions.spacingLg),
+                    modifier = Modifier.align(Alignment.Center).padding(Dimensions.viewPadding16),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(uiState.errorMessage!!, color = MaterialTheme.colorScheme.error)
-                    Spacer(Modifier.height(Dimensions.spacingSm))
+                    Spacer(Modifier.height(Dimensions.viewPadding8))
                     Text("Tap to retry", modifier = Modifier.clickable { callback.onRetry() })
                 }
             }
             else -> {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = Dimensions.spacingLg),
-                    verticalArrangement = Arrangement.spacedBy(Dimensions.spacingSm),
+                    modifier = Modifier.fillMaxSize().padding(horizontal = Dimensions.viewPadding16),
+                    verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8),
                 ) {
-                    item { Spacer(Modifier.height(Dimensions.spacingSm)) }
+                    item { Spacer(Modifier.height(Dimensions.viewPadding8)) }
                     items(uiState.providers, key = { it.id }) { provider ->
                         ProviderCard(
                             provider = provider,
                             onClick = { callback.onProviderClick(provider) },
                         )
                     }
-                    item { Spacer(Modifier.height(Dimensions.listBottomSpacer)) }
+                    item { Spacer(Modifier.height(Dimensions.viewHeight80)) }
                 }
             }
         }
@@ -141,9 +141,9 @@ private fun ProviderCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = Dimensions.cardElevation),
+        elevation = CardDefaults.cardElevation(defaultElevation = Dimensions.viewElevation2),
     ) {
-        Column(modifier = Modifier.padding(Dimensions.spacingLg)) {
+        Column(modifier = Modifier.padding(Dimensions.viewPadding16)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -160,7 +160,7 @@ private fun ProviderCard(
                 )
             }
             if (provider.contactEmail != null) {
-                Spacer(Modifier.height(Dimensions.spacingXs))
+                Spacer(Modifier.height(Dimensions.viewPadding4))
                 Text(
                     text = provider.contactEmail!!,
                     style = MaterialTheme.typography.bodySmall,
@@ -174,7 +174,7 @@ private fun ProviderCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Spacer(Modifier.height(Dimensions.spacingXs))
+            Spacer(Modifier.height(Dimensions.viewPadding4))
             Text(
                 text = if (provider.isActive) "Active" else "Inactive",
                 style = MaterialTheme.typography.labelSmall,
