@@ -2,8 +2,8 @@ package com.puregoldgo.ibms.di
 
 import com.puregoldgo.core.network.createHttpClient
 import com.puregoldgo.ibms.data.repository.KtorProviderRepository
-import com.puregoldgo.ibms.presentation.provider.ProviderFormViewModel
-import com.puregoldgo.ibms.presentation.provider.ProviderListViewModel
+import com.puregoldgo.ibms.ui.screen.provider.ProviderFormViewModel
+import com.puregoldgo.ibms.ui.screen.provider.ProviderListViewModel
 import com.puregoldgo.ibms.shared.domain.ProviderRepository
 import com.puregoldgo.ibms.shared.domain.usecase.CreateProviderUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetProvidersUseCase

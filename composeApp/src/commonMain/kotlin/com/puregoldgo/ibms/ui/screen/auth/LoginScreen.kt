@@ -1,9 +1,8 @@
-package com.puregoldgo.ibms.presentation.auth
+package com.puregoldgo.ibms.ui.screen.auth
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,8 +21,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.puregoldgo.ibms.ui.theme.AppTheme
+import com.puregoldgo.ibms.ui.theme.Dimensions
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -51,9 +52,11 @@ fun LoginScreen(
     ) { padding ->
         LoginContent(
             uiState = uiState,
-            onUsernameChange = viewModel::onUsernameChange,
-            onPasswordChange = viewModel::onPasswordChange,
-            onLoginClick = viewModel::onLogin,
+            callback = LoginCallback(
+                onUsernameChange = viewModel::onUsernameChange,
+                onPasswordChange = viewModel::onPasswordChange,
+                onLoginClick = viewModel::onLogin,
+            ),
             modifier = Modifier.padding(padding),
         )
     }
@@ -65,72 +68,68 @@ fun LoginScreen(
 @Composable
 private fun LoginContent(
     uiState: LoginUIState,
-    onUsernameChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onLoginClick: () -> Unit,
+    callback: LoginCallback,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier.fillMaxSize()) {
+    Scaffold {
         Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = 32.dp)
-                .fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "IBMS",
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.primary,
             )
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(Dimensions.spacingXs))
             Text(
                 text = "ISP Billing Management System",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(Dimensions.spacingXxl))
 
             OutlinedTextField(
+                modifier = Modifier,
                 value = uiState.username,
-                onValueChange = onUsernameChange,
+                onValueChange = callback.onUsernameChange,
                 label = { Text("Username") },
                 singleLine = true,
                 enabled = !uiState.isLoading,
-                modifier = Modifier.fillMaxWidth(),
             )
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(Dimensions.spacingLg))
 
             OutlinedTextField(
+                modifier = Modifier,
                 value = uiState.password,
-                onValueChange = onPasswordChange,
+                onValueChange = callback.onPasswordChange,
                 label = { Text("Password") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
-                enabled = !uiState.isLoading,
-                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading
             )
 
             if (uiState.errorMessage != null) {
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(Dimensions.spacingSm))
                 Text(
-                    text = uiState.errorMessage!!,
+                    text = uiState.errorMessage,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(Dimensions.spacingXl))
 
             Button(
-                onClick = onLoginClick,
+                modifier = Modifier,
+                onClick = callback.onLoginClick,
                 enabled = !uiState.isLoading && uiState.username.isNotBlank() && uiState.password.isNotBlank(),
-                modifier = Modifier.fillMaxWidth(),
             ) {
                 if (uiState.isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.height(20.dp),
-                        strokeWidth = 2.dp,
+                        modifier = Modifier.height(Dimensions.progressIndicatorSmall),
+                        strokeWidth = Dimensions.progressStrokeWidth,
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 } else {
@@ -138,5 +137,20 @@ private fun LoginContent(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun LoginContentPreview() {
+    AppTheme {
+        LoginContent(
+            uiState = LoginUIState(),
+            callback = LoginCallback(
+                onUsernameChange = {},
+                onPasswordChange = {},
+                onLoginClick = {},
+            ),
+        )
     }
 }

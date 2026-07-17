@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.presentation.provider
+package com.puregoldgo.ibms.ui.screen.provider
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,8 +29,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.puregoldgo.ibms.ui.theme.Dimensions
 import com.puregoldgo.ibms.shared.model.Provider
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -68,8 +68,10 @@ fun ProviderListScreen(
     ) { padding ->
         ProviderListContent(
             uiState = uiState,
-            onProviderClick = { viewModel.onEditClick(it.id) },
-            onRetry = { viewModel.loadProviders() },
+            callback = ProviderListCallback(
+                onProviderClick = { viewModel.onEditClick(it.id) },
+                onRetry = { viewModel.loadProviders() },
+            ),
             modifier = Modifier.padding(padding),
         )
     }
@@ -81,8 +83,7 @@ fun ProviderListScreen(
 @Composable
 private fun ProviderListContent(
     uiState: ProviderListUIState,
-    onProviderClick: (Provider) -> Unit,
-    onRetry: () -> Unit,
+    callback: ProviderListCallback,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -96,7 +97,7 @@ private fun ProviderListContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text("No providers yet", style = MaterialTheme.typography.bodyLarge)
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(Dimensions.spacingSm))
                     Text(
                         "Tap + to add your first provider",
                         style = MaterialTheme.typography.bodyMedium,
@@ -106,27 +107,27 @@ private fun ProviderListContent(
             }
             uiState.errorMessage != null && uiState.providers.isEmpty() -> {
                 Column(
-                    modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                    modifier = Modifier.align(Alignment.Center).padding(Dimensions.spacingLg),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(uiState.errorMessage!!, color = MaterialTheme.colorScheme.error)
-                    Spacer(Modifier.height(8.dp))
-                    Text("Tap to retry", modifier = Modifier.clickable { onRetry() })
+                    Spacer(Modifier.height(Dimensions.spacingSm))
+                    Text("Tap to retry", modifier = Modifier.clickable { callback.onRetry() })
                 }
             }
             else -> {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxSize().padding(horizontal = Dimensions.spacingLg),
+                    verticalArrangement = Arrangement.spacedBy(Dimensions.spacingSm),
                 ) {
-                    item { Spacer(Modifier.height(8.dp)) }
+                    item { Spacer(Modifier.height(Dimensions.spacingSm)) }
                     items(uiState.providers, key = { it.id }) { provider ->
                         ProviderCard(
                             provider = provider,
-                            onClick = { onProviderClick(provider) },
+                            onClick = { callback.onProviderClick(provider) },
                         )
                     }
-                    item { Spacer(Modifier.height(80.dp)) }
+                    item { Spacer(Modifier.height(Dimensions.listBottomSpacer)) }
                 }
             }
         }
@@ -140,9 +141,9 @@ private fun ProviderCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = Dimensions.cardElevation),
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(Dimensions.spacingLg)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -159,7 +160,7 @@ private fun ProviderCard(
                 )
             }
             if (provider.contactEmail != null) {
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(Dimensions.spacingXs))
                 Text(
                     text = provider.contactEmail!!,
                     style = MaterialTheme.typography.bodySmall,
@@ -173,7 +174,7 @@ private fun ProviderCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(Dimensions.spacingXs))
             Text(
                 text = if (provider.isActive) "Active" else "Inactive",
                 style = MaterialTheme.typography.labelSmall,

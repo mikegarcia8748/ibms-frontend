@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.presentation.provider
+package com.puregoldgo.ibms.ui.screen.provider
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,12 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.puregoldgo.ibms.ui.theme.Dimensions
 import com.puregoldgo.ibms.shared.model.Provider
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -77,11 +76,13 @@ fun ProviderFormScreen(
     ) { padding ->
         ProviderFormContent(
             uiState = uiState,
-            onNameChange = viewModel::onNameChange,
-            onCodeChange = viewModel::onCodeChange,
-            onEmailChange = viewModel::onEmailChange,
-            onPhoneChange = viewModel::onPhoneChange,
-            onSave = viewModel::onSave,
+            callback = ProviderFormCallback(
+                onNameChange = viewModel::onNameChange,
+                onCodeChange = viewModel::onCodeChange,
+                onEmailChange = viewModel::onEmailChange,
+                onPhoneChange = viewModel::onPhoneChange,
+                onSave = viewModel::onSave,
+            ),
             modifier = Modifier.padding(padding),
         )
     }
@@ -90,22 +91,18 @@ fun ProviderFormScreen(
 @Composable
 private fun ProviderFormContent(
     uiState: ProviderFormUIState,
-    onNameChange: (String) -> Unit,
-    onCodeChange: (String) -> Unit,
-    onEmailChange: (String) -> Unit,
-    onPhoneChange: (String) -> Unit,
-    onSave: () -> Unit,
+    callback: ProviderFormCallback,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(Dimensions.spacingLg),
     ) {
         OutlinedTextField(
             value = uiState.name,
-            onValueChange = onNameChange,
+            onValueChange = callback.onNameChange,
             label = { Text("Provider Name *") },
             isError = uiState.nameError != null,
             supportingText = uiState.nameError?.let { { Text(it) } },
@@ -114,11 +111,11 @@ private fun ProviderFormContent(
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(Dimensions.spacingMd))
 
         OutlinedTextField(
             value = uiState.code,
-            onValueChange = onCodeChange,
+            onValueChange = callback.onCodeChange,
             label = { Text("Provider Code *") },
             isError = uiState.codeError != null,
             supportingText = uiState.codeError?.let { { Text(it) } },
@@ -130,11 +127,11 @@ private fun ProviderFormContent(
             ),
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(Dimensions.spacingMd))
 
         OutlinedTextField(
             value = uiState.contactEmail,
-            onValueChange = onEmailChange,
+            onValueChange = callback.onEmailChange,
             label = { Text("Contact Email") },
             isError = uiState.emailError != null,
             supportingText = uiState.emailError?.let { { Text(it) } },
@@ -143,27 +140,27 @@ private fun ProviderFormContent(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(Dimensions.spacingMd))
 
         OutlinedTextField(
             value = uiState.contactPhone,
-            onValueChange = onPhoneChange,
+            onValueChange = callback.onPhoneChange,
             label = { Text("Contact Phone") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
         )
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(Dimensions.spacingXl))
 
         Button(
-            onClick = onSave,
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            onClick = callback.onSave,
+            modifier = Modifier.fillMaxWidth().height(Dimensions.buttonHeight),
             enabled = !uiState.isSaving,
         ) {
             if (uiState.isSaving) {
                 CircularProgressIndicator(
-                    modifier = Modifier.height(24.dp),
+                    modifier = Modifier.height(Dimensions.progressIndicatorMedium),
                     color = MaterialTheme.colorScheme.onPrimary,
                 )
             } else {

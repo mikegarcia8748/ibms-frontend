@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.presentation.auth
+package com.puregoldgo.ibms.ui.screen.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

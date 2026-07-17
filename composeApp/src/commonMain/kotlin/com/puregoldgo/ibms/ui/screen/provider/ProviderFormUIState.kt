@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.presentation.provider
+package com.puregoldgo.ibms.ui.screen.provider
 
 /**
  * Immutable UI state for the Provider create/edit form.

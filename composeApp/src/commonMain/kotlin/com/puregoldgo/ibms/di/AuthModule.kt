@@ -1,7 +1,7 @@
 package com.puregoldgo.ibms.di
 
 import com.puregoldgo.ibms.data.repository.KtorAuthRepository
-import com.puregoldgo.ibms.presentation.auth.LoginViewModel
+import com.puregoldgo.ibms.ui.screen.auth.LoginViewModel
 import com.puregoldgo.ibms.shared.domain.AuthRepository
 import com.puregoldgo.ibms.shared.domain.usecase.LoginUseCase
 import org.koin.core.module.dsl.factoryOf
