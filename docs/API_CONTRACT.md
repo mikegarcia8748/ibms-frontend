@@ -11,17 +11,40 @@ Authorization: Bearer <jwt>
 
 JWT payload: `{ sub: "<user-uuid>", role: "secretary|finance|payables|sysadmin", exp: <unix> }`
 
-## Error Envelope
+## Response Envelope
+
+All API responses follow a unified envelope structure.
+
+### Success Response
 
 ```json
 {
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Human-readable message",
-    "details": { "field": "reason" }
+  "result": "success",
+  "message": "Process completed!",
+  "status": "200",
+  "data": {
+    "token": "ada9a8sd6789a"
   }
 }
 ```
+
+### Error Response
+
+```json
+{
+  "result": "error",
+  "status": "500",
+  "message": "Internal server error",
+  "data": null
+}
+```
+
+| Field     | Type             | Description                         |
+|-----------|------------------|-------------------------------------|
+| `result`  | `string`         | `"success"` or `"error"`            |
+| `message` | `string`         | Human-readable status message        |
+| `status`  | `string`         | HTTP status code as a string         |
+| `data`    | `object \| null` | Response payload (`null` on error)   |
 
 HTTP codes: 400 (validation), 401 (unauthenticated), 403 (forbidden), 404, 409 (conflict), 500.
 
@@ -48,7 +71,19 @@ Money-mutating POSTs accept `Idempotency-Key: <uuid>` header. Duplicate keys ret
 | POST | `/auth/google` | public | Exchange Google ID token for backend JWT |
 
 Request: `{ "idToken": "..." }`
-Response: `{ "token": "...", "user": { ... } }`
+
+Response:
+```json
+{
+  "result": "success",
+  "message": "Authentication successful!",
+  "status": "200",
+  "data": {
+    "token": "<jwt>",
+    "user": { "id": "<uuid>", "email": "...", "role": "secretary|finance|payables|sysadmin" }
+  }
+}
+```
 
 ---
 
@@ -102,7 +137,19 @@ Response: `{ "token": "...", "user": { ... } }`
 | GET | `/attachments/{id}/presign/download` | any | Get presigned download URL |
 
 Request (upload): `{ "fileName": "...", "contentType": "application/pdf" }`
-Response: `{ "url": "https://storage...", "attachmentId": "..." }`
+
+Response:
+```json
+{
+  "result": "success",
+  "message": "Presigned URL generated!",
+  "status": "200",
+  "data": {
+    "url": "https://storage...",
+    "attachmentId": "..."
+  }
+}
+```
 
 ---
 
