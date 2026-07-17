@@ -2,7 +2,7 @@ package com.puregoldgo.ibms.presentation.provider
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.puregoldgo.ibms.shared.domain.Resource
+import com.puregoldgo.core.network.Resource
 import com.puregoldgo.ibms.shared.domain.usecase.CreateProviderUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.UpdateProviderUseCase
 import com.puregoldgo.ibms.shared.model.Provider
@@ -115,7 +115,15 @@ class ProviderFormViewModel(
                     }
                     is Resource.Failed -> {
                         _uiState.update { it.copy(isSaving = false) }
-                        _uiEvent.emit(ProviderFormUiEvent.ShowError(resource.message))
+                        _uiEvent.emit(ProviderFormUiEvent.ShowError(resource.message ?: "An unexpected error occurred"))
+                    }
+                    is Resource.Error -> {
+                        _uiState.update { it.copy(isSaving = false) }
+                        _uiEvent.emit(
+                            ProviderFormUiEvent.ShowError(
+                                resource.error?.message ?: "An unexpected error occurred",
+                            ),
+                        )
                     }
                 }
             }

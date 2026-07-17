@@ -1,6 +1,6 @@
 package com.puregoldgo.ibms.shared.domain.usecase
 
-import com.puregoldgo.ibms.shared.domain.Resource
+import com.puregoldgo.core.network.Resource
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
@@ -32,8 +32,8 @@ class GetProvidersUseCaseTest {
         val results = useCase().toList()
 
         // Assert
-        assertIs<Resource.Failed>(results.last())
-        assertEquals("Network error", (results.last() as Resource.Failed).message)
+        assertIs<Resource.Failed<*>>(results.last())
+        assertEquals("Network error", (results.last() as Resource.Failed<*>).message)
     }
 
     // endregion
@@ -52,7 +52,7 @@ class GetProvidersUseCaseTest {
         // Assert
         val success = results.filterIsInstance<Resource.Success<List<*>>>()
         assertTrue(success.isNotEmpty())
-        assertEquals(3, success.first().data.size)
+        assertEquals(3, success.first().data?.size ?: 0)
     }
 
     @Test
@@ -66,7 +66,7 @@ class GetProvidersUseCaseTest {
         // Assert
         val success = results.filterIsInstance<Resource.Success<List<*>>>()
         assertTrue(success.isNotEmpty())
-        assertTrue(success.first().data.isEmpty())
+        assertTrue(success.first().data?.isEmpty() ?: true)
     }
 
     @Test

@@ -1,11 +1,10 @@
 package com.puregoldgo.ibms.shared.domain.usecase
 
 import com.puregoldgo.ibms.shared.domain.ProviderRepository
-import com.puregoldgo.ibms.shared.domain.Resource
+import com.puregoldgo.core.network.Resource
 import com.puregoldgo.ibms.shared.model.Provider
 import com.puregoldgo.ibms.shared.validation.Validation
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 
 /**
@@ -16,26 +15,38 @@ class UpdateProviderUseCase(
 ) {
     operator fun invoke(provider: Provider): Flow<Resource<Provider>> = flow {
         if (provider.id.isBlank()) {
-            emit(Resource.Failed("Provider ID is required for update"))
+            emit(Resource.Failed(message = "Provider ID is required for update"))
             return@flow
         }
         val nameError = Validation.validateRequired(provider.name, "Provider name")
         if (nameError != null) {
-            emit(Resource.Failed(nameError))
+            emit(Resource.Failed(message = nameError))
             return@flow
         }
         val codeError = Validation.validateRequired(provider.code, "Provider code")
         if (codeError != null) {
-            emit(Resource.Failed(codeError))
+            emit(Resource.Failed(message = codeError))
             return@flow
         }
         if (provider.contactEmail != null) {
             val emailError = Validation.validateEmail(provider.contactEmail)
             if (emailError != null) {
-                emit(Resource.Failed(emailError))
+                emit(Resource.Failed(message = emailError))
                 return@flow
             }
         }
-        emitAll(repository.updateProvider(provider))
+        when (val result = repository.updateProvider(provider)) {
+            is Resource.Loading -> emit(Resource.Loading)
+            is Resource.Success -> {
+                val updated = result.data?.data
+                if (updated != null) {
+                    emit(Resource.Success(updated))
+                } else {
+                    emit(Resource.Failed(message = result.data?.message ?: "No data returned from server"))
+                }
+            }
+            is Resource.Failed -> emit(Resource.Failed(message = result.message ?: result.data?.message))
+            is Resource.Error -> emit(Resource.Error(result.error))
+        }
     }
 }

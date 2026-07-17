@@ -1,6 +1,6 @@
 package com.puregoldgo.ibms.di
 
-import com.puregoldgo.ibms.data.api.createHttpClient
+import com.puregoldgo.core.network.createHttpClient
 import com.puregoldgo.ibms.data.repository.KtorProviderRepository
 import com.puregoldgo.ibms.presentation.provider.ProviderFormViewModel
 import com.puregoldgo.ibms.presentation.provider.ProviderListViewModel

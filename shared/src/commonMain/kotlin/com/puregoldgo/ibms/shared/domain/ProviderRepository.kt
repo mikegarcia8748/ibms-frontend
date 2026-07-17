@@ -1,5 +1,7 @@
 package com.puregoldgo.ibms.shared.domain
 
+import com.puregoldgo.core.network.Resource
+import com.puregoldgo.core.network.dto.BaseResponse
 import com.puregoldgo.ibms.shared.model.Provider
 import kotlinx.coroutines.flow.Flow
 
@@ -8,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
  * Implementation lives in :composeApp (data layer).
  */
 interface ProviderRepository {
-    fun getProviders(): Flow<Resource<List<Provider>>>
-    fun createProvider(provider: Provider): Flow<Resource<Provider>>
-    fun updateProvider(provider: Provider): Flow<Resource<Provider>>
+    suspend fun getProviders(): Resource<BaseResponse<List<Provider>>>
+    suspend fun createProvider(provider: Provider): Resource<BaseResponse<Provider>>
+    suspend fun updateProvider(provider: Provider): Resource<BaseResponse<Provider>>
 }

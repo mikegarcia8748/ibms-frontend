@@ -11,7 +11,8 @@ import com.puregoldgo.ibms.shared.model.*
 interface IbmsApiClient {
 
     // ─── Auth ────────────────────────────────────────────────────────────────
-    suspend fun authenticateGoogle(idToken: String): AuthResponse
+    suspend fun authenticateGoogle(idToken: String): ApiEnvelope<AuthResponse>
+    suspend fun authenticate(username: String, password: String): ApiEnvelope<AuthResponse>
 
     // ─── Users ───────────────────────────────────────────────────────────────
     suspend fun getCurrentUser(): User
@@ -66,7 +67,21 @@ interface IbmsApiClient {
     suspend fun getExportUrl(topsheetId: String): String
 }
 
-// ─── Response DTOs ───────────────────────────────────────────────────────────
+// ─── Envelope & Response DTOs ───────────────────────────────────────────────
+
+@kotlinx.serialization.Serializable
+data class ApiEnvelope<T>(
+    val result: String,
+    val message: String,
+    val status: String,
+    val data: T? = null,
+)
+
+@kotlinx.serialization.Serializable
+data class LoginRequest(
+    val username: String,
+    val password: String,
+)
 
 @kotlinx.serialization.Serializable
 data class AuthResponse(

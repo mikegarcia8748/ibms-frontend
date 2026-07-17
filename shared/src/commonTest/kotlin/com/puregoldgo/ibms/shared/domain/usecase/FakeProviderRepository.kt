@@ -1,10 +1,9 @@
 package com.puregoldgo.ibms.shared.domain.usecase
 
 import com.puregoldgo.ibms.shared.domain.ProviderRepository
-import com.puregoldgo.ibms.shared.domain.Resource
+import com.puregoldgo.core.network.Resource
+import com.puregoldgo.core.network.dto.BaseResponse
 import com.puregoldgo.ibms.shared.model.Provider
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 /**
  * Fake implementation of [ProviderRepository] for unit testing.
@@ -17,29 +16,29 @@ class FakeProviderRepository : ProviderRepository {
     var lastCreatedProvider: Provider? = null
     var lastUpdatedProvider: Provider? = null
 
-    override fun getProviders(): Flow<Resource<List<Provider>>> {
+    override suspend fun getProviders(): Resource<BaseResponse<List<Provider>>> {
         return if (shouldFail) {
-            flowOf(Resource.Failed(failureMessage))
+            Resource.Failed(message = failureMessage)
         } else {
-            flowOf(Resource.Success(providers))
+            Resource.Success(BaseResponse(data = providers))
         }
     }
 
-    override fun createProvider(provider: Provider): Flow<Resource<Provider>> {
+    override suspend fun createProvider(provider: Provider): Resource<BaseResponse<Provider>> {
         return if (shouldFail) {
-            flowOf(Resource.Failed(failureMessage))
+            Resource.Failed(message = failureMessage)
         } else {
             lastCreatedProvider = provider
-            flowOf(Resource.Success(provider.copy(id = "new-id")))
+            Resource.Success(BaseResponse(data = provider.copy(id = "new-id")))
         }
     }
 
-    override fun updateProvider(provider: Provider): Flow<Resource<Provider>> {
+    override suspend fun updateProvider(provider: Provider): Resource<BaseResponse<Provider>> {
         return if (shouldFail) {
-            flowOf(Resource.Failed(failureMessage))
+            Resource.Failed(message = failureMessage)
         } else {
             lastUpdatedProvider = provider
-            flowOf(Resource.Success(provider))
+            Resource.Success(BaseResponse(data = provider))
         }
     }
 }

@@ -2,7 +2,7 @@ package com.puregoldgo.ibms.presentation.provider
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.puregoldgo.ibms.shared.domain.Resource
+import com.puregoldgo.core.network.Resource
 import com.puregoldgo.ibms.shared.domain.usecase.GetProvidersUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,8 +49,8 @@ class ProviderListViewModel(
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                providers = resource.data,
-                                isEmpty = resource.data.isEmpty(),
+                                providers = resource.data ?: emptyList(),
+                                isEmpty = resource.data?.isEmpty() ?: true,
                                 errorMessage = null,
                             )
                         }
@@ -59,7 +59,14 @@ class ProviderListViewModel(
                         _uiState.update {
                             it.copy(isLoading = false, errorMessage = resource.message)
                         }
-                        _uiEvent.emit(ProviderListUiEvent.ShowSnackbar(resource.message))
+                        _uiEvent.emit(ProviderListUiEvent.ShowSnackbar(resource.message ?: "An unexpected error occurred"))
+                    }
+                    is Resource.Error -> {
+                        val msg = resource.error?.message ?: "An unexpected error occurred"
+                        _uiState.update {
+                            it.copy(isLoading = false, errorMessage = msg)
+                        }
+                        _uiEvent.emit(ProviderListUiEvent.ShowSnackbar(msg))
                     }
                 }
             }

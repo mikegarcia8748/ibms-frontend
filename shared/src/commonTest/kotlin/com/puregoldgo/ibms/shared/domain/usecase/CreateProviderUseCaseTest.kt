@@ -1,6 +1,6 @@
 package com.puregoldgo.ibms.shared.domain.usecase
 
-import com.puregoldgo.ibms.shared.domain.Resource
+import com.puregoldgo.core.network.Resource
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
@@ -31,7 +31,7 @@ class CreateProviderUseCaseTest {
         val results = useCase(provider).toList()
 
         // Assert
-        val failed = results.filterIsInstance<Resource.Failed>()
+        val failed = results.filterIsInstance<Resource.Failed<*>>()
         assertTrue(failed.isNotEmpty())
         assertEquals("Provider name is required", failed.first().message)
     }
@@ -45,7 +45,7 @@ class CreateProviderUseCaseTest {
         val results = useCase(provider).toList()
 
         // Assert
-        val failed = results.filterIsInstance<Resource.Failed>()
+        val failed = results.filterIsInstance<Resource.Failed<*>>()
         assertTrue(failed.isNotEmpty())
         assertEquals("Provider code is required", failed.first().message)
     }
@@ -59,7 +59,7 @@ class CreateProviderUseCaseTest {
         val results = useCase(provider).toList()
 
         // Assert
-        val failed = results.filterIsInstance<Resource.Failed>()
+        val failed = results.filterIsInstance<Resource.Failed<*>>()
         assertTrue(failed.isNotEmpty())
         assertEquals("Invalid email format", failed.first().message)
     }
@@ -75,7 +75,7 @@ class CreateProviderUseCaseTest {
         val results = useCase(provider).toList()
 
         // Assert
-        val failed = results.filterIsInstance<Resource.Failed>()
+        val failed = results.filterIsInstance<Resource.Failed<*>>()
         assertTrue(failed.isNotEmpty())
         assertEquals("Server error", failed.first().message)
     }
