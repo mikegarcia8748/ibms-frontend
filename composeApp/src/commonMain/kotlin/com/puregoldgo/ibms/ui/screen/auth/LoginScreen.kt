@@ -191,39 +191,6 @@ private fun LoginContent(
 }
 
 @Composable
-private fun MenuIcon(
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .padding(horizontal = Dimensions.viewPadding4)
-            .semantics { this.contentDescription = contentDescription },
-        verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding4),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            modifier = Modifier
-                .width(Dimensions.viewWidth24)
-                .height(Dimensions.viewHeight2)
-                .background(MaterialTheme.colorScheme.onSurface),
-        )
-        Box(
-            modifier = Modifier
-                .width(Dimensions.viewWidth24)
-                .height(Dimensions.viewHeight2)
-                .background(MaterialTheme.colorScheme.onSurface),
-        )
-        Box(
-            modifier = Modifier
-                .width(Dimensions.viewWidth24)
-                .height(Dimensions.viewHeight2)
-                .background(MaterialTheme.colorScheme.onSurface),
-        )
-    }
-}
-
-@Composable
 private fun LoginCard(
     uiState: LoginUIState,
     callback: LoginCallback,
@@ -306,24 +273,6 @@ private fun LoginCard(
 
 @Preview(
     name = "Login",
-    group = "MobileApp"
-)
-@Composable
-private fun LoginContentPreview() {
-    AppTheme {
-        LoginContent(
-            uiState = LoginUIState(),
-            callback = LoginCallback(
-                onUsernameChange = {},
-                onPasswordChange = {},
-                onLoginClick = {},
-            ),
-        )
-    }
-}
-
-@Preview(
-    name = "Login",
     group = "WebApp",
     device = Devices.DESKTOP,
 )
@@ -340,5 +289,23 @@ private fun LoginContentWidePreview() {
                 ),
             )
         }
+    }
+}
+
+@Preview(
+    name = "Login",
+    group = "MobileApp"
+)
+@Composable
+private fun LoginContentPreview() {
+    AppTheme {
+        LoginContent(
+            uiState = LoginUIState(),
+            callback = LoginCallback(
+                onUsernameChange = {},
+                onPasswordChange = {},
+                onLoginClick = {},
+            ),
+        )
     }
 }
