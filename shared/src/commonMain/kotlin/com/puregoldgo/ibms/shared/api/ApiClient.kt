@@ -11,13 +11,18 @@ import com.puregoldgo.ibms.shared.model.*
 interface IbmsApiClient {
 
     // ─── Auth ────────────────────────────────────────────────────────────────
-    suspend fun authenticateGoogle(idToken: String): ApiEnvelope<AuthResponse>
-    suspend fun authenticate(username: String, password: String): ApiEnvelope<AuthResponse>
+    suspend fun authenticate(username: String, password: String): ApiEnvelope<LoginResponse>
+    suspend fun completePasswordChange(newPassword: String): ApiEnvelope<LoginResponse>
+    // Refresh answers with a full LoginResponse, not just the tokens: the rotated
+    // session arrives with the current user attached, so a resumed launch needs
+    // no second call to learn who is signed in.
+    suspend fun refresh(refreshToken: String): ApiEnvelope<LoginResponse>
+    suspend fun logout(): ApiEnvelope<String?>
 
     // ─── Users ───────────────────────────────────────────────────────────────
-    suspend fun getCurrentUser(): User
-    suspend fun listUsers(): List<User>
-    suspend fun updateUserRole(userId: String, role: Role): User
+    suspend fun getCurrentUser(): UserProfile
+    suspend fun listUsers(): List<UserProfile>
+    suspend fun updateUserRole(userId: String, role: Role): UserProfile
 
     // ─── Providers ───────────────────────────────────────────────────────────
     suspend fun listProviders(): List<Provider>
@@ -77,6 +82,14 @@ data class ApiEnvelope<T>(
     val data: T? = null,
 )
 
+// ─── Auth DTOs ──────────────────────────────────────────────────────────────
+// Mirrors ibms-backend/src/domain/model/DomainModels.kt (Authentication section).
+//
+// Accounts are provisioned by a sysadmin, never self-registered. Holding a
+// temporary password is NOT being authenticated: logging in with one returns a
+// change-password challenge and `session = null`, and only a successful
+// password change mints tokens.
+
 @kotlinx.serialization.Serializable
 data class LoginRequest(
     val username: String,
@@ -84,9 +97,60 @@ data class LoginRequest(
 )
 
 @kotlinx.serialization.Serializable
-data class AuthResponse(
-    val token: String,
-    val user: User,
+enum class LoginOutcome {
+    /** Credentials accepted and a session exists — `session` is populated. */
+    @kotlinx.serialization.SerialName("authenticated")
+    AUTHENTICATED,
+
+    /** Temporary password accepted — `passwordChange` is populated, no session yet. */
+    @kotlinx.serialization.SerialName("password_change_required")
+    PASSWORD_CHANGE_REQUIRED,
+}
+
+/**
+ * Returned by both `POST /auth/login` and `POST /auth/password/change`.
+ *
+ * [user] is populated even when [session] is null — that is, *while the caller
+ * is still unauthenticated*. Authenticated means `session != null`; never branch
+ * on the presence of [user].
+ */
+@kotlinx.serialization.Serializable
+data class LoginResponse(
+    val outcome: LoginOutcome,
+    val user: UserProfile,
+    val session: SessionTokens? = null,
+    val passwordChange: PasswordChangeChallenge? = null,
+)
+
+@kotlinx.serialization.Serializable
+data class SessionTokens(
+    val accessToken: String,
+    val refreshToken: String,
+    val tokenType: String,
+    val expiresInSeconds: Long,
+)
+
+/**
+ * A single-purpose token authorizing exactly one call to
+ * `POST /auth/password/change`. It is not a bearer token and is rejected
+ * everywhere else. Must never be persisted — it lives only in in-memory UI state.
+ */
+@kotlinx.serialization.Serializable
+data class PasswordChangeChallenge(
+    val challengeToken: String,
+    val expiresInSeconds: Long,
+    val reason: String,
+)
+
+/** Redeems a change-password challenge; authorized by the challenge token. */
+@kotlinx.serialization.Serializable
+data class ChangePasswordRequest(
+    val newPassword: String,
+)
+
+@kotlinx.serialization.Serializable
+data class RefreshRequest(
+    val refreshToken: String,
 )
 
 @kotlinx.serialization.Serializable

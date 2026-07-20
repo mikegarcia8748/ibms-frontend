@@ -1,6 +1,6 @@
 package com.puregoldgo.ibms.shared.domain.usecase
 
-import com.puregoldgo.ibms.shared.api.AuthResponse
+import com.puregoldgo.ibms.shared.api.LoginResponse
 import com.puregoldgo.ibms.shared.domain.AuthRepository
 import com.puregoldgo.core.network.Resource
 import com.puregoldgo.ibms.shared.validation.Validation
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.flow
 class LoginUseCase(
     private val repository: AuthRepository,
 ) {
-    operator fun invoke(username: String, password: String): Flow<Resource<AuthResponse>> = flow {
+    operator fun invoke(username: String, password: String): Flow<Resource<LoginResponse>> = flow {
         val usernameError = Validation.validateRequired(username, "Username")
         if (usernameError != null) {
             emit(Resource.Failed(message = usernameError))

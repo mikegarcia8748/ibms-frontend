@@ -10,22 +10,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -35,19 +34,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.puregoldgo.core.network.AuthFailure
+import com.puregoldgo.ibms.ui.component.PasswordField
+import com.puregoldgo.ibms.ui.screen.access.NoAccessReason
 import com.puregoldgo.ibms.ui.theme.AppTheme
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.img_puregold_logo
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.login_button
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.login_contact_sysadmin
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.login_footer
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.login_logo_content_description
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.login_menu_content_description
@@ -62,11 +71,17 @@ import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Login screen composable — handles events and delegates to pure UI content.
+ *
+ * A successful call is not the same as a session: a temporary password answers
+ * with a challenge instead, which is what [onPasswordChangeRequired] is for. The
+ * token behind that route never passes through here — see [LoginUiEvent].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
+    onNoAccess: (NoAccessReason) -> Unit,
+    onPasswordChangeRequired: () -> Unit,
     viewModel: LoginViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -75,6 +90,8 @@ fun LoginScreen(
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is LoginUiEvent.NavigateToHome -> onLoginSuccess()
+                is LoginUiEvent.NavigateToNoAccess -> onNoAccess(event.reason)
+                is LoginUiEvent.NavigateToPasswordChange -> onPasswordChangeRequired()
                 is LoginUiEvent.ShowError -> { }
             }
         }
@@ -85,6 +102,7 @@ fun LoginScreen(
         callback = LoginCallback(
             onUsernameChange = viewModel::onUsernameChange,
             onPasswordChange = viewModel::onPasswordChange,
+            onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
             onLoginClick = viewModel::onLogin,
         )
     )
@@ -93,6 +111,7 @@ fun LoginScreen(
 /**
  * Pure UI content — no ViewModel dependency.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LoginContent(
     uiState: LoginUIState,
@@ -136,6 +155,7 @@ private fun LoginContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
+                    .imePadding()
                     .padding(horizontal = contentPadding),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -197,6 +217,15 @@ private fun LoginCard(
     cardPadding: Dp,
     modifier: Modifier = Modifier,
 ) {
+    val focusManager = LocalFocusManager.current
+    val usernameFocus = remember { FocusRequester() }
+
+    // Land in the first field rather than making every sign-in start with a tap.
+    // Guarded: on some targets the requester is not attached on the first frame.
+    LaunchedEffect(Unit) {
+        runCatching { usernameFocus.requestFocus() }
+    }
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimensions.viewRadius24),
@@ -218,33 +247,42 @@ private fun LoginCard(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(usernameFocus),
                     value = uiState.username,
                     onValueChange = callback.onUsernameChange,
                     label = { Text(stringResource(Res.string.login_username_label)) },
                     singleLine = true,
                     enabled = !uiState.isLoading,
+                    isError = uiState.failure == AuthFailure.InvalidCredentials,
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next,
+                        autoCorrectEnabled = false,
+                        capitalization = KeyboardCapitalization.None,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) },
+                    ),
                 )
 
                 Spacer(Modifier.height(Dimensions.viewPadding16))
 
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
+                PasswordField(
                     value = uiState.password,
                     onValueChange = callback.onPasswordChange,
-                    label = { Text(stringResource(Res.string.login_password_label)) },
-                    singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
+                    label = stringResource(Res.string.login_password_label),
+                    isVisible = uiState.isPasswordVisible,
+                    onVisibilityToggle = callback.onTogglePasswordVisibility,
                     enabled = !uiState.isLoading,
+                    isError = uiState.failure == AuthFailure.InvalidCredentials,
+                    imeAction = ImeAction.Done,
+                    onImeAction = { if (uiState.canSubmit) callback.onLoginClick() },
                 )
 
                 if (uiState.errorMessage != null) {
-                    Spacer(Modifier.height(Dimensions.viewPadding8))
-                    Text(
-                        text = uiState.errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                    Spacer(Modifier.height(Dimensions.viewPadding12))
+                    LoginNotice(uiState)
                 }
 
                 Spacer(Modifier.height(Dimensions.viewPadding24))
@@ -254,7 +292,7 @@ private fun LoginCard(
                         .fillMaxWidth()
                         .height(Dimensions.viewHeight48),
                     onClick = callback.onLoginClick,
-                    enabled = !uiState.isLoading && uiState.username.isNotBlank() && uiState.password.isNotBlank(),
+                    enabled = uiState.canSubmit,
                 ) {
                     if (uiState.isLoading) {
                         CircularProgressIndicator(
@@ -271,6 +309,41 @@ private fun LoginCard(
     }
 }
 
+/**
+ * One place for every rejection.
+ *
+ * A wrong password reads as field feedback; an expired temporary password, a
+ * locked account or a deactivated one is a standing condition, so it is stated
+ * plainly and — where there is one — followed by the next step. The wording for
+ * a bad credential stays uniform whether or not the account exists.
+ */
+@Composable
+private fun LoginNotice(uiState: LoginUIState) {
+    val message = uiState.errorMessage ?: return
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = message,
+            color = if (uiState.isStandingCondition) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.error
+            },
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
+        )
+
+        if (uiState.showsSysadminHint) {
+            Spacer(Modifier.height(Dimensions.viewPadding4))
+            Text(
+                text = stringResource(Res.string.login_contact_sysadmin),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+    }
+}
+
 @Preview(
     name = "Login",
     group = "WebApp",
@@ -282,11 +355,7 @@ private fun LoginContentWidePreview() {
         Box(modifier = Modifier.fillMaxSize()) {
             LoginContent(
                 uiState = LoginUIState(),
-                callback = LoginCallback(
-                    onUsernameChange = {},
-                    onPasswordChange = {},
-                    onLoginClick = {},
-                ),
+                callback = previewCallback(),
             )
         }
     }
@@ -301,11 +370,32 @@ private fun LoginContentPreview() {
     AppTheme {
         LoginContent(
             uiState = LoginUIState(),
-            callback = LoginCallback(
-                onUsernameChange = {},
-                onPasswordChange = {},
-                onLoginClick = {},
-            ),
+            callback = previewCallback(),
         )
     }
 }
+
+@Preview(
+    name = "Login — temporary password expired",
+    group = "MobileApp",
+)
+@Composable
+private fun LoginContentExpiredPreview() {
+    AppTheme {
+        LoginContent(
+            uiState = LoginUIState(
+                username = "mikepg",
+                failure = AuthFailure.TempPasswordExpired,
+                errorMessage = "Your temporary password has expired.",
+            ),
+            callback = previewCallback(),
+        )
+    }
+}
+
+private fun previewCallback() = LoginCallback(
+    onUsernameChange = {},
+    onPasswordChange = {},
+    onTogglePasswordVisibility = {},
+    onLoginClick = {},
+)

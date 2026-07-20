@@ -6,17 +6,27 @@ import kotlinx.serialization.Serializable
 // Money fields use String to preserve decimal precision across platforms.
 // Timestamps use String (ISO-8601) for serialization safety.
 
+/**
+ * The public view of a user, mirroring the backend's `UserProfile`.
+ *
+ * Accounts are provisioned by a sysadmin and identified by [username] — there is
+ * no email and no Google identity. [mustChangePassword] is always on the wire
+ * (the backend gives it no default) because a silently-omitted `false` would be
+ * indistinguishable from absent, and it decides whether the user is routed into
+ * the change-password screen.
+ */
 @Serializable
-data class User(
+data class UserProfile(
     val id: String,
-    val googleSub: String,
-    val email: String,
-    val displayName: String,
-    val role: Role? = null,
-    val avatarUrl: String? = null,
-    val legacyId: String? = null,
-    val createdAt: String? = null,
-    val updatedAt: String? = null,
+    val username: String,
+    val name: String,
+    val firstName: String? = null,
+    val middleInitial: String? = null,
+    val lastName: String? = null,
+    val employeeNumber: String? = null,
+    val role: Role,
+    val status: UserStatus = UserStatus.ACTIVE,
+    val mustChangePassword: Boolean,
 )
 
 @Serializable
@@ -76,7 +86,7 @@ data class Topsheet(
     val providerId: String,
     val billingPeriod: String, // YYYY-MM
     val invoiceNumber: String? = null,
-    val status: TopsheetStatus = TopsheetStatus.DRAFT,
+    val status: TopsheetStatus = TopsheetStatus.COMPILED,
     val totalAmount: String? = null, // decimal-as-string
     val lineCount: Int = 0,
     val compiledById: String? = null,

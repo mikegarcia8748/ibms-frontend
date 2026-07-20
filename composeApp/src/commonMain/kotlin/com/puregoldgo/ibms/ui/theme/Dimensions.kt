@@ -31,6 +31,7 @@ object Dimensions {
     // Component heights
     val viewHeight2 = 2.dp
     val viewHeight4 = 4.dp
+    val viewHeight6 = 6.dp
     val viewHeight48 = 48.dp
     val viewHeight64 = 64.dp
     val viewHeight80 = 80.dp
@@ -41,6 +42,7 @@ object Dimensions {
     val viewWidth600 = 600.dp
 
     // Component sizes (both width & height)
+    val viewSize16 = 16.dp
     val viewSize20 = 20.dp
     val viewSize24 = 24.dp
     val viewSize80 = 80.dp

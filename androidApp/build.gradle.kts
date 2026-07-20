@@ -15,6 +15,10 @@ kotlin {
 dependencies {
     implementation(projects.composeApp)
 
+    // Directly, not transitively through :composeApp — the entry point installs
+    // the application context that core's session store reads.
+    implementation(projects.core)
+
     implementation(libs.androidx.activity.compose)
 
     implementation(libs.compose.uiToolingPreview)

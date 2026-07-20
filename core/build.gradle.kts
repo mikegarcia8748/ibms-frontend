@@ -72,6 +72,7 @@ kotlin {
             api(libs.ktor.client.auth)
             api(libs.ktor.serialization.json)
             api(libs.kotlinx.serialization.json)
+            api(libs.kotlinx.coroutines.core)
             api(libs.koin.core)
             api(libs.koin.compose)
             api(libs.napier)

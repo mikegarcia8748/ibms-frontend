@@ -1,12 +1,15 @@
 package com.puregoldgo.ibms.shared.domain.usecase
 
 import com.puregoldgo.core.network.Resource
+import com.puregoldgo.ibms.shared.api.LoginOutcome
+import com.puregoldgo.ibms.shared.api.LoginResponse
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class LoginUseCaseTest {
@@ -76,7 +79,7 @@ class LoginUseCaseTest {
     }
 
     @Test
-    fun tc12_should_return_auth_response_with_token() = runTest {
+    fun tc12_should_return_session_tokens_when_authenticated() = runTest {
         // Act
         val results = useCase(username = "admin", password = "password123").toList()
 
@@ -84,8 +87,31 @@ class LoginUseCaseTest {
         val success = results.filterIsInstance<Resource.Success<*>>()
         assertTrue(success.isNotEmpty())
         val data = success.first().data
-        assertIs<com.puregoldgo.ibms.shared.api.AuthResponse>(data)
-        assertEquals("fake-jwt-token", data.token)
+        assertIs<LoginResponse>(data)
+        assertEquals(LoginOutcome.AUTHENTICATED, data.outcome)
+        assertEquals("fake-access-token", data.session?.accessToken)
+        assertNull(data.passwordChange)
+    }
+
+    @Test
+    fun tc13_should_return_challenge_without_session_for_temporary_password() = runTest {
+        // Arrange — a temporary password is accepted but does NOT authenticate.
+        repository.requiresPasswordChange = true
+
+        // Act
+        val results = useCase(username = "admin", password = "temp-password").toList()
+
+        // Assert
+        val success = results.filterIsInstance<Resource.Success<*>>()
+        assertTrue(success.isNotEmpty())
+        val data = success.first().data
+        assertIs<LoginResponse>(data)
+        assertEquals(LoginOutcome.PASSWORD_CHANGE_REQUIRED, data.outcome)
+        assertNull(data.session, "a temporary password must not mint a session")
+        assertEquals("fake-challenge-token", data.passwordChange?.challengeToken)
+        // The user is populated while still unauthenticated — this is exactly why
+        // callers must branch on `session`, never on the presence of `user`.
+        assertEquals("admin", data.user.username)
     }
 
     // endregion

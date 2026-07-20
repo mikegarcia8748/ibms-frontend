@@ -59,4 +59,34 @@ object Validation {
         if (value.isNullOrBlank()) return "$fieldName is required"
         return null
     }
+
+    /**
+     * Gate for a self-chosen password, phrased like the backend's rejection so
+     * the two never contradict each other in front of the user.
+     *
+     * This is the last check before the request goes out; the screen shows the
+     * same rules live via [PasswordPolicy.evaluate].
+     */
+    fun validateNewPassword(password: String, username: String): String? {
+        if (password.isBlank()) return "New password is required"
+        val unmet = PasswordPolicy.evaluate(password, username).filterNot { it.satisfied }
+        if (unmet.isEmpty()) return null
+        return "Password must " + unmet.joinToString(", ") { describe(it.id) }
+    }
+
+    fun validatePasswordConfirmation(password: String, confirmation: String): String? {
+        if (confirmation.isBlank()) return "Please re-enter your new password"
+        if (password != confirmation) return "Passwords do not match"
+        return null
+    }
+
+    private fun describe(rule: PasswordPolicy.RuleId): String = when (rule) {
+        PasswordPolicy.RuleId.MinLength -> "be at least ${PasswordPolicy.MIN_LENGTH} characters"
+        PasswordPolicy.RuleId.MaxLength -> "be at most ${PasswordPolicy.MAX_LENGTH} characters"
+        PasswordPolicy.RuleId.Uppercase -> "contain an uppercase letter"
+        PasswordPolicy.RuleId.Lowercase -> "contain a lowercase letter"
+        PasswordPolicy.RuleId.Digit -> "contain a digit"
+        PasswordPolicy.RuleId.NoSpaces -> "not contain spaces"
+        PasswordPolicy.RuleId.NotUsername -> "not contain your username"
+    }
 }

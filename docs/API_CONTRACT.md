@@ -4,12 +4,18 @@ Base URL: `http://localhost:8080` (dev) / `https://api.ibms.puregoldgo.com` (pro
 
 ## Authentication
 
-All endpoints (except `POST /auth/google` and `GET /health`) require:
+Accounts are provisioned by a sysadmin and are never self-registered. Google SSO
+has been removed.
+
+All endpoints except `POST /auth/login`, `POST /auth/refresh`,
+`POST /auth/password/change`, and `GET /health` require:
 ```
-Authorization: Bearer <jwt>
+Authorization: Bearer <accessToken>
 ```
 
-JWT payload: `{ sub: "<user-uuid>", role: "secretary|finance|payables|sysadmin", exp: <unix> }`
+JWT payload: `{ sub: "<user-uuid>", role: "sysadmin|secretary|payables|finance|manager|pending", exp: <unix> }`
+
+Role and status values are **lowercase** on the wire.
 
 ## Response Envelope
 
@@ -68,22 +74,103 @@ Money-mutating POSTs accept `Idempotency-Key: <uuid>` header. Duplicate keys ret
 
 | Method | Path | Roles | Description |
 |--------|------|-------|-------------|
-| POST | `/auth/google` | public | Exchange Google ID token for backend JWT |
+| POST | `/auth/login` | public | Exchange username + password for a session, or a change-password challenge |
+| POST | `/auth/refresh` | public | Rotate a refresh token for a new session |
+| POST | `/auth/password/change` | challenge token | Redeem a challenge, set a password, and receive a session |
+| GET | `/auth/me` | any | Current user profile |
+| POST | `/auth/password` | any | Self-service password rotation |
+| POST | `/auth/logout` | any | Revoke the current session |
+| POST | `/auth/logout-all` | any | Revoke every session for the caller |
 
-Request: `{ "idToken": "..." }`
+#### POST /auth/login
 
-Response:
+Request: `{ "username": "...", "password": "..." }`
+
+**Holding a temporary password is not being authenticated.** The response
+discriminates on `outcome`:
+
+- `authenticated` — `session` is populated, `passwordChange` is null.
+- `password_change_required` — `session` is **null** and `passwordChange` carries
+  a single-use challenge token. `user` is populated in *both* cases, so clients
+  must branch on `session`, never on the presence of `user`.
+
 ```json
 {
   "result": "success",
   "message": "Authentication successful!",
   "status": "200",
   "data": {
-    "token": "<jwt>",
-    "user": { "id": "<uuid>", "email": "...", "role": "secretary|finance|payables|sysadmin" }
+    "outcome": "authenticated",
+    "user": {
+      "id": "<uuid>",
+      "username": "jdelacruz",
+      "name": "Juan Dela Cruz",
+      "employeeNumber": "EMP-0001",
+      "role": "sysadmin",
+      "status": "active",
+      "mustChangePassword": false
+    },
+    "session": {
+      "accessToken": "<jwt>",
+      "refreshToken": "<opaque>",
+      "tokenType": "Bearer",
+      "expiresInSeconds": 900
+    },
+    "passwordChange": null
   }
 }
 ```
+
+Temporary-password variant:
+
+```json
+{
+  "data": {
+    "outcome": "password_change_required",
+    "user": { "...": "as above, mustChangePassword: true" },
+    "session": null,
+    "passwordChange": {
+      "challengeToken": "<single-use jwt>",
+      "expiresInSeconds": 600,
+      "reason": "temporary_password"
+    }
+  }
+}
+```
+
+The challenge token authorizes exactly one call to `POST /auth/password/change`
+and is rejected as a bearer token everywhere else. It must never be persisted.
+
+#### POST /auth/password/change
+
+Authorized by `Authorization: Bearer <challengeToken>`.
+Request: `{ "newPassword": "..." }` → returns the same `LoginResponse` shape with
+`outcome: "authenticated"` and a populated `session`.
+
+Password policy (mirrored client-side, but the server is the authority):
+12–72 characters, at least one uppercase, one lowercase, one digit, no
+whitespace, and must not contain the username.
+
+#### POST /auth/refresh
+
+Request: `{ "refreshToken": "..." }` → `data` is a `session` object.
+Rotation is unconditional: the old refresh token is invalidated, so two
+concurrent refreshes will kill the session. Clients must single-flight this call.
+
+#### Auth error responses
+
+`DomainError.code` is **not** currently on the wire — clients can only branch on
+HTTP status plus the message text.
+
+| Situation | HTTP | Message |
+|---|---|---|
+| Wrong username or password | 401 | invalid credentials |
+| Temporary password past its TTL | 401 | your temporary password has expired — ask a sysadmin to issue a new one |
+| Too many failed attempts | 403 | account locked |
+| Account deactivated | 403 | this account has been deactivated — contact a sysadmin |
+| Weak or reused new password | 400 | password must … (renderable verbatim) |
+| Challenge expired or invalid | 401 | — |
+| Password already set | 409 | — |
 
 ---
 

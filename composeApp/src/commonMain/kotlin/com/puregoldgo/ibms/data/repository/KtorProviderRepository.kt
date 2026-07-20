@@ -23,28 +23,31 @@ import kotlinx.coroutines.flow.flow
  * Ktor-based implementation of [ProviderRepository].
  * Calls the IBMS backend REST API.
  */
-class KtorProviderRepository(private val client: HttpClient) : ProviderRepository {
+class KtorProviderRepository(
+    private val client: HttpClient,
+    private val baseUrl: String = "http://localhost:8080",
+) : ProviderRepository {
     private val tag = "KtorProviderRepository"
 
     override suspend fun getProviders(): Resource<BaseResponse<List<Provider>>> {
         return client.sendRequest<BaseResponse<List<Provider>>>(tag) {
             method = HttpMethod.Get
-            url(ApiEndpoint.Auth.url)
+            url(ApiEndpoint.Providers.url(baseUrl))
         }
     }
 
     override suspend fun createProvider(provider: Provider): Resource<BaseResponse<Provider>> {
         return client.sendRequest<BaseResponse<Provider>>(tag) {
             method = HttpMethod.Post
-            url(ApiEndpoint.Auth.url)
+            url(ApiEndpoint.Providers.url(baseUrl))
             setBody(provider)
         }
     }
 
     override suspend fun updateProvider(provider: Provider): Resource<BaseResponse<Provider>> {
         return client.sendRequest<BaseResponse<Provider>>(tag) {
-            method = HttpMethod.Post
-            url(ApiEndpoint.Auth.url)
+            method = HttpMethod.Put
+            url(ApiEndpoint.Providers.url(baseUrl) + "/${provider.id}")
             setBody(provider)
         }
     }

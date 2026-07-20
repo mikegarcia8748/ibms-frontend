@@ -1,12 +1,19 @@
 package com.puregoldgo.ibms.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.puregoldgo.core.network.SessionEvents
+import com.puregoldgo.core.storage.SessionStore
+import com.puregoldgo.ibms.ui.screen.access.NoAccessScreen
 import com.puregoldgo.ibms.ui.screen.auth.LoginScreen
+import com.puregoldgo.ibms.ui.screen.auth.SetPasswordScreen
 import com.puregoldgo.ibms.ui.screen.provider.ProviderFormScreen
 import com.puregoldgo.ibms.ui.screen.provider.ProviderListScreen
+import com.puregoldgo.ibms.ui.screen.splash.SplashScreen
 
 /**
  * Root navigation host — defines the app's navigation graph using Navigation 3.
@@ -16,20 +23,63 @@ import com.puregoldgo.ibms.ui.screen.provider.ProviderListScreen
  */
 @Composable
 fun AppNavigation() {
-    val backStack = rememberNavBackStack(navSavedStateConfig, Route.Login)
+    val backStack = rememberNavBackStack(navSavedStateConfig, Route.Splash)
+
+    /** Replaces the whole stack — used whenever session state changes underneath it. */
+    fun resetTo(route: NavKey) {
+        backStack.clear()
+        backStack.add(route)
+    }
+
+    // A restored back stack can point deep into the app, but the access token
+    // only ever lived in memory — so after process death those screens would be
+    // drawn with no session behind them. Sending a cold start back through the
+    // splash puts the session question first, every time.
+    LaunchedEffect(Unit) {
+        if (SessionStore.accessToken() == null && backStack.lastOrNull() != Route.Splash) {
+            resetTo(Route.Splash)
+        }
+    }
+
+    // Refresh failures surface from inside the HTTP client, below any screen.
+    // Whichever one is showing, the answer is the same: back to sign-in.
+    LaunchedEffect(Unit) {
+        SessionEvents.expired.collect { resetTo(Route.Login) }
+    }
 
     NavDisplay(
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
         entryProvider = entryProvider {
+            entry<Route.Splash> {
+                SplashScreen(
+                    onAuthenticated = { resetTo(Route.ProviderList) },
+                    onNoAccess = { reason -> resetTo(Route.NoAccess(reason)) },
+                    onUnauthenticated = { resetTo(Route.Login) },
+                )
+            }
             entry<Route.Login> {
                 LoginScreen(
-                    onLoginSuccess = {
-                        // Replace Login with ProviderList so the user cannot
-                        // navigate back to the login screen after authenticating.
-                        backStack.clear()
-                        backStack.add(Route.ProviderList)
-                    },
+                    // Replace rather than push: an authenticated user has no
+                    // business navigating back into the sign-in form.
+                    onLoginSuccess = { resetTo(Route.ProviderList) },
+                    onNoAccess = { reason -> resetTo(Route.NoAccess(reason)) },
+                    // The challenge stays in ChallengeHolder — this route is a
+                    // destination, never a carrier for the token.
+                    onPasswordChangeRequired = { resetTo(Route.SetPassword) },
+                )
+            }
+            entry<Route.SetPassword> {
+                SetPasswordScreen(
+                    onPasswordSet = { resetTo(Route.ProviderList) },
+                    onNoAccess = { reason -> resetTo(Route.NoAccess(reason)) },
+                    onBackToLogin = { resetTo(Route.Login) },
+                )
+            }
+            entry<Route.NoAccess> { key ->
+                NoAccessScreen(
+                    reason = key.reason,
+                    onSignedOut = { resetTo(Route.Login) },
                 )
             }
             entry<Route.ProviderList> {

@@ -7,5 +7,56 @@
     <string name="login_username_label">Username</string>
     <string name="login_password_label">Password</string>
     <string name="login_button">Log In</string>
+    <string name="login_button_loading">Signing in…</string>
     <string name="login_footer">© 2026 Puregold Price Club, Inc.</string>
+    <string name="login_contact_sysadmin">Ask a sysadmin to issue a new temporary password.</string>
+
+    <!-- Password field -->
+    <string name="password_show">Show</string>
+    <string name="password_hide">Hide</string>
+    <string name="password_show_content_description">Show password</string>
+    <string name="password_hide_content_description">Hide password</string>
+
+    <!-- Set password -->
+    <string name="set_password_top_bar_title">Set your password</string>
+    <string name="set_password_title">Choose your password</string>
+    <string name="set_password_subtitle">Your account is using a temporary password. Set one of your own to finish signing in.</string>
+    <string name="set_password_account">Setting the password for %1$s (%2$s)</string>
+    <string name="set_password_new_label">New password</string>
+    <string name="set_password_confirm_label">Re-enter new password</string>
+    <string name="set_password_submit">Set password and continue</string>
+    <string name="set_password_submitting">Setting password…</string>
+    <string name="set_password_success">Password set — signing you in…</string>
+    <string name="set_password_cancel">Cancel and sign in again</string>
+    <string name="set_password_time_remaining">Time remaining %1$s</string>
+    <string name="set_password_expiring_soon">Less than a minute left — %1$s</string>
+    <string name="set_password_start_over">Start over</string>
+
+    <!-- Password requirements -->
+    <string name="password_requirements_title">Your password must:</string>
+    <string name="password_rule_min_length">Be at least 12 characters</string>
+    <string name="password_rule_max_length">Be no more than 72 characters</string>
+    <string name="password_rule_uppercase">Contain an uppercase letter</string>
+    <string name="password_rule_lowercase">Contain a lowercase letter</string>
+    <string name="password_rule_digit">Contain a digit</string>
+    <string name="password_rule_no_spaces">Contain no spaces</string>
+    <string name="password_rule_not_username">Not contain your username</string>
+    <string name="password_rule_met_content_description">Requirement met</string>
+    <string name="password_rule_unmet_content_description">Requirement not yet met</string>
+
+    <!-- Password strength -->
+    <string name="password_strength_label">Strength</string>
+    <string name="password_strength_weak">Weak</string>
+    <string name="password_strength_fair">Fair</string>
+    <string name="password_strength_good">Good</string>
+    <string name="password_strength_strong">Strong</string>
+
+    <!-- Splash -->
+    <string name="splash_restoring_session">Restoring your session…</string>
+
+    <!-- No access -->
+    <string name="no_access_title">No access yet</string>
+    <string name="no_access_pending">You are signed in, but your account has no role assigned yet. A sysadmin has to grant one before you can use IBMS.</string>
+    <string name="no_access_inactive">This account has been deactivated. Contact a sysadmin if you think that is a mistake.</string>
+    <string name="no_access_sign_out">Sign out</string>
 </resources>

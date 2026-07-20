@@ -8,5 +8,6 @@ package com.puregoldgo.ibms.ui.screen.auth
 class LoginCallback(
     val onUsernameChange: (String) -> Unit,
     val onPasswordChange: (String) -> Unit,
+    val onTogglePasswordVisibility: () -> Unit,
     val onLoginClick: () -> Unit,
 )
