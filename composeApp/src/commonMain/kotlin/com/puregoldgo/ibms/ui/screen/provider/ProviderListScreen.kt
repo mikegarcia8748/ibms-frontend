@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import com.puregoldgo.ibms.shared.model.Provider
+import com.puregoldgo.ibms.shared.model.ProviderStatus
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -154,31 +155,17 @@ private fun ProviderCard(
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
-                    text = provider.code,
+                    text = "DAY ${provider.paymentScheduleDay}",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
-            if (provider.contactEmail != null) {
-                Spacer(Modifier.height(Dimensions.viewPadding4))
-                Text(
-                    text = provider.contactEmail!!,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            if (provider.contactPhone != null) {
-                Text(
-                    text = provider.contactPhone!!,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
             Spacer(Modifier.height(Dimensions.viewPadding4))
+            val isActive = provider.status == ProviderStatus.ACTIVE
             Text(
-                text = if (provider.isActive) "Active" else "Inactive",
+                text = if (isActive) "Active" else "Inactive",
                 style = MaterialTheme.typography.labelSmall,
-                color = if (provider.isActive) {
+                color = if (isActive) {
                     MaterialTheme.colorScheme.primary
                 } else {
                     MaterialTheme.colorScheme.error

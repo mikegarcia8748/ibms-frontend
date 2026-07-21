@@ -10,6 +10,9 @@ object Validation {
     private val BRANCH_CODE_REGEX = Regex("""^[A-Z0-9]{2,10}$""")
     private val ACCOUNT_NUMBER_REGEX = Regex("""^[A-Za-z0-9\-]{3,50}$""")
 
+    /** Mirrors the backend's `UsernamePolicy` and the `users_username_format` CHECK. */
+    private val USERNAME_REGEX = Regex("""^[a-zA-Z0-9._-]{3,32}$""")
+
     fun validatePeriod(period: String): String? {
         if (!PERIOD_REGEX.matches(period)) {
             return "Period must be in YYYY-MM format (e.g. 2026-08)"
@@ -59,6 +62,27 @@ object Validation {
         if (value.isNullOrBlank()) return "$fieldName is required"
         return null
     }
+
+    /**
+     * Gate for a username being provisioned, phrased like the backend's rejection
+     * so the two never contradict each other in front of the admin.
+     *
+     * Checks the *normalised* form. The column is CITEXT and the backend
+     * lowercases on the way in, so "M.Garcia" and "m.garcia" are the same
+     * account — validating the raw input would let a form accept a name that
+     * then collides on submit.
+     */
+    fun validateUsername(username: String): String? {
+        if (username.isBlank()) return "Username is required"
+        if (!USERNAME_REGEX.matches(normalizeUsername(username))) {
+            return "Username must be 3-32 characters using only letters, digits, " +
+                "dot, underscore or hyphen"
+        }
+        return null
+    }
+
+    /** Trim + lowercase, matching the backend's `UsernamePolicy.normalize`. */
+    fun normalizeUsername(username: String): String = username.trim().lowercase()
 
     /**
      * Gate for a self-chosen password, phrased like the backend's rejection so

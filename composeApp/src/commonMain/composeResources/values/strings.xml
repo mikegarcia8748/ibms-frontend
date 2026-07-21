@@ -59,4 +59,126 @@
     <string name="no_access_pending">You are signed in, but your account has no role assigned yet. A sysadmin has to grant one before you can use IBMS.</string>
     <string name="no_access_inactive">This account has been deactivated. Contact a sysadmin if you think that is a mistake.</string>
     <string name="no_access_sign_out">Sign out</string>
+
+    <!-- Dashboard — app bar -->
+    <string name="dashboard_brand">IBMS</string>
+    <string name="dashboard_brand_suffix">Core Provider</string>
+    <string name="dashboard_logout">Logout</string>
+    <string name="dashboard_logout_content_description">Sign out of IBMS</string>
+
+    <!-- Dashboard — header -->
+    <string name="dashboard_title">Control Panel</string>
+    <string name="dashboard_subtitle">Manage global system configurations and employee role delegations.</string>
+    <string name="dashboard_bulk_upload">Bulk Upload Master List</string>
+
+    <!-- Dashboard — tabs -->
+    <string name="dashboard_tab_directory">Users &amp; Providers</string>
+    <string name="dashboard_tab_stores">Stores / Branches View</string>
+    <string name="dashboard_tab_accounts">ISP Accounts View</string>
+
+    <!-- Dashboard — directory tab -->
+    <string name="dashboard_active_directory">Active Directory</string>
+    <string name="dashboard_active_directory_empty">No directory entries.</string>
+    <string name="dashboard_employee_number">EMP:%1$s</string>
+    <string name="dashboard_add_user">Add User</string>
+    <string name="dashboard_user_actions">Manage %1$s</string>
+    <string name="dashboard_user_reset_password">Reset password</string>
+    <string name="dashboard_user_deactivate">Deactivate</string>
+    <string name="dashboard_user_reactivate">Reactivate</string>
+    <string name="dashboard_user_temporary">TEMPORARY</string>
+    <string name="dashboard_dismiss">Dismiss</string>
+    <string name="dashboard_user_role_label">Role for %1$s</string>
+    <string name="dashboard_isp_providers">ISP Providers</string>
+    <string name="dashboard_payment_day">DAY %1$d</string>
+    <string name="dashboard_specify_provider">+ SPECIFY PROVIDER</string>
+
+    <!-- Dashboard — roles -->
+    <string name="role_sysadmin">Sysadmin</string>
+    <string name="role_secretary">Secretary</string>
+    <string name="role_payables">Payables</string>
+    <string name="role_finance">Finance</string>
+    <string name="role_manager">Manager</string>
+    <string name="role_pending">No role yet</string>
+
+    <!-- Dashboard — add user -->
+    <string name="dashboard_add_user_title">Add User</string>
+    <string name="dashboard_add_user_close">Close</string>
+    <string name="dashboard_add_user_name">Full name</string>
+    <string name="dashboard_add_user_username">Username</string>
+    <string name="dashboard_add_user_username_hint">3–32 characters: letters, digits, dot, underscore or hyphen</string>
+    <string name="dashboard_add_user_employee_number">Employee number (optional)</string>
+    <string name="dashboard_add_user_role">Role</string>
+    <string name="dashboard_add_user_note">A temporary password is generated on submit. It is shown once, on the next screen — relay it to the user yourself.</string>
+    <string name="dashboard_add_user_cancel">Cancel</string>
+    <string name="dashboard_add_user_submit">Create User</string>
+    <string name="dashboard_add_user_submitting">Creating…</string>
+
+    <!-- Dashboard — temporary password -->
+    <string name="dashboard_credential_created_title">%1$s can now sign in</string>
+    <string name="dashboard_credential_reset_title">New temporary password for %1$s</string>
+    <string name="dashboard_credential_username">Username</string>
+    <string name="dashboard_credential_password">Temporary password</string>
+    <string name="dashboard_credential_copy">Copy</string>
+    <string name="dashboard_credential_copied">Copied</string>
+    <string name="dashboard_credential_expires">Expires %1$s</string>
+    <string name="dashboard_credential_warning_title">This is the only time this password is shown.</string>
+    <string name="dashboard_credential_warning_body">It is stored hashed and cannot be looked up again. Relay it securely; the user must change it at first sign-in. If it is lost, issue another from their row menu.</string>
+    <string name="dashboard_credential_done">Done</string>
+
+    <!-- Dashboard — reset password -->
+    <string name="dashboard_reset_title">Reset password</string>
+    <string name="dashboard_reset_body">A new temporary password will be generated for %1$s. Their current password stops working immediately and they are signed out everywhere.</string>
+    <string name="dashboard_reset_cancel">Cancel</string>
+    <string name="dashboard_reset_confirm">Issue new password</string>
+    <string name="dashboard_reset_confirming">Issuing…</string>
+
+    <!-- Dashboard — stores tab -->
+    <string name="dashboard_branch_locations">Branch Locations</string>
+    <string name="dashboard_branch_search_hint">Search store, code or city…</string>
+    <string name="dashboard_branch_empty">No branches match your filters.</string>
+    <string name="dashboard_letter_all">All</string>
+
+    <!-- Dashboard — accounts tab -->
+    <string name="dashboard_accounts_db">ISP Accounts DB</string>
+    <string name="dashboard_accounts_search_hint">Search accounts…</string>
+    <string name="dashboard_accounts_empty">No accounts match your filters.</string>
+    <string name="dashboard_clean_up">Clean Up</string>
+    <string name="dashboard_monthly_rate">₱%1$s / mo</string>
+
+    <!-- Dashboard — record status -->
+    <string name="dashboard_status_active">ACTIVE</string>
+    <string name="dashboard_status_inactive">INACTIVE</string>
+
+    <!-- Dashboard — filters -->
+    <string name="dashboard_all_isps">All ISPs</string>
+    <string name="dashboard_search_content_description">Search</string>
+    <string name="dashboard_clear_search_content_description">Clear search</string>
+
+    <!-- Dashboard — bulk upload summary -->
+    <string name="dashboard_bulk_upload_title">Master list imported</string>
+    <string name="dashboard_retry">Try again</string>
+    <string name="dashboard_bulk_upload_providers">Providers</string>
+    <string name="dashboard_bulk_upload_provider_line">%1$s: %2$d created, %3$d reused</string>
+    <string name="dashboard_bulk_upload_provider_new">%1$s (new): %2$d created, %3$d reused</string>
+    <string name="dashboard_bulk_upload_stores">Stores: %1$d created, %2$d reused</string>
+    <string name="dashboard_bulk_upload_accounts">Accounts: %1$d created, %2$d reused</string>
+    <string name="dashboard_bulk_upload_rows">%1$d of %2$d rows imported</string>
+    <string name="dashboard_bulk_upload_skipped">Skipped rows</string>
+    <string name="dashboard_bulk_upload_dismiss">Done</string>
+
+    <!-- Dashboard — bulk import dialog -->
+    <string name="dashboard_bulk_import_title">Bulk Import Data</string>
+    <string name="dashboard_bulk_import_close">Close</string>
+    <string name="dashboard_bulk_import_drop_title">Upload File</string>
+    <string name="dashboard_bulk_import_drop_hint">Drop your Excel (.xlsx) or CSV file here, or click to browse</string>
+    <string name="dashboard_bulk_import_browse">Browse Files</string>
+    <string name="dashboard_bulk_import_change_file">Choose a different file</string>
+    <string name="dashboard_bulk_import_attention">Attention:</string>
+    <string name="dashboard_bulk_import_attention_body">Please ensure your column headers match exactly with the template. IDs are auto-generated if left blank but it is recommended to provide unique IDs (e.g. branchcode/account numbers).</string>
+    <string name="dashboard_bulk_import_cancel">Cancel</string>
+    <string name="dashboard_bulk_import_start">Start Import</string>
+    <string name="dashboard_bulk_import_uploading">Importing…</string>
+    <string name="dashboard_bulk_import_size_bytes">%1$d B</string>
+    <string name="dashboard_bulk_import_size_kb">%1$s KB</string>
+    <string name="dashboard_bulk_import_size_mb">%1$s MB</string>
 </resources>

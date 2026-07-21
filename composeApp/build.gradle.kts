@@ -43,7 +43,12 @@ kotlin {
         }
 
         iosMain.dependencies { }
-        wasmJsMain.dependencies { }
+        wasmJsMain.dependencies {
+            // The file picker talks to the DOM directly (<input type="file">,
+            // FileReader). Compose's wasm artifacts already pull this in, but
+            // depending on it transitively would break the day they stop.
+            implementation(libs.kotlinx.browser)
+        }
         commonMain.dependencies {
             implementation(projects.shared)
             implementation(projects.core)
@@ -60,7 +65,9 @@ kotlin {
             implementation(libs.navigation3.ui)
         }
 
-        commonTest.dependencies { }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
     }
 }
 

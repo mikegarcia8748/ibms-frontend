@@ -6,6 +6,7 @@ import com.puregoldgo.core.network.AuthErrorMapper
 import com.puregoldgo.core.network.AuthFailure
 import com.puregoldgo.core.network.DomainException
 import com.puregoldgo.core.network.Resource
+import com.puregoldgo.core.storage.CurrentUserStore
 import com.puregoldgo.core.storage.SessionStore
 import com.puregoldgo.ibms.shared.api.ApiEnvelope
 import com.puregoldgo.ibms.shared.api.ChangePasswordRequest
@@ -13,6 +14,7 @@ import com.puregoldgo.ibms.shared.api.LoginRequest
 import com.puregoldgo.ibms.shared.api.LoginResponse
 import com.puregoldgo.ibms.shared.api.RefreshRequest
 import com.puregoldgo.ibms.shared.domain.AuthRepository
+import com.puregoldgo.ibms.shared.model.wireValue
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.header
@@ -96,6 +98,7 @@ class KtorAuthRepository(
 
     override fun signOut() {
         SessionStore.clear()
+        CurrentUserStore.clear()
     }
 
     // region Internals
@@ -128,8 +131,19 @@ class KtorAuthRepository(
             if (envelope.result != "success" || data == null) {
                 failure(status, envelope.message, unauthorizedAs)
             } else {
-                // The only place tokens are persisted.
-                data.session?.let { SessionStore.save(it.accessToken, it.refreshToken) }
+                // The only place tokens are persisted. The profile rides along
+                // with them: it is recorded only when a session is actually
+                // minted, so holding a temporary password never registers
+                // anyone as signed in.
+                data.session?.let {
+                    SessionStore.save(it.accessToken, it.refreshToken)
+                    CurrentUserStore.save(
+                        name = data.user.name,
+                        username = data.user.username,
+                        role = data.user.role.wireValue,
+                        employeeNumber = data.user.employeeNumber,
+                    )
+                }
                 Resource.Success(data)
             }
         }

@@ -7,8 +7,12 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.puregoldgo.core.network.SessionEvents
+import com.puregoldgo.core.storage.CurrentUserStore
 import com.puregoldgo.core.storage.SessionStore
+import com.puregoldgo.ibms.shared.model.Role
+import com.puregoldgo.ibms.shared.model.wireValue
 import com.puregoldgo.ibms.ui.screen.access.NoAccessScreen
+import com.puregoldgo.ibms.ui.screen.dashboard.DashboardScreen
 import com.puregoldgo.ibms.ui.screen.auth.LoginScreen
 import com.puregoldgo.ibms.ui.screen.auth.SetPasswordScreen
 import com.puregoldgo.ibms.ui.screen.provider.ProviderFormScreen
@@ -30,6 +34,21 @@ fun AppNavigation() {
         backStack.clear()
         backStack.add(route)
     }
+
+    /**
+     * Where "home" is depends on who just signed in.
+     *
+     * Read at navigation time rather than captured, because the three callers
+     * below all arrive right after `CurrentUserStore` was written. This picks a
+     * landing screen and nothing more — every screen it leads to is still
+     * subject to the server's own role checks.
+     */
+    fun homeRoute(): NavKey =
+        if (CurrentUserStore.role == Role.SYSADMIN.wireValue) {
+            Route.Dashboard
+        } else {
+            Route.ProviderList
+        }
 
     // A restored back stack can point deep into the app, but the access token
     // only ever lived in memory — so after process death those screens would be
@@ -53,7 +72,7 @@ fun AppNavigation() {
         entryProvider = entryProvider {
             entry<Route.Splash> {
                 SplashScreen(
-                    onAuthenticated = { resetTo(Route.ProviderList) },
+                    onAuthenticated = { resetTo(homeRoute()) },
                     onNoAccess = { reason -> resetTo(Route.NoAccess(reason)) },
                     onUnauthenticated = { resetTo(Route.Login) },
                 )
@@ -62,7 +81,7 @@ fun AppNavigation() {
                 LoginScreen(
                     // Replace rather than push: an authenticated user has no
                     // business navigating back into the sign-in form.
-                    onLoginSuccess = { resetTo(Route.ProviderList) },
+                    onLoginSuccess = { resetTo(homeRoute()) },
                     onNoAccess = { reason -> resetTo(Route.NoAccess(reason)) },
                     // The challenge stays in ChallengeHolder — this route is a
                     // destination, never a carrier for the token.
@@ -71,7 +90,7 @@ fun AppNavigation() {
             }
             entry<Route.SetPassword> {
                 SetPasswordScreen(
-                    onPasswordSet = { resetTo(Route.ProviderList) },
+                    onPasswordSet = { resetTo(homeRoute()) },
                     onNoAccess = { reason -> resetTo(Route.NoAccess(reason)) },
                     onBackToLogin = { resetTo(Route.Login) },
                 )
@@ -79,6 +98,11 @@ fun AppNavigation() {
             entry<Route.NoAccess> { key ->
                 NoAccessScreen(
                     reason = key.reason,
+                    onSignedOut = { resetTo(Route.Login) },
+                )
+            }
+            entry<Route.Dashboard> {
+                DashboardScreen(
                     onSignedOut = { resetTo(Route.Login) },
                 )
             }

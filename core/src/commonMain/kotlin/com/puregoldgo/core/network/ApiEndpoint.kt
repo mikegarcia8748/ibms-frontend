@@ -15,8 +15,18 @@ sealed class ApiEndpoint(val path: String) {
     data object CurrentUser : ApiEndpoint("/auth/me")
     data object Logout : ApiEndpoint("/auth/logout")
 
+    // ─── Users ───────────────────────────────────────────────────────────────
+    data object Users : ApiEndpoint("/users")
+
     // ─── Providers ───────────────────────────────────────────────────────────
     data object Providers : ApiEndpoint("/providers")
+
+    // ─── Stores ──────────────────────────────────────────────────────────────
+    data object Stores : ApiEndpoint("/stores")
+
+    // ─── Accounts ────────────────────────────────────────────────────────────
+    data object Accounts : ApiEndpoint("/accounts")
+    data object AccountsBulkImport : ApiEndpoint("/accounts/bulk-import")
 
     /** Resolves this endpoint against [baseUrl], e.g. `http://localhost:8080/auth/login`. */
     fun url(baseUrl: String): String = baseUrl.trimEnd('/') + path

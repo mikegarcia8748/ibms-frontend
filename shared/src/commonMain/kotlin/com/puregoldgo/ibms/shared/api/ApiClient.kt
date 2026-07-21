@@ -22,7 +22,10 @@ interface IbmsApiClient {
     // ─── Users ───────────────────────────────────────────────────────────────
     suspend fun getCurrentUser(): UserProfile
     suspend fun listUsers(): List<UserProfile>
+    suspend fun provisionUser(request: ProvisionUserRequest): ProvisionedUser
+    suspend fun resetUserPassword(userId: String): ProvisionedUser
     suspend fun updateUserRole(userId: String, role: Role): UserProfile
+    suspend fun updateUserStatus(userId: String, status: UserStatus): UserProfile
 
     // ─── Providers ───────────────────────────────────────────────────────────
     suspend fun listProviders(): List<Provider>
@@ -153,6 +156,79 @@ data class RefreshRequest(
     val refreshToken: String,
 )
 
+// ─── User DTOs ──────────────────────────────────────────────────────────────
+// Mirrors ibms-backend/src/domain/model/DomainModels.kt (user administration).
+//
+// These endpoints are sysadmin-only. There is no self-registration: `POST /users`
+// is the only way a user comes into existence.
+
+/**
+ * Body for `POST /users`.
+ *
+ * [role] defaults to [Role.PENDING] to match the backend: an account can be
+ * created before anyone has decided what it may do, and a role assigned after.
+ */
+@kotlinx.serialization.Serializable
+data class ProvisionUserRequest(
+    val username: String,
+    val name: String,
+    val firstName: String? = null,
+    val middleInitial: String? = null,
+    val lastName: String? = null,
+    val employeeNumber: String? = null,
+    val role: Role = Role.PENDING,
+    val status: UserStatus = UserStatus.ACTIVE,
+)
+
+/**
+ * What `POST /users` and `POST /users/{id}/reset-password` answer with.
+ *
+ * [temporaryPassword] is the one and only time the password is readable. The
+ * backend stores a bcrypt hash, so a lost temporary password can be *replaced*
+ * — by another reset — but never recovered. Callers must show it immediately and
+ * must not persist it anywhere.
+ *
+ * [temporaryPasswordExpiresAt] is an ISO-8601 instant, kept as a String to match
+ * how every other timestamp crosses the wire in this module.
+ */
+@kotlinx.serialization.Serializable
+data class ProvisionedUser(
+    val user: UserProfile,
+    val temporaryPassword: String,
+    val temporaryPasswordExpiresAt: String,
+)
+
+/** Body for `PATCH /users/{id}/role`. */
+@kotlinx.serialization.Serializable
+data class UpdateRoleRequest(val role: Role)
+
+/** Body for `PATCH /users/{id}/status`. */
+@kotlinx.serialization.Serializable
+data class UpdateUserStatusRequest(val status: UserStatus)
+
+// ─── Provider DTOs ──────────────────────────────────────────────────────────
+
+/** Body for `POST /providers`. */
+@kotlinx.serialization.Serializable
+data class CreateProviderRequest(
+    val name: String,
+    val paymentScheduleDay: Int,
+)
+
+/**
+ * Body for `PUT /providers/{id}`.
+ *
+ * Both fields are nullable and omitted-when-null, which is the endpoint's way of
+ * saying "leave this alone". The client `Json` is configured with
+ * `encodeDefaults = true`, so a null here is written as an explicit `null` — the
+ * backend treats that the same as absent.
+ */
+@kotlinx.serialization.Serializable
+data class UpdateProviderRequest(
+    val name: String? = null,
+    val paymentScheduleDay: Int? = null,
+)
+
 @kotlinx.serialization.Serializable
 data class PresignedUrlResponse(
     val url: String,
@@ -166,4 +242,39 @@ data class TopsheetPreview(
     val lines: List<TopsheetDetail>,
     val totalAmount: String,
     val lineCount: Int,
+)
+
+/**
+ * What `POST /accounts/bulk-import` answers with.
+ *
+ * The import is idempotent, so every count comes in a created/reused pair: a
+ * second upload of the same spreadsheet reports `0 created, N reused` and that
+ * is a success, not a no-op to apologise for.
+ *
+ * [providers] is a list, not a single name: one spreadsheet routinely carries
+ * rows for several ISPs, and each is matched or created independently.
+ *
+ * Every field defaults rather than being required. A response that omits a key
+ * must degrade to a zero, not fail the whole parse and turn a completed import
+ * into an error message.
+ */
+@kotlinx.serialization.Serializable
+data class BulkImportSummaryResponse(
+    val providers: List<ProviderImportSummaryResponse> = emptyList(),
+    val storesCreated: Int = 0,
+    val storesReused: Int = 0,
+    val accountsCreated: Int = 0,
+    val accountsReused: Int = 0,
+    val rowsSkipped: Int = 0,
+    val skipReasons: List<String> = emptyList(),
+    val totalRows: Int = 0,
+)
+
+/** One ISP's share of an import. Sorted by name by the backend. */
+@kotlinx.serialization.Serializable
+data class ProviderImportSummaryResponse(
+    val name: String,
+    val created: Boolean = false,
+    val accountsCreated: Int = 0,
+    val accountsReused: Int = 0,
 )
