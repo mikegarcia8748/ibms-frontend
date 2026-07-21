@@ -88,6 +88,7 @@ fun DashboardScreen(
         uiState = uiState,
         callback = DashboardCallback(
             onTabSelect = viewModel::onTabSelect,
+            onUserQueryChange = viewModel::onUserQueryChange,
             onBranchQueryChange = viewModel::onBranchQueryChange,
             onBranchLetterSelect = viewModel::onBranchLetterSelect,
             onBranchProviderSelect = viewModel::onBranchProviderSelect,
@@ -98,7 +99,9 @@ fun DashboardScreen(
             onBulkImportStart = viewModel::onBulkImportStart,
             onBulkUploadDismiss = viewModel::onBulkUploadDismiss,
             onAddUserClick = viewModel::onAddUserClick,
-            onNewUserNameChange = viewModel::onNewUserNameChange,
+            onNewUserFirstNameChange = viewModel::onNewUserFirstNameChange,
+            onNewUserMiddleInitialChange = viewModel::onNewUserMiddleInitialChange,
+            onNewUserLastNameChange = viewModel::onNewUserLastNameChange,
             onNewUserUsernameChange = viewModel::onNewUserUsernameChange,
             onNewUserEmployeeNumberChange = viewModel::onNewUserEmployeeNumberChange,
             onNewUserRoleChange = viewModel::onNewUserRoleChange,
@@ -107,9 +110,13 @@ fun DashboardScreen(
             onResetPasswordClick = viewModel::onResetPasswordClick,
             onResetPasswordConfirm = viewModel::onResetPasswordConfirm,
             onResetPasswordDismiss = viewModel::onResetPasswordDismiss,
-            onUserRoleChange = viewModel::onUserRoleChange,
-            onUserStatusToggle = viewModel::onUserStatusToggle,
-            onRowErrorDismiss = viewModel::onRowErrorDismiss,
+            onChangeRoleClick = viewModel::onChangeRoleClick,
+            onRoleSelectionChange = viewModel::onRoleSelectionChange,
+            onChangeRoleConfirm = viewModel::onChangeRoleConfirm,
+            onChangeRoleDismiss = viewModel::onChangeRoleDismiss,
+            onUserStatusToggleClick = viewModel::onUserStatusToggleClick,
+            onUserStatusConfirm = viewModel::onUserStatusConfirm,
+            onUserStatusDismiss = viewModel::onUserStatusDismiss,
             onRetryLoad = { viewModel.loadPanel() },
             onLogoutClick = viewModel::onLogout,
         ),
@@ -194,13 +201,22 @@ private fun DashboardContent(
                 )
             }
 
-            // Mutually exclusive by construction: opening either resets the
+            // Mutually exclusive by construction: opening any of them resets the
             // whole user-admin block, so a credential on screen always belongs
             // to whichever one is showing.
-            if (uiState.userAdmin.isAddOpen) {
-                AddUserDialog(uiState = uiState.userAdmin, callback = callback)
-            } else if (uiState.userAdmin.resetTarget != null) {
-                ResetPasswordDialog(uiState = uiState.userAdmin, callback = callback)
+            val userAdmin = uiState.userAdmin
+            when {
+                userAdmin.isAddOpen ->
+                    AddUserDialog(uiState = userAdmin, callback = callback)
+
+                userAdmin.resetTarget != null ->
+                    ResetPasswordDialog(uiState = userAdmin, callback = callback)
+
+                userAdmin.roleTarget != null ->
+                    ChangeRoleDialog(uiState = userAdmin, callback = callback)
+
+                userAdmin.statusTarget != null ->
+                    UserStatusDialog(uiState = userAdmin, callback = callback)
             }
         }
     }
@@ -582,7 +598,9 @@ private fun DashboardAddUserPreview() {
                 userAdmin = UserAdminUIState(
                     isAddOpen = true,
                     form = NewUserForm(
-                        name = "Rosario D Lim",
+                        firstName = "Rosario",
+                        middleInitial = "D.",
+                        lastName = "Lim",
                         username = "rlim",
                         employeeNumber = "010007422",
                         role = Role.SECRETARY,
@@ -625,7 +643,36 @@ private fun DashboardResetPasswordPreview() {
     }
 }
 
+@Preview(name = "Dashboard — change role", group = "WebApp", device = Devices.DESKTOP)
+@Composable
+private fun DashboardChangeRolePreview() {
+    AppTheme {
+        val target = DashboardSampleData.users.first()
+        DashboardContent(
+            uiState = previewState().copy(
+                userAdmin = UserAdminUIState(roleTarget = target, pendingRole = target.role),
+            ),
+            callback = previewCallback(),
+        )
+    }
+}
+
+@Preview(name = "Dashboard — deactivate confirm", group = "WebApp", device = Devices.DESKTOP)
+@Composable
+private fun DashboardDeactivateUserPreview() {
+    AppTheme {
+        DashboardContent(
+            uiState = previewState().copy(
+                userAdmin = UserAdminUIState(statusTarget = DashboardSampleData.users.first()),
+            ),
+            callback = previewCallback(),
+        )
+    }
+}
+
 private fun previewState() = DashboardUIState(
+    // The sample sysadmin, so the previews draw the self-guard on the right row.
+    currentUserId = DashboardSampleData.SIGNED_IN_USER_ID,
     userName = "Michael Garcia",
     userRole = "sysadmin",
     users = DashboardSampleData.users,
@@ -636,6 +683,7 @@ private fun previewState() = DashboardUIState(
 
 private fun previewCallback() = DashboardCallback(
     onTabSelect = {},
+    onUserQueryChange = {},
     onBranchQueryChange = {},
     onBranchLetterSelect = {},
     onBranchProviderSelect = {},
@@ -646,7 +694,9 @@ private fun previewCallback() = DashboardCallback(
     onBulkImportStart = {},
     onBulkUploadDismiss = {},
     onAddUserClick = {},
-    onNewUserNameChange = {},
+    onNewUserFirstNameChange = {},
+    onNewUserMiddleInitialChange = {},
+    onNewUserLastNameChange = {},
     onNewUserUsernameChange = {},
     onNewUserEmployeeNumberChange = {},
     onNewUserRoleChange = {},
@@ -655,9 +705,13 @@ private fun previewCallback() = DashboardCallback(
     onResetPasswordClick = {},
     onResetPasswordConfirm = {},
     onResetPasswordDismiss = {},
-    onUserRoleChange = { _, _ -> },
-    onUserStatusToggle = {},
-    onRowErrorDismiss = {},
+    onChangeRoleClick = {},
+    onRoleSelectionChange = {},
+    onChangeRoleConfirm = {},
+    onChangeRoleDismiss = {},
+    onUserStatusToggleClick = {},
+    onUserStatusConfirm = {},
+    onUserStatusDismiss = {},
     onRetryLoad = {},
     onLogoutClick = {},
 )

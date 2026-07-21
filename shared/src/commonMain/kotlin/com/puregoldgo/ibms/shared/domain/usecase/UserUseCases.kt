@@ -42,44 +42,56 @@ class GetUsersUseCase(
 /**
  * Creates a user account and returns the generated temporary password.
  *
- * Username and name are checked here rather than left to the server because both
+ * Every field is checked here rather than left to the server because these
  * rejections are cheap to predict and expensive to discover after a round trip —
  * and because the username is normalised on the way in (see
  * [Validation.normalizeUsername]), so the form must send the same string the
  * backend will compare for uniqueness.
  *
- * The blank-to-null pass on [employeeNumber] matters: the column is nullable and
- * an empty string is not "absent", it is a stored empty employee number.
+ * The name arrives in three parts and is sent as four fields: the parts populate
+ * the columns the backend keeps for them, and [Validation.composeFullName] builds
+ * the `name` it displays. Sending only the composed string — as this use case
+ * once did — left `first_name`, `middle_initial` and `last_name` null on every
+ * account created in the app.
+ *
+ * [middleInitial] is the one optional field; there are people without one, and
+ * there is no endpoint to add a name part later, so the rest have to be right the
+ * first time.
  */
 class ProvisionUserUseCase(
     private val repository: UserRepository,
 ) {
     operator fun invoke(
         username: String,
-        name: String,
-        employeeNumber: String? = null,
+        firstName: String,
+        lastName: String,
+        employeeNumber: String,
+        middleInitial: String = "",
         role: Role = Role.PENDING,
     ): Flow<Resource<ProvisionedUser>> = flow {
         emit(Resource.Loading)
 
-        val nameError = Validation.validateRequired(name, "Full name")
-        if (nameError != null) {
-            emit(Resource.Failed(message = nameError))
+        val error = Validation.validateRequired(firstName, "First name")
+            ?: Validation.validateRequired(lastName, "Last name")
+            ?: Validation.validateUsername(username)
+            ?: Validation.validateEmployeeNumber(employeeNumber)
+        if (error != null) {
+            emit(Resource.Failed(message = error))
             return@flow
         }
-        val usernameError = Validation.validateUsername(username)
-        if (usernameError != null) {
-            emit(Resource.Failed(message = usernameError))
-            return@flow
-        }
+
+        val normalizedMiddleInitial = Validation.formatMiddleInitial(middleInitial)
 
         emit(
             unwrap(
                 repository.provisionUser(
                     ProvisionUserRequest(
                         username = Validation.normalizeUsername(username),
-                        name = name.trim(),
-                        employeeNumber = employeeNumber?.trim()?.takeIf { it.isNotBlank() },
+                        name = Validation.composeFullName(firstName, middleInitial, lastName),
+                        firstName = firstName.trim(),
+                        middleInitial = normalizedMiddleInitial.takeIf { it.isNotBlank() },
+                        lastName = lastName.trim(),
+                        employeeNumber = employeeNumber.trim(),
                         role = role,
                     ),
                 ),
