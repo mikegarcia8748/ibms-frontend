@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.secretary
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,16 +16,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -43,75 +40,72 @@ import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_brand
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_brand_suffix
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_upload
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_logout
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_logout_content_description
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_subtitle
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_tab_accounts
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_tab_directory
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_tab_stores
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_title
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.img_puregold_logo
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.login_logo_content_description
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_subtitle
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_tab_accounts
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_tab_archive
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_tab_billing
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_tab_branches
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_tab_compile
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_tab_floating
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_title
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * The sysadmin control panel — delegations, branch locations and the ISP
- * accounts database, behind one segmented switch.
+ * The secretary console — topsheet compilation, the branch and ISP account
+ * registries, billing history, and the two panels that catch what the others
+ * leave behind.
  *
- * Runs on sample data this pass; see [DashboardSampleData] for why.
+ * Runs on sample data this pass; see [SecretarySampleData] for why.
  */
 @Composable
-fun DashboardScreen(
+fun SecretaryScreen(
     onSignedOut: () -> Unit,
-    viewModel: DashboardViewModel = koinViewModel(),
+    viewModel: SecretaryViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
             when (event) {
-                is DashboardUiEvent.NavigateToLogin -> onSignedOut()
+                is SecretaryUiEvent.NavigateToLogin -> onSignedOut()
             }
         }
     }
 
-    DashboardContent(
+    SecretaryContent(
         uiState = uiState,
-        callback = DashboardCallback(
+        callback = SecretaryCallback(
             onTabSelect = viewModel::onTabSelect,
-            onUserQueryChange = viewModel::onUserQueryChange,
             onBranchQueryChange = viewModel::onBranchQueryChange,
             onBranchLetterSelect = viewModel::onBranchLetterSelect,
             onBranchProviderSelect = viewModel::onBranchProviderSelect,
             onAccountQueryChange = viewModel::onAccountQueryChange,
+            onAccountLetterSelect = viewModel::onAccountLetterSelect,
             onAccountProviderSelect = viewModel::onAccountProviderSelect,
-            onBulkUploadClick = viewModel::onBulkUploadClick,
-            onBulkImportFilePicked = viewModel::onBulkImportFilePicked,
-            onBulkImportStart = viewModel::onBulkImportStart,
-            onBulkUploadDismiss = viewModel::onBulkUploadDismiss,
-            onAddUserClick = viewModel::onAddUserClick,
-            onNewUserFirstNameChange = viewModel::onNewUserFirstNameChange,
-            onNewUserMiddleInitialChange = viewModel::onNewUserMiddleInitialChange,
-            onNewUserLastNameChange = viewModel::onNewUserLastNameChange,
-            onNewUserUsernameChange = viewModel::onNewUserUsernameChange,
-            onNewUserEmployeeNumberChange = viewModel::onNewUserEmployeeNumberChange,
-            onNewUserRoleChange = viewModel::onNewUserRoleChange,
-            onAddUserSubmit = viewModel::onAddUserSubmit,
-            onAddUserDismiss = viewModel::onAddUserDismiss,
-            onResetPasswordClick = viewModel::onResetPasswordClick,
-            onResetPasswordConfirm = viewModel::onResetPasswordConfirm,
-            onResetPasswordDismiss = viewModel::onResetPasswordDismiss,
-            onChangeRoleClick = viewModel::onChangeRoleClick,
-            onRoleSelectionChange = viewModel::onRoleSelectionChange,
-            onChangeRoleConfirm = viewModel::onChangeRoleConfirm,
-            onChangeRoleDismiss = viewModel::onChangeRoleDismiss,
-            onUserStatusToggleClick = viewModel::onUserStatusToggleClick,
-            onUserStatusConfirm = viewModel::onUserStatusConfirm,
-            onUserStatusDismiss = viewModel::onUserStatusDismiss,
-            onRetryLoad = { viewModel.loadPanel() },
+            onAccountStatusSelect = viewModel::onAccountStatusSelect,
+            onExportAccounts = viewModel::onExportAccounts,
+            onInvoiceQueryChange = viewModel::onInvoiceQueryChange,
+            onAddBranchClick = viewModel::onAddBranchClick,
+            onNewBranchCodeChange = viewModel::onNewBranchCodeChange,
+            onNewBranchNameChange = viewModel::onNewBranchNameChange,
+            onNewBranchCityChange = viewModel::onNewBranchCityChange,
+            onNewBranchProviderChange = viewModel::onNewBranchProviderChange,
+            onAddBranchSubmit = viewModel::onAddBranchSubmit,
+            onAddBranchDismiss = viewModel::onAddBranchDismiss,
+            onAddAccountClick = viewModel::onAddAccountClick,
+            onNewAccountNumberChange = viewModel::onNewAccountNumberChange,
+            onNewAccountStoreChange = viewModel::onNewAccountStoreChange,
+            onNewAccountProviderChange = viewModel::onNewAccountProviderChange,
+            onNewAccountRateChange = viewModel::onNewAccountRateChange,
+            onAddAccountSubmit = viewModel::onAddAccountSubmit,
+            onAddAccountDismiss = viewModel::onAddAccountDismiss,
+            onRetryLoad = viewModel::loadPanel,
             onLogoutClick = viewModel::onLogout,
         ),
     )
@@ -120,16 +114,16 @@ fun DashboardScreen(
 /**
  * Pure UI content — no ViewModel dependency.
  *
- * `internal` rather than private so [DashboardScreenPreview.kt] can draw it.
+ * `internal` rather than private so `SecretaryScreenPreview.kt` can draw it.
  */
 @Composable
-internal fun DashboardContent(
-    uiState: DashboardUIState,
-    callback: DashboardCallback,
+internal fun SecretaryContent(
+    uiState: SecretaryUIState,
+    callback: SecretaryCallback,
 ) {
     Scaffold(
         topBar = {
-            DashboardAppBar(
+            SecretaryAppBar(
                 userName = uiState.userName,
                 userRole = uiState.userRole,
                 onLogoutClick = callback.onLogoutClick,
@@ -143,6 +137,10 @@ internal fun DashboardContent(
                 .background(MaterialTheme.colorScheme.background),
         ) {
             val isCompact = maxWidth <= Dimensions.viewWidth600
+            // The six labels fit only at the full capped width; anything
+            // narrower has to scroll, well before the body needs its compact
+            // layout. Measured against the same cap the content column uses.
+            val isTabTrayCompact = maxWidth < Dimensions.viewWidth1200
             val contentPadding = if (isCompact) {
                 Dimensions.viewPadding16
             } else {
@@ -157,70 +155,71 @@ internal fun DashboardContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Column(
-                    // A control panel stretched across an ultrawide browser is
+                    // A console stretched across an ultrawide browser is
                     // unreadable; cap it and centre the column instead.
                     modifier = Modifier.widthIn(max = Dimensions.viewWidth1200),
                 ) {
                     Spacer(Modifier.height(Dimensions.viewPadding32))
 
-                    DashboardHeader(
-                        isCompact = isCompact,
-                        onBulkUploadClick = callback.onBulkUploadClick,
-                    )
+                    SecretaryHeader()
 
                     Spacer(Modifier.height(Dimensions.viewPadding24))
 
                     SegmentedTabRow(
                         tabs = listOf(
-                            DashboardTab.Directory to
-                                stringResource(Res.string.dashboard_tab_directory),
-                            DashboardTab.Stores to
-                                stringResource(Res.string.dashboard_tab_stores),
-                            DashboardTab.Accounts to
-                                stringResource(Res.string.dashboard_tab_accounts),
+                            SecretaryTab.CompileTopSheet to
+                                stringResource(Res.string.secretary_tab_compile),
+                            SecretaryTab.BranchLocations to
+                                stringResource(Res.string.secretary_tab_branches),
+                            SecretaryTab.IspAccounts to
+                                stringResource(Res.string.secretary_tab_accounts),
+                            SecretaryTab.BillingHistory to
+                                stringResource(Res.string.secretary_tab_billing),
+                            SecretaryTab.Archive to
+                                stringResource(Res.string.secretary_tab_archive),
+                            SecretaryTab.FloatingAccounts to
+                                stringResource(Res.string.secretary_tab_floating),
                         ),
                         selected = uiState.selectedTab,
                         onSelect = callback.onTabSelect,
-                        isCompact = isCompact,
+                        isCompact = isTabTrayCompact,
                     )
 
                     Spacer(Modifier.height(Dimensions.viewPadding24))
 
                     when (uiState.selectedTab) {
-                        DashboardTab.Directory -> DirectoryTab(uiState, callback, isCompact)
-                        DashboardTab.Stores -> StoresTab(uiState, callback, isCompact)
-                        DashboardTab.Accounts -> AccountsTab(uiState, callback, isCompact)
+                        SecretaryTab.CompileTopSheet -> CompileTopSheetTab()
+                        SecretaryTab.BranchLocations ->
+                            BranchLocationsTab(uiState, callback, isCompact)
+                        SecretaryTab.IspAccounts -> IspAccountsTab(uiState, callback, isCompact)
+                        SecretaryTab.BillingHistory ->
+                            BillingHistoryTab(uiState, callback, isCompact)
+                        SecretaryTab.Archive -> ArchiveTab(uiState, isCompact)
+                        SecretaryTab.FloatingAccounts -> FloatingAccountsTab(uiState)
                     }
 
                     Spacer(Modifier.height(Dimensions.viewPadding48))
                 }
             }
 
-            if (uiState.isBulkImportOpen) {
-                BulkImportDialog(
-                    uiState = uiState,
-                    onFilePicked = callback.onBulkImportFilePicked,
-                    onStartImport = callback.onBulkImportStart,
-                    onDismiss = callback.onBulkUploadDismiss,
+            // Mutually exclusive by construction: the ViewModel clears one when
+            // it opens the other, so only ever one form is on screen.
+            uiState.addBranch?.let { form ->
+                AddBranchDialog(
+                    form = form,
+                    canSubmit = uiState.canSubmitBranch,
+                    providers = uiState.activeProviders,
+                    callback = callback,
                 )
             }
-
-            // Mutually exclusive by construction: opening any of them resets the
-            // whole user-admin block, so a credential on screen always belongs
-            // to whichever one is showing.
-            val userAdmin = uiState.userAdmin
-            when {
-                userAdmin.isAddOpen ->
-                    AddUserDialog(uiState = userAdmin, callback = callback)
-
-                userAdmin.resetTarget != null ->
-                    ResetPasswordDialog(uiState = userAdmin, callback = callback)
-
-                userAdmin.roleTarget != null ->
-                    ChangeRoleDialog(uiState = userAdmin, callback = callback)
-
-                userAdmin.statusTarget != null ->
-                    UserStatusDialog(uiState = userAdmin, callback = callback)
+            uiState.addAccount?.let { form ->
+                AddAccountDialog(
+                    form = form,
+                    canSubmit = uiState.canSubmitAccount,
+                    branches = uiState.visibleBranches,
+                    providers = uiState.activeProviders,
+                    callback = callback,
+                )
             }
         }
     }
@@ -229,26 +228,22 @@ internal fun DashboardContent(
 /**
  * The dark bar across the top.
  *
- * `inverseSurface` rather than a hand-picked near-black: it is the scheme's own
- * answer to "a dark surface in a light app", so it stays coherent with the rest
- * of the theme and inverts correctly if a dark scheme is ever switched on.
+ * Restated rather than shared with the sysadmin panel: the two consoles will
+ * grow different actions up here — this one has none yet — and a component with
+ * a slot for every screen's bar is harder to read than two short bars.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DashboardAppBar(
+private fun SecretaryAppBar(
     userName: String,
     userRole: String,
     onLogoutClick: () -> Unit,
 ) = BoxWithConstraints {
     // The bar sits in the Scaffold's topBar, outside the body's own
-    // measurement, so it has to ask about width itself. Measured out here
-    // rather than inside a slot because both the title and the actions need
-    // the answer.
+    // measurement, so it has to ask about width itself.
     val isCompact = maxWidth <= Dimensions.viewWidth600
 
     TopAppBar(
-        // `TopAppBar` defaults to the surface colours; the inverse pair is what
-        // makes this the dark bar the rest of the theme expects.
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.inverseSurface,
             titleContentColor = MaterialTheme.colorScheme.inverseOnSurface,
@@ -259,8 +254,6 @@ private fun DashboardAppBar(
                 stringResource(Res.string.dashboard_logout_content_description)
 
             if (isCompact) {
-                // Icon only — the label does not fit, and the content
-                // description keeps it named for a screen reader.
                 IconButton(onClick = onLogoutClick) {
                     Icon(
                         imageVector = AppIcons.Logout,
@@ -305,13 +298,12 @@ private fun DashboardAppBar(
                     style = MaterialTheme.typography.titleMedium,
                 )
 
-                // First thing to go when the bar is tight: it is decoration, and
-                // dropping it keeps the identity and the sign-out both readable.
                 if (!isCompact) {
                     Text(
                         text = stringResource(Res.string.dashboard_brand_suffix),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = ALPHA_MUTED),
+                        color = MaterialTheme.colorScheme.inverseOnSurface
+                            .copy(alpha = ALPHA_MUTED),
                     )
                 }
 
@@ -352,61 +344,21 @@ private fun DashboardAppBar(
     )
 }
 
-/** Title, supporting line, and the bulk-upload action. Stacks when narrow. */
+/** Title and supporting line. No trailing action — this console has none. */
 @Composable
-private fun DashboardHeader(
-    isCompact: Boolean,
-    onBulkUploadClick: () -> Unit,
-) {
-    @Composable
-    fun titleBlock() {
-        Column {
-            Text(
-                text = stringResource(Res.string.dashboard_title),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Spacer(Modifier.height(Dimensions.viewPadding4))
-            Text(
-                text = stringResource(Res.string.dashboard_subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-
-    @Composable
-    fun uploadButton(modifier: Modifier = Modifier) {
-        Button(
-            onClick = onBulkUploadClick,
-            modifier = modifier.height(Dimensions.viewHeight48),
-            shape = RoundedCornerShape(Dimensions.viewRadius8),
-        ) {
-            Icon(
-                imageVector = AppIcons.CloudUpload,
-                contentDescription = null,
-                modifier = Modifier.size(Dimensions.viewSize18),
-            )
-            Spacer(Modifier.width(Dimensions.viewPadding8))
-            Text(stringResource(Res.string.dashboard_bulk_upload))
-        }
-    }
-
-    if (isCompact) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            titleBlock()
-            Spacer(Modifier.height(Dimensions.viewPadding16))
-            uploadButton(Modifier.fillMaxWidth())
-        }
-    } else {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            titleBlock()
-            uploadButton()
-        }
+private fun SecretaryHeader() {
+    Column {
+        Text(
+            text = stringResource(Res.string.secretary_title),
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        Spacer(Modifier.height(Dimensions.viewPadding4))
+        Text(
+            text = stringResource(Res.string.secretary_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
