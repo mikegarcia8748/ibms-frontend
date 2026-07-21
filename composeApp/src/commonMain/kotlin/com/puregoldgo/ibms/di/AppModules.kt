@@ -1,5 +1,5 @@
 package com.puregoldgo.ibms.di
 
 val appModules = listOf(
-    authModule, providerModule
+    authModule, providerModule, dashboardModule
 )

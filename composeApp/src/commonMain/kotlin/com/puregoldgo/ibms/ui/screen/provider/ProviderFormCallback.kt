@@ -7,8 +7,6 @@ package com.puregoldgo.ibms.ui.screen.provider
  */
 class ProviderFormCallback(
     val onNameChange: (String) -> Unit,
-    val onCodeChange: (String) -> Unit,
-    val onEmailChange: (String) -> Unit,
-    val onPhoneChange: (String) -> Unit,
+    val onPaymentScheduleDayChange: (String) -> Unit,
     val onSave: () -> Unit,
 )

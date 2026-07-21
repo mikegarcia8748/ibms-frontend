@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.puregoldgo.core.network.Resource
 import com.puregoldgo.ibms.shared.domain.usecase.CreateProviderUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.PAYMENT_SCHEDULE_DAYS
 import com.puregoldgo.ibms.shared.domain.usecase.UpdateProviderUseCase
 import com.puregoldgo.ibms.shared.model.Provider
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -45,9 +46,7 @@ class ProviderFormViewModel(
             it.copy(
                 providerId = provider.id,
                 name = provider.name,
-                code = provider.code,
-                contactEmail = provider.contactEmail ?: "",
-                contactPhone = provider.contactPhone ?: "",
+                paymentScheduleDay = provider.paymentScheduleDay.toString(),
                 isEditMode = true,
             )
         }
@@ -57,16 +56,14 @@ class ProviderFormViewModel(
         _uiState.update { it.copy(name = value, nameError = null) }
     }
 
-    fun onCodeChange(value: String) {
-        _uiState.update { it.copy(code = value, codeError = null) }
-    }
-
-    fun onEmailChange(value: String) {
-        _uiState.update { it.copy(contactEmail = value, emailError = null) }
-    }
-
-    fun onPhoneChange(value: String) {
-        _uiState.update { it.copy(contactPhone = value) }
+    /**
+     * Accepts digits only, capped at two. Filtering here rather than validating
+     * on save means the field cannot hold a value the form would later have to
+     * reject — a numeric keyboard still lets a paste through.
+     */
+    fun onPaymentScheduleDayChange(value: String) {
+        val digits = value.filter { it.isDigit() }.take(2)
+        _uiState.update { it.copy(paymentScheduleDay = digits, paymentScheduleDayError = null) }
     }
 
     fun onSave() {
@@ -78,30 +75,29 @@ class ProviderFormViewModel(
             _uiState.update { it.copy(nameError = "Provider name is required") }
             hasError = true
         }
-        if (state.code.isBlank()) {
-            _uiState.update { it.copy(codeError = "Provider code is required") }
+        val day = state.paymentScheduleDay.toIntOrNull()
+        if (day == null || day !in PAYMENT_SCHEDULE_DAYS) {
+            _uiState.update { it.copy(paymentScheduleDayError = "Enter a day between 1 and 31") }
             hasError = true
         }
-        if (hasError) {
+        if (hasError || day == null) {
             viewModelScope.launch {
                 _uiEvent.emit(ProviderFormUiEvent.ShowValidationError("Please fix the errors above"))
             }
             return
         }
 
-        val provider = Provider(
-            id = state.providerId ?: "",
-            name = state.name.trim(),
-            code = state.code.trim(),
-            contactEmail = state.contactEmail.trim().ifBlank { null },
-            contactPhone = state.contactPhone.trim().ifBlank { null },
-        )
+        val name = state.name.trim()
 
         viewModelScope.launch {
             val useCaseFlow = if (state.isEditMode) {
-                updateProviderUseCase(provider)
+                updateProviderUseCase(
+                    id = state.providerId.orEmpty(),
+                    name = name,
+                    paymentScheduleDay = day,
+                )
             } else {
-                createProviderUseCase(provider)
+                createProviderUseCase(name = name, paymentScheduleDay = day)
             }
 
             useCaseFlow.collect { resource ->

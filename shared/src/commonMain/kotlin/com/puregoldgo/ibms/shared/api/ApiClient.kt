@@ -153,6 +153,29 @@ data class RefreshRequest(
     val refreshToken: String,
 )
 
+// ─── Provider DTOs ──────────────────────────────────────────────────────────
+
+/** Body for `POST /providers`. */
+@kotlinx.serialization.Serializable
+data class CreateProviderRequest(
+    val name: String,
+    val paymentScheduleDay: Int,
+)
+
+/**
+ * Body for `PUT /providers/{id}`.
+ *
+ * Both fields are nullable and omitted-when-null, which is the endpoint's way of
+ * saying "leave this alone". The client `Json` is configured with
+ * `encodeDefaults = true`, so a null here is written as an explicit `null` — the
+ * backend treats that the same as absent.
+ */
+@kotlinx.serialization.Serializable
+data class UpdateProviderRequest(
+    val name: String? = null,
+    val paymentScheduleDay: Int? = null,
+)
+
 @kotlinx.serialization.Serializable
 data class PresignedUrlResponse(
     val url: String,
@@ -166,4 +189,39 @@ data class TopsheetPreview(
     val lines: List<TopsheetDetail>,
     val totalAmount: String,
     val lineCount: Int,
+)
+
+/**
+ * What `POST /accounts/bulk-import` answers with.
+ *
+ * The import is idempotent, so every count comes in a created/reused pair: a
+ * second upload of the same spreadsheet reports `0 created, N reused` and that
+ * is a success, not a no-op to apologise for.
+ *
+ * [providers] is a list, not a single name: one spreadsheet routinely carries
+ * rows for several ISPs, and each is matched or created independently.
+ *
+ * Every field defaults rather than being required. A response that omits a key
+ * must degrade to a zero, not fail the whole parse and turn a completed import
+ * into an error message.
+ */
+@kotlinx.serialization.Serializable
+data class BulkImportSummaryResponse(
+    val providers: List<ProviderImportSummaryResponse> = emptyList(),
+    val storesCreated: Int = 0,
+    val storesReused: Int = 0,
+    val accountsCreated: Int = 0,
+    val accountsReused: Int = 0,
+    val rowsSkipped: Int = 0,
+    val skipReasons: List<String> = emptyList(),
+    val totalRows: Int = 0,
+)
+
+/** One ISP's share of an import. Sorted by name by the backend. */
+@kotlinx.serialization.Serializable
+data class ProviderImportSummaryResponse(
+    val name: String,
+    val created: Boolean = false,
+    val accountsCreated: Int = 0,
+    val accountsReused: Int = 0,
 )

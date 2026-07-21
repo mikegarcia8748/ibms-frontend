@@ -1,23 +1,23 @@
 package com.puregoldgo.ibms.shared.domain.usecase
 
-import com.puregoldgo.ibms.shared.domain.ProviderRepository
 import com.puregoldgo.core.network.Resource
+import com.puregoldgo.ibms.shared.domain.ProviderRepository
 import com.puregoldgo.ibms.shared.model.Provider
+import com.puregoldgo.ibms.shared.model.ProviderStatus
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
 /**
- * Fetches the full list of providers.
+ * Fetches every provider, walking the endpoint's pages to exhaustion.
+ *
+ * Leaves [status] unset by default: callers that show active and inactive ISPs
+ * side by side need both, and filtering a list this small is cheaper than a
+ * second round trip.
  */
 class GetProvidersUseCase(
     private val repository: ProviderRepository,
 ) {
-    operator fun invoke(): Flow<Resource<List<Provider>>> = flow {
-        when (val result = repository.getProviders()) {
-            is Resource.Loading -> emit(Resource.Loading)
-            is Resource.Success -> emit(Resource.Success(result.data?.data ?: emptyList()))
-            is Resource.Failed -> emit(Resource.Failed(message = result.message ?: result.data?.message))
-            is Resource.Error -> emit(Resource.Error(result.error))
+    operator fun invoke(status: ProviderStatus? = null): Flow<Resource<List<Provider>>> =
+        loadAllPages { cursor ->
+            repository.listProviders(status = status, cursor = cursor, limit = PAGE_SIZE)
         }
-    }
 }

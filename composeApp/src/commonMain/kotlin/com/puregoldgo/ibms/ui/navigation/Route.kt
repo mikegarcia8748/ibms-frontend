@@ -37,6 +37,10 @@ sealed interface Route : NavKey {
     @Serializable
     data class NoAccess(val reason: NoAccessReason) : Route
 
+    /** The sysadmin control panel — delegations, branches and ISP accounts. */
+    @Serializable
+    data object Dashboard : Route
+
     @Serializable
     data object ProviderList : Route
 
@@ -56,6 +60,7 @@ val navSavedStateConfig = SavedStateConfiguration {
             subclass(Route.Login::class, Route.Login.serializer())
             subclass(Route.SetPassword::class, Route.SetPassword.serializer())
             subclass(Route.NoAccess::class, Route.NoAccess.serializer())
+            subclass(Route.Dashboard::class, Route.Dashboard.serializer())
             subclass(Route.ProviderList::class, Route.ProviderList.serializer())
             subclass(Route.ProviderForm::class, Route.ProviderForm.serializer())
         }

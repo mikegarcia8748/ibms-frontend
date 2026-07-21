@@ -29,44 +29,91 @@ data class UserProfile(
     val mustChangePassword: Boolean,
 )
 
+/**
+ * An ISP. [paymentScheduleDay] is the day of month it is paid on, 1..31 — the
+ * `DAY 5` chip in the control panel.
+ */
 @Serializable
 data class Provider(
     val id: String,
     val name: String,
-    val code: String,
-    val contactEmail: String? = null,
-    val contactPhone: String? = null,
-    val isActive: Boolean = true,
+    val paymentScheduleDay: Int,
+    val status: ProviderStatus = ProviderStatus.ACTIVE,
+    val deactivatedAt: String? = null,
     val createdAt: String? = null,
     val updatedAt: String? = null,
 )
 
+/**
+ * A branch.
+ *
+ * Note what is *not* here: a provider. A store has no ISP of its own — the
+ * relation exists only through the accounts installed at it, and a branch can
+ * hold accounts from several ISPs at once. Anything filtering stores by ISP has
+ * to derive that from [Account.storeId].
+ */
 @Serializable
 data class Store(
     val id: String,
-    val name: String,
+    val storeType: StoreType,
     val branchCode: String,
-    val address: String? = null,
-    val isActive: Boolean = true,
-    val proofAttachmentIds: List<String> = emptyList(),
+    val name: String,
+    val region: String? = null,
+    val province: String? = null,
+    val city: String? = null,
+    val barangay: String? = null,
+    val postal: String? = null,
+    val status: StoreStatus = StoreStatus.ACTIVE,
+    val closedReason: String? = null,
+    val proofOfInstallationId: String? = null,
+    val proofOfClosureId: String? = null,
     val createdAt: String? = null,
     val updatedAt: String? = null,
 )
 
+/**
+ * An ISP line at a store. [rate] is the monthly recurring charge, carried as a
+ * 2dp decimal string — never a Double, this is billing.
+ *
+ * Carries [storeId], not a store name: displaying one means joining against the
+ * store list client-side.
+ */
 @Serializable
 data class Account(
     val id: String,
+    val accountNumber: String,
+    val circuitId: String? = null,
     val providerId: String,
     val storeId: String,
-    val accountNumber: String,
-    val accountName: String? = null,
+    val planName: String? = null,
+    val serviceType: String? = null,
+    val speed: String? = null,
+    val contractDurationMonths: Int? = null,
+    val contractStartDate: String? = null, // ISO date YYYY-MM-DD
+    val contractEndDate: String? = null, // ISO date YYYY-MM-DD
+    val notes: String? = null,
+    val installationFee: String? = null, // decimal-as-string
     val rate: String, // decimal-as-string, e.g. "1500.00"
     val installationDate: String? = null, // ISO date YYYY-MM-DD
+    val billingPeriodLabel: String? = null,
+    val isProrated: Boolean = false,
     val status: AccountStatus = AccountStatus.ACTIVE,
     val terminationRequestedAt: String? = null,
-    val proofAttachmentIds: List<String> = emptyList(),
+    val subscriptionProofIds: List<String> = emptyList(),
     val createdAt: String? = null,
     val updatedAt: String? = null,
+)
+
+/**
+ * The list envelope every paginated endpoint answers with, inside the usual
+ * `BaseResponse`. [nextCursor] is the id to resume from, and is null on the last
+ * page — that is the only reliable end-of-list signal, since a full page can
+ * still be the final one.
+ */
+@Serializable
+data class CursorPage<T>(
+    val items: List<T> = emptyList(),
+    val nextCursor: String? = null,
 )
 
 @Serializable

@@ -22,6 +22,25 @@ enum class Role {
     @SerialName("pending") PENDING,
 }
 
+/**
+ * The value this constant travels as, read back off its own serializer instead
+ * of being restated in a `when`. Needed because `:core` stores the signed-in
+ * role as a plain string — it sits below this module and cannot see [Role].
+ */
+val Role.wireValue: String
+    get() = Role.serializer().descriptor.getElementName(ordinal)
+
+/**
+ * How an enum constant travels as a *query parameter* — `?status=active`.
+ *
+ * Deliberately the constant name lowercased rather than the `@SerialName`: the
+ * backend parses these with `enumValueOf(value.uppercase())`, so it is matching
+ * the Kotlin name, not the serial name. The two agree today; this stays correct
+ * if one of them ever drifts.
+ */
+val Enum<*>.queryValue: String
+    get() = name.lowercase()
+
 @Serializable
 enum class UserStatus {
     @SerialName("active") ACTIVE,

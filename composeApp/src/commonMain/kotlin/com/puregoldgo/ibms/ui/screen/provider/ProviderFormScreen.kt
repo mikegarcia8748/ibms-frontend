@@ -78,9 +78,7 @@ fun ProviderFormScreen(
             uiState = uiState,
             callback = ProviderFormCallback(
                 onNameChange = viewModel::onNameChange,
-                onCodeChange = viewModel::onCodeChange,
-                onEmailChange = viewModel::onEmailChange,
-                onPhoneChange = viewModel::onPhoneChange,
+                onPaymentScheduleDayChange = viewModel::onPaymentScheduleDayChange,
                 onSave = viewModel::onSave,
             ),
             modifier = Modifier.padding(padding),
@@ -114,41 +112,16 @@ private fun ProviderFormContent(
         Spacer(Modifier.height(Dimensions.viewPadding12))
 
         OutlinedTextField(
-            value = uiState.code,
-            onValueChange = callback.onCodeChange,
-            label = { Text("Provider Code *") },
-            isError = uiState.codeError != null,
-            supportingText = uiState.codeError?.let { { Text(it) } },
+            value = uiState.paymentScheduleDay,
+            onValueChange = callback.onPaymentScheduleDayChange,
+            label = { Text("Payment Schedule Day *") },
+            isError = uiState.paymentScheduleDayError != null,
+            supportingText = {
+                Text(uiState.paymentScheduleDayError ?: "Day of the month this ISP is paid on, 1–31")
+            },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Characters,
-                keyboardType = KeyboardType.Ascii,
-            ),
-        )
-
-        Spacer(Modifier.height(Dimensions.viewPadding12))
-
-        OutlinedTextField(
-            value = uiState.contactEmail,
-            onValueChange = callback.onEmailChange,
-            label = { Text("Contact Email") },
-            isError = uiState.emailError != null,
-            supportingText = uiState.emailError?.let { { Text(it) } },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-        )
-
-        Spacer(Modifier.height(Dimensions.viewPadding12))
-
-        OutlinedTextField(
-            value = uiState.contactPhone,
-            onValueChange = callback.onPhoneChange,
-            label = { Text("Contact Phone") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         )
 
         Spacer(Modifier.height(Dimensions.viewPadding24))

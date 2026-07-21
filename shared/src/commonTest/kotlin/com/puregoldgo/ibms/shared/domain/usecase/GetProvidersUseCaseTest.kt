@@ -1,6 +1,7 @@
 package com.puregoldgo.ibms.shared.domain.usecase
 
 import com.puregoldgo.core.network.Resource
+import com.puregoldgo.ibms.shared.model.ProviderStatus
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
@@ -36,6 +37,21 @@ class GetProvidersUseCaseTest {
         assertEquals("Network error", (results.last() as Resource.Failed<*>).message)
     }
 
+    @Test
+    fun tc02_should_fail_the_whole_walk_when_a_later_page_fails() = runTest {
+        // Arrange — nothing partial should surface as a success
+        repository.providers = ProviderTestData.createProviderList(5)
+        repository.pageSize = 2
+        repository.shouldFail = true
+
+        // Act
+        val results = useCase().toList()
+
+        // Assert
+        assertIs<Resource.Failed<*>>(results.last())
+        assertTrue(results.filterIsInstance<Resource.Success<*>>().isEmpty())
+    }
+
     // endregion
 
     // region Happy Path Tests (tc11+)
@@ -43,8 +59,7 @@ class GetProvidersUseCaseTest {
     @Test
     fun tc11_should_return_success_with_provider_list() = runTest {
         // Arrange
-        val expected = ProviderTestData.createProviderList()
-        repository.providers = expected
+        repository.providers = ProviderTestData.createProviderList()
 
         // Act
         val results = useCase().toList()
@@ -70,16 +85,48 @@ class GetProvidersUseCaseTest {
     }
 
     @Test
-    fun tc13_should_emit_loading_then_success() = runTest {
-        // Arrange
-        repository.providers = ProviderTestData.createProviderList(1)
+    fun tc13_should_emit_loading_exactly_once_before_success() = runTest {
+        // Arrange — three pages must not mean three spinners
+        repository.providers = ProviderTestData.createProviderList(6)
+        repository.pageSize = 2
 
         // Act
         val results = useCase().toList()
 
-        // Assert — Loading is NOT emitted because the UseCase delegates directly to repository
-        // The repository implementation controls the loading emission
-        assertTrue(results.isNotEmpty())
+        // Assert
+        assertEquals(1, results.count { it is Resource.Loading })
+        assertIs<Resource.Success<*>>(results.last())
+    }
+
+    @Test
+    fun tc14_should_walk_every_page_until_the_cursor_runs_out() = runTest {
+        // Arrange
+        repository.providers = ProviderTestData.createProviderList(5)
+        repository.pageSize = 2
+
+        // Act
+        val results = useCase().toList()
+
+        // Assert — 5 records at 2 a page is three requests, and all 5 come back
+        val success = results.filterIsInstance<Resource.Success<List<*>>>()
+        assertEquals(5, success.first().data?.size ?: 0)
+        assertEquals(listOf(null, "2", "4"), repository.requestedCursors)
+    }
+
+    @Test
+    fun tc15_should_pass_the_status_filter_through() = runTest {
+        // Arrange
+        repository.providers = listOf(
+            ProviderTestData.createProvider(id = "a", status = ProviderStatus.ACTIVE),
+            ProviderTestData.createProvider(id = "b", status = ProviderStatus.INACTIVE),
+        )
+
+        // Act
+        val results = useCase(status = ProviderStatus.ACTIVE).toList()
+
+        // Assert
+        val success = results.filterIsInstance<Resource.Success<List<*>>>()
+        assertEquals(1, success.first().data?.size ?: 0)
     }
 
     // endregion
