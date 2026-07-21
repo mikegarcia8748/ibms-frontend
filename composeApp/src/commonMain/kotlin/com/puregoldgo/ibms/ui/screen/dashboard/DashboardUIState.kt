@@ -2,12 +2,10 @@ package com.puregoldgo.ibms.ui.screen.dashboard
 
 import androidx.compose.runtime.Immutable
 import com.puregoldgo.ibms.shared.model.Role
+import com.puregoldgo.ibms.ui.component.LETTER_ALL
 
 /** Which of the three panels the control panel is showing. */
 enum class DashboardTab { Directory, Stores, Accounts }
-
-/** The `All` entry of the A–Z rail — no letter selected. */
-const val LETTER_ALL: Char = ' '
 
 @Immutable
 data class DashboardUIState(

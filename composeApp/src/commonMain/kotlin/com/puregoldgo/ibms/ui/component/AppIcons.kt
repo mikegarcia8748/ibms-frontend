@@ -161,6 +161,32 @@ object AppIcons {
                 "h14V4z",
         )
     }
+
+    /** A connection — an ISP account or the line a branch runs on. */
+    val Wifi: ImageVector by lazy {
+        materialIcon(
+            name = "Wifi",
+            pathData = "M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3" +
+                "-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 " +
+                "8.87 9.14 5 13z",
+        )
+    }
+
+    /** Take the current list away as a file. */
+    val Download: ImageVector by lazy {
+        materialIcon(
+            name = "Download",
+            pathData = "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z",
+        )
+    }
+
+    /** Create a record — the `+ ADD` affordance on a list. */
+    val Add: ImageVector by lazy {
+        materialIcon(
+            name = "Add",
+            pathData = "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z",
+        )
+    }
 }
 
 /** Builds a standard 24dp Material icon from its path data. */

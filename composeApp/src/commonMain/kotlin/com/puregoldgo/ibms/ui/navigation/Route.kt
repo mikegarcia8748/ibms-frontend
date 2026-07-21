@@ -41,6 +41,10 @@ sealed interface Route : NavKey {
     @Serializable
     data object Dashboard : Route
 
+    /** The secretary console — topsheets, branches, accounts and the archive. */
+    @Serializable
+    data object SecretaryDashboard : Route
+
     @Serializable
     data object ProviderList : Route
 
@@ -61,6 +65,7 @@ val navSavedStateConfig = SavedStateConfiguration {
             subclass(Route.SetPassword::class, Route.SetPassword.serializer())
             subclass(Route.NoAccess::class, Route.NoAccess.serializer())
             subclass(Route.Dashboard::class, Route.Dashboard.serializer())
+            subclass(Route.SecretaryDashboard::class, Route.SecretaryDashboard.serializer())
             subclass(Route.ProviderList::class, Route.ProviderList.serializer())
             subclass(Route.ProviderForm::class, Route.ProviderForm.serializer())
         }

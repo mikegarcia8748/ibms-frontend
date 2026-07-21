@@ -181,4 +181,94 @@
     <string name="dashboard_bulk_import_size_bytes">%1$d B</string>
     <string name="dashboard_bulk_import_size_kb">%1$s KB</string>
     <string name="dashboard_bulk_import_size_mb">%1$s MB</string>
+
+    <!-- Secretary — header and tabs -->
+    <string name="secretary_title">Secretary Actions</string>
+    <string name="secretary_subtitle">Manage infrastructure endpoints and organize monthly vendor schedules.</string>
+    <string name="secretary_tab_compile">Compile TopSheet</string>
+    <string name="secretary_tab_branches">Branch Locations</string>
+    <string name="secretary_tab_accounts">ISP Accounts DB</string>
+    <string name="secretary_tab_billing">Billing History</string>
+    <string name="secretary_tab_archive">Archive</string>
+    <string name="secretary_tab_floating">Floating Accounts</string>
+
+    <!-- Secretary — shared actions -->
+    <string name="secretary_add">ADD</string>
+    <string name="secretary_export">EXPORT</string>
+
+    <!-- Secretary — compile topsheet -->
+    <string name="secretary_compile_title">Compile TopSheet</string>
+    <string name="secretary_compile_empty">TopSheet compilation is not available yet.</string>
+
+    <!-- Secretary — branch locations -->
+    <string name="secretary_branches_title">Branch Locations</string>
+    <string name="secretary_branches_search_hint">Search store, code or city…</string>
+    <string name="secretary_branches_empty">No branches match your filters.</string>
+
+    <!-- Secretary — ISP accounts -->
+    <string name="secretary_accounts_title">ISP Accounts Database</string>
+    <string name="secretary_accounts_search_hint">Search store, account or circuit ID…</string>
+    <string name="secretary_accounts_empty">No accounts match your filters.</string>
+    <string name="secretary_accounts_monthly_rate">₱%1$s / mo</string>
+    <string name="secretary_accounts_all_status">All Status</string>
+
+    <!-- Secretary — record statuses -->
+    <string name="secretary_status_active">ACTIVE</string>
+    <string name="secretary_status_pending">PENDING</string>
+    <string name="secretary_status_for_deactivation">FOR DEACTIVATION</string>
+    <string name="secretary_status_terminated">TERMINATED</string>
+    <string name="secretary_status_closed">CLOSED</string>
+    <string name="secretary_status_inactive">INACTIVE</string>
+    <string name="secretary_status_compiled">COMPILED</string>
+    <string name="secretary_status_approved">APPROVED</string>
+    <string name="secretary_status_paid">PAID</string>
+
+    <!-- Secretary — billing history -->
+    <string name="secretary_billing_title">Processed TopSheets</string>
+    <string name="secretary_billing_search_hint">Search by invoice number</string>
+    <string name="secretary_billing_empty">No processed TopSheets yet.</string>
+    <string name="secretary_billing_period">Period: %1$s</string>
+    <string name="secretary_billing_generated">Generated: %1$s</string>
+    <string name="secretary_billing_accounts">Accounts: %1$d</string>
+    <string name="secretary_billing_total_label">Total Validated</string>
+    <string name="secretary_billing_total">₱%1$s</string>
+
+    <!-- Secretary — archive -->
+    <string name="secretary_archive_accounts">Inactive Accounts</string>
+    <string name="secretary_archive_accounts_empty">No inactive accounts found.</string>
+    <string name="secretary_archive_branches">Closed Branches</string>
+    <string name="secretary_archive_branches_empty">No closed branches found.</string>
+    <string name="secretary_archive_providers">Inactive Providers</string>
+    <string name="secretary_archive_providers_empty">No inactive providers found.</string>
+    <string name="secretary_archive_reason">(%1$s)</string>
+
+    <!-- Secretary — floating accounts -->
+    <string name="secretary_floating_title">Floating Accounts</string>
+    <string name="secretary_floating_body">These active accounts are linked to branches that have been closed. Please transfer or terminate them to prevent billing discrepancies.</string>
+    <string name="secretary_floating_empty">No floating accounts found. All clear!</string>
+
+    <!-- Secretary — add branch dialog -->
+    <string name="secretary_add_branch_title">Add Branch</string>
+    <string name="secretary_add_branch_close">Close</string>
+    <string name="secretary_add_branch_code">Branch code</string>
+    <string name="secretary_add_branch_name">Branch name</string>
+    <string name="secretary_add_branch_city">City (optional)</string>
+    <string name="secretary_add_branch_provider">ISP</string>
+    <string name="secretary_add_branch_submit">Add Branch</string>
+
+    <!-- Secretary — add account dialog -->
+    <string name="secretary_add_account_title">Add ISP Account</string>
+    <string name="secretary_add_account_close">Close</string>
+    <string name="secretary_add_account_number">Account or circuit ID</string>
+    <string name="secretary_add_account_branch">Branch</string>
+    <string name="secretary_add_account_provider">ISP</string>
+    <string name="secretary_add_account_rate">Monthly rate (₱)</string>
+    <string name="secretary_add_account_submit">Add Account</string>
+
+    <!-- Secretary — dialogs, shared -->
+    <string name="secretary_dialog_cancel">Cancel</string>
+    <string name="secretary_dialog_offline_title">Not connected yet.</string>
+    <string name="secretary_dialog_offline_body">This form is the finished layout, but there is no endpoint behind it yet — submitting does nothing. It saves once the backend pass lands.</string>
+    <string name="secretary_select_placeholder">Select…</string>
+    <string name="secretary_retry">Try again</string>
 </resources>

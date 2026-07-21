@@ -17,6 +17,7 @@ import com.puregoldgo.ibms.ui.screen.auth.LoginScreen
 import com.puregoldgo.ibms.ui.screen.auth.SetPasswordScreen
 import com.puregoldgo.ibms.ui.screen.provider.ProviderFormScreen
 import com.puregoldgo.ibms.ui.screen.provider.ProviderListScreen
+import com.puregoldgo.ibms.ui.screen.secretary.SecretaryScreen
 import com.puregoldgo.ibms.ui.screen.splash.SplashScreen
 
 /**
@@ -43,12 +44,11 @@ fun AppNavigation() {
      * landing screen and nothing more — every screen it leads to is still
      * subject to the server's own role checks.
      */
-    fun homeRoute(): NavKey =
-        if (CurrentUserStore.role == Role.SYSADMIN.wireValue) {
-            Route.Dashboard
-        } else {
-            Route.ProviderList
-        }
+    fun homeRoute(): NavKey = when (CurrentUserStore.role) {
+        Role.SYSADMIN.wireValue -> Route.Dashboard
+        Role.SECRETARY.wireValue -> Route.SecretaryDashboard
+        else -> Route.ProviderList
+    }
 
     // A restored back stack can point deep into the app, but the access token
     // only ever lived in memory — so after process death those screens would be
@@ -103,6 +103,11 @@ fun AppNavigation() {
             }
             entry<Route.Dashboard> {
                 DashboardScreen(
+                    onSignedOut = { resetTo(Route.Login) },
+                )
+            }
+            entry<Route.SecretaryDashboard> {
+                SecretaryScreen(
                     onSignedOut = { resetTo(Route.Login) },
                 )
             }
