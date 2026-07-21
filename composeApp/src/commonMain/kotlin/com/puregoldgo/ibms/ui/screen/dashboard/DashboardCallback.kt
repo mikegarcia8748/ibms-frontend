@@ -9,6 +9,7 @@ import com.puregoldgo.ibms.shared.model.Role
  */
 data class DashboardCallback(
     val onTabSelect: (DashboardTab) -> Unit,
+    val onUserQueryChange: (String) -> Unit,
     val onBranchQueryChange: (String) -> Unit,
     val onBranchLetterSelect: (Char) -> Unit,
     val onBranchProviderSelect: (String?) -> Unit,
@@ -21,7 +22,9 @@ data class DashboardCallback(
 
     // User administration.
     val onAddUserClick: () -> Unit,
-    val onNewUserNameChange: (String) -> Unit,
+    val onNewUserFirstNameChange: (String) -> Unit,
+    val onNewUserMiddleInitialChange: (String) -> Unit,
+    val onNewUserLastNameChange: (String) -> Unit,
     val onNewUserUsernameChange: (String) -> Unit,
     val onNewUserEmployeeNumberChange: (String) -> Unit,
     val onNewUserRoleChange: (Role) -> Unit,
@@ -30,9 +33,13 @@ data class DashboardCallback(
     val onResetPasswordClick: (DirectoryUser) -> Unit,
     val onResetPasswordConfirm: () -> Unit,
     val onResetPasswordDismiss: () -> Unit,
-    val onUserRoleChange: (String, Role) -> Unit,
-    val onUserStatusToggle: (DirectoryUser) -> Unit,
-    val onRowErrorDismiss: () -> Unit,
+    val onChangeRoleClick: (DirectoryUser) -> Unit,
+    val onRoleSelectionChange: (Role) -> Unit,
+    val onChangeRoleConfirm: () -> Unit,
+    val onChangeRoleDismiss: () -> Unit,
+    val onUserStatusToggleClick: (DirectoryUser) -> Unit,
+    val onUserStatusConfirm: () -> Unit,
+    val onUserStatusDismiss: () -> Unit,
 
     val onRetryLoad: () -> Unit,
     val onLogoutClick: () -> Unit,

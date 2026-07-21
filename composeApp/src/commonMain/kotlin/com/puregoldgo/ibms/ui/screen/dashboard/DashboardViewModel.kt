@@ -55,6 +55,7 @@ class DashboardViewModel(
 
     private val _uiState = MutableStateFlow(
         DashboardUIState(
+            currentUserId = CurrentUserStore.id,
             userName = CurrentUserStore.name.orEmpty(),
             userRole = CurrentUserStore.role.orEmpty(),
         ),
@@ -145,6 +146,10 @@ class DashboardViewModel(
 
     fun onTabSelect(tab: DashboardTab) {
         _uiState.update { it.copy(selectedTab = tab) }
+    }
+
+    fun onUserQueryChange(query: String) {
+        _uiState.update { it.copy(userQuery = query) }
     }
 
     fun onBranchQueryChange(query: String) {
@@ -264,7 +269,19 @@ class DashboardViewModel(
         }
     }
 
-    fun onNewUserNameChange(name: String) = updateForm { it.copy(name = name) }
+    fun onNewUserFirstNameChange(firstName: String) = updateForm { it.copy(firstName = firstName) }
+
+    /**
+     * Holds one letter.
+     *
+     * Capped here rather than validated after the fact: a middle *initial* field
+     * that accepts a whole middle name would collect one, and the column behind
+     * it is a single character.
+     */
+    fun onNewUserMiddleInitialChange(middleInitial: String) =
+        updateForm { it.copy(middleInitial = middleInitial.take(MIDDLE_INITIAL_MAX)) }
+
+    fun onNewUserLastNameChange(lastName: String) = updateForm { it.copy(lastName = lastName) }
 
     /**
      * Lowercases as typed.
@@ -290,8 +307,10 @@ class DashboardViewModel(
         viewModelScope.launch {
             provisionUser(
                 username = form.username,
-                name = form.name,
+                firstName = form.firstName,
+                lastName = form.lastName,
                 employeeNumber = form.employeeNumber,
+                middleInitial = form.middleInitial,
                 role = form.role,
             ).collect { resource -> collectCredential(resource, isNewUser = true) }
         }
@@ -323,23 +342,66 @@ class DashboardViewModel(
         updateUserAdmin { UserAdminUIState() }
     }
 
-    fun onUserRoleChange(userId: String, role: Role) {
+    /**
+     * Opens the role dialog on the user's current role.
+     *
+     * A role used to be changeable from a dropdown on the row itself, which put
+     * "grant this person sysadmin" one stray click from "scroll the list". It is
+     * a deliberate act now, and the dialog is where it is confirmed.
+     */
+    fun onChangeRoleClick(user: DirectoryUser) {
+        updateUserAdmin { UserAdminUIState(roleTarget = user, pendingRole = user.role) }
+    }
+
+    fun onRoleSelectionChange(role: Role) {
+        updateUserAdmin { it.copy(pendingRole = role, formError = null) }
+    }
+
+    fun onChangeRoleConfirm() {
+        val admin = _uiState.value.userAdmin
+        val target = admin.roleTarget ?: return
+        val role = admin.pendingRole ?: return
+        // Confirming the role they already hold is a no-op PATCH; close instead.
+        if (role == target.role) {
+            updateUserAdmin { UserAdminUIState() }
+            return
+        }
+        if (admin.isSubmitting) return
+
         viewModelScope.launch {
-            updateUserRole(userId, role).collect { resource -> collectRowEdit(userId, resource) }
+            updateUserRole(target.id, role).collect(::collectUserAdminEdit)
         }
     }
 
-    fun onUserStatusToggle(user: DirectoryUser) {
-        val next = if (user.isActive) UserStatus.INACTIVE else UserStatus.ACTIVE
+    fun onChangeRoleDismiss() {
+        updateUserAdmin { UserAdminUIState() }
+    }
+
+    /**
+     * Asks for confirmation before switching an account on or off.
+     *
+     * Deactivating revokes nothing retroactively but blocks every future
+     * sign-in, and it used to fire straight off a menu item. [DashboardUIState]
+     * refuses the cases that would lock the company out of its own user
+     * administration before this is ever reached.
+     */
+    fun onUserStatusToggleClick(user: DirectoryUser) {
+        updateUserAdmin { UserAdminUIState(statusTarget = user) }
+    }
+
+    fun onUserStatusConfirm() {
+        val admin = _uiState.value.userAdmin
+        val target = admin.statusTarget ?: return
+        if (admin.isSubmitting) return
+
+        val next = if (target.isActive) UserStatus.INACTIVE else UserStatus.ACTIVE
         viewModelScope.launch {
-            updateUserStatus(user.id, next).collect { resource ->
-                collectRowEdit(user.id, resource)
-            }
+            updateUserStatus(target.id, next).collect(::collectUserAdminEdit)
         }
     }
 
-    fun onRowErrorDismiss() {
-        updateUserAdmin { it.copy(rowError = null) }
+    fun onUserStatusDismiss() {
+        updateUserAdmin { UserAdminUIState() }
     }
 
     // endregion
@@ -418,24 +480,31 @@ class DashboardViewModel(
         }
     }
 
-    /** Folds a role or status change into state, keeping the row marked busy meanwhile. */
-    private suspend fun collectRowEdit(userId: String, resource: Resource<*>) {
+    /**
+     * Folds a role or status change into state.
+     *
+     * The dialog that asked for it stays up while the request is in flight and
+     * closes only on success, so a rejection — "cannot demote the last sysadmin"
+     * — is read in front of the user it concerns rather than under a list that
+     * has already scrolled.
+     */
+    private suspend fun collectUserAdminEdit(resource: Resource<*>) {
         when (resource) {
             is Resource.Loading -> updateUserAdmin {
-                it.copy(busyUserId = userId, rowError = null)
+                it.copy(isSubmitting = true, formError = null)
             }
 
             is Resource.Success -> {
-                updateUserAdmin { it.copy(busyUserId = null, rowError = null) }
+                updateUserAdmin { UserAdminUIState() }
                 // Reload rather than patching the one row: a role change can
                 // move a user in the sorted list, and the server is the only
                 // party that knows whether it took.
                 loadPanel(refresh = true)
             }
 
-            is Resource.Failed -> failRowEdit(resource.message)
+            is Resource.Failed -> failUserAdmin(resource.message)
 
-            is Resource.Error -> failRowEdit(resource.error?.message)
+            is Resource.Error -> failUserAdmin(resource.error?.message)
         }
     }
 
@@ -444,15 +513,6 @@ class DashboardViewModel(
             it.copy(
                 isSubmitting = false,
                 formError = message ?: "The request could not be completed.",
-            )
-        }
-    }
-
-    private fun failRowEdit(message: String?) {
-        updateUserAdmin {
-            it.copy(
-                busyUserId = null,
-                rowError = message ?: "The change could not be saved.",
             )
         }
     }
@@ -488,6 +548,9 @@ class DashboardViewModel(
 
     // endregion
 }
+
+/** How much of a middle initial the form will hold — one letter and its dot. */
+private const val MIDDLE_INITIAL_MAX = 2
 
 /** Narrows the API summary to what the dialog draws. */
 private fun BulkImportSummaryResponse.toUiSummary() = BulkImportSummary(

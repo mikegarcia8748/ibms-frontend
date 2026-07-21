@@ -81,10 +81,15 @@
     <string name="dashboard_active_directory_empty">No directory entries.</string>
     <string name="dashboard_employee_number">EMP:%1$s</string>
     <string name="dashboard_add_user">Add User</string>
+    <string name="dashboard_directory_search">Search name, username or employee number</string>
+    <string name="dashboard_directory_no_matches">No one matches that search.</string>
     <string name="dashboard_user_actions">Manage %1$s</string>
+    <string name="dashboard_user_change_role">Change role…</string>
     <string name="dashboard_user_reset_password">Reset password</string>
     <string name="dashboard_user_deactivate">Deactivate</string>
     <string name="dashboard_user_reactivate">Reactivate</string>
+    <string name="dashboard_user_deactivate_self">Deactivate (not your own account)</string>
+    <string name="dashboard_user_deactivate_last_sysadmin">Deactivate (last sysadmin)</string>
     <string name="dashboard_user_temporary">TEMPORARY</string>
     <string name="dashboard_dismiss">Dismiss</string>
     <string name="dashboard_user_role_label">Role for %1$s</string>
@@ -103,10 +108,13 @@
     <!-- Dashboard — add user -->
     <string name="dashboard_add_user_title">Add User</string>
     <string name="dashboard_add_user_close">Close</string>
-    <string name="dashboard_add_user_name">Full name</string>
+    <string name="dashboard_add_user_first_name">First name</string>
+    <string name="dashboard_add_user_middle_initial">M.I.</string>
+    <string name="dashboard_add_user_last_name">Last name</string>
     <string name="dashboard_add_user_username">Username</string>
     <string name="dashboard_add_user_username_hint">3–32 characters: letters, digits, dot, underscore or hyphen</string>
-    <string name="dashboard_add_user_employee_number">Employee number (optional)</string>
+    <string name="dashboard_add_user_employee_number">Employee number</string>
+    <string name="dashboard_add_user_employee_number_hint">4–20 digits, exactly as payroll records it</string>
     <string name="dashboard_add_user_role">Role</string>
     <string name="dashboard_add_user_note">A temporary password is generated on submit. It is shown once, on the next screen — relay it to the user yourself.</string>
     <string name="dashboard_add_user_cancel">Cancel</string>
@@ -131,6 +139,26 @@
     <string name="dashboard_reset_cancel">Cancel</string>
     <string name="dashboard_reset_confirm">Issue new password</string>
     <string name="dashboard_reset_confirming">Issuing…</string>
+
+    <!-- Dashboard — change role -->
+    <string name="dashboard_role_title">Change role</string>
+    <string name="dashboard_role_body">%1$s currently has the %2$s role. A new role takes effect the next time they load a screen.</string>
+    <string name="dashboard_role_field">New role</string>
+    <string name="dashboard_role_pending_note">An account with no role can sign in but has nothing to use — it lands on the no-access screen until a role is given.</string>
+    <string name="dashboard_role_cancel">Cancel</string>
+    <string name="dashboard_role_confirm">Save role</string>
+    <string name="dashboard_role_confirming">Saving…</string>
+
+    <!-- Dashboard — activate / deactivate -->
+    <string name="dashboard_status_deactivate_title">Deactivate account</string>
+    <string name="dashboard_status_deactivate_body">%1$s will no longer be able to sign in. Their record and their history stay — this is how a resignation is recorded, not a deletion.</string>
+    <string name="dashboard_status_deactivate_confirm">Deactivate</string>
+    <string name="dashboard_status_deactivate_confirming">Deactivating…</string>
+    <string name="dashboard_status_reactivate_title">Reactivate account</string>
+    <string name="dashboard_status_reactivate_body">%1$s will be able to sign in again with the password they already hold. If they no longer have one, issue a reset from their row menu.</string>
+    <string name="dashboard_status_reactivate_confirm">Reactivate</string>
+    <string name="dashboard_status_reactivate_confirming">Reactivating…</string>
+    <string name="dashboard_status_cancel">Cancel</string>
 
     <!-- Dashboard — stores tab -->
     <string name="dashboard_branch_locations">Branch Locations</string>

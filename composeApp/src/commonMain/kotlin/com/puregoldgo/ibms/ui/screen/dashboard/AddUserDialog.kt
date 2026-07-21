@@ -2,6 +2,7 @@ package com.puregoldgo.ibms.ui.screen.dashboard
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import com.puregoldgo.ibms.shared.validation.Validation
 import com.puregoldgo.ibms.ui.component.AppDialog
 import com.puregoldgo.ibms.ui.component.AppDialogBanner
@@ -45,7 +47,10 @@ import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_cancel
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_close
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_employee_number
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_name
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_employee_number_hint
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_first_name
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_last_name
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_middle_initial
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_note
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_role
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_submit
@@ -88,7 +93,14 @@ internal fun AddUserDialog(
 ) {
     val issued = uiState.issued
 
-    AppDialog(onDismissRequest = callback.onAddUserDismiss) {
+    AppDialog(
+        onDismissRequest = callback.onAddUserDismiss,
+        // A click beside the dialog must not be able to take the temporary
+        // password with it — it cannot be looked up again — nor orphan a
+        // request that is still going to create the account.
+        dismissOnClickOutside = issued == null && !uiState.isSubmitting,
+        dismissOnBackPress = issued == null && !uiState.isSubmitting,
+    ) {
         AppDialogHeader(
             title = stringResource(Res.string.dashboard_add_user_title),
             icon = AppIcons.PersonAdd,
@@ -165,11 +177,15 @@ internal fun AddUserDialog(
 }
 
 /**
- * Name, username, employee number and role.
+ * The name in three parts, username, employee number and role.
  *
- * Only four fields. `ProvisionUserRequest` also carries first/middle/last name,
- * but the directory has only ever shown the single display name — asking for
- * both would be asking twice for the same thing.
+ * The name is split because the backend keeps a column for each part and this
+ * form used to leave all three null, filling only the composed display name. The
+ * directory still shows that composed name — [Validation.composeFullName] builds
+ * it — so nothing here is asked for twice.
+ *
+ * Employee number is required. It is the identifier the rest of the company
+ * files people under, and there is no endpoint to add one afterwards.
  */
 @Composable
 private fun NewUserFormBody(
@@ -179,19 +195,18 @@ private fun NewUserFormBody(
     val form = uiState.form
     val enabled = !uiState.isSubmitting
 
-    // Validated as typed rather than on submit, because the rule is not
+    // Validated as typed rather than on submit, because neither rule is
     // guessable ("3-32 characters: letters, digits, dot, underscore or hyphen")
-    // and finding it out from a rejected round trip is a worse way to learn it.
+    // and finding one out from a rejected round trip is a worse way to learn it.
     // Blank is not an error yet — an untouched field has not failed anything.
-    val usernameError = form.username
-        .takeIf { it.isNotBlank() }
-        ?.let { Validation.validateUsername(it) }
+    val usernameError = form.usernameError
+    val employeeNumberError = form.employeeNumberError
 
     Column(verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding16)) {
         OutlinedTextField(
-            value = form.name,
-            onValueChange = callback.onNewUserNameChange,
-            label = { Text(stringResource(Res.string.dashboard_add_user_name)) },
+            value = form.firstName,
+            onValueChange = callback.onNewUserFirstNameChange,
+            label = { Text(stringResource(Res.string.dashboard_add_user_first_name)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             enabled = enabled,
@@ -201,6 +216,38 @@ private fun NewUserFormBody(
             ),
             shape = RoundedCornerShape(Dimensions.viewRadius8),
         )
+
+        // Last name takes the room; the initial is one character and a box sized
+        // for a name beside it would read as a field someone forgot to fill.
+        Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding12)) {
+            OutlinedTextField(
+                value = form.lastName,
+                onValueChange = callback.onNewUserLastNameChange,
+                label = { Text(stringResource(Res.string.dashboard_add_user_last_name)) },
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                enabled = enabled,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Next,
+                ),
+                shape = RoundedCornerShape(Dimensions.viewRadius8),
+            )
+
+            OutlinedTextField(
+                value = form.middleInitial,
+                onValueChange = callback.onNewUserMiddleInitialChange,
+                label = { Text(stringResource(Res.string.dashboard_add_user_middle_initial)) },
+                modifier = Modifier.width(Dimensions.viewWidth96),
+                singleLine = true,
+                enabled = enabled,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Characters,
+                    imeAction = ImeAction.Next,
+                ),
+                shape = RoundedCornerShape(Dimensions.viewRadius8),
+            )
+        }
 
         OutlinedTextField(
             value = form.username,
@@ -237,7 +284,25 @@ private fun NewUserFormBody(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             enabled = enabled,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            isError = employeeNumberError != null,
+            supportingText = {
+                Text(
+                    text = employeeNumberError
+                        ?: stringResource(Res.string.dashboard_add_user_employee_number_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (employeeNumberError != null) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                )
+            },
+            // The number is digits but is stored as text — `010005529` keeps its
+            // leading zero — so this only asks for the numeric keypad.
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done,
+            ),
             shape = RoundedCornerShape(Dimensions.viewRadius8),
         )
 
@@ -414,7 +479,13 @@ internal fun ResetPasswordDialog(
     val target = uiState.resetTarget ?: return
     val issued = uiState.issued
 
-    AppDialog(onDismissRequest = callback.onResetPasswordDismiss) {
+    AppDialog(
+        onDismissRequest = callback.onResetPasswordDismiss,
+        // Same reason as the add-user dialog: the issued password exists only
+        // here, and a reset already in flight is not cancellable.
+        dismissOnClickOutside = issued == null && !uiState.isSubmitting,
+        dismissOnBackPress = issued == null && !uiState.isSubmitting,
+    ) {
         AppDialogHeader(
             title = stringResource(Res.string.dashboard_reset_title),
             icon = AppIcons.Key,

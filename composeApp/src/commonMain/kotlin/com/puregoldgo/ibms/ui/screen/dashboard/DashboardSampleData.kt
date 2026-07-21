@@ -18,6 +18,9 @@ import com.puregoldgo.ibms.shared.model.UserStatus
  */
 internal object DashboardSampleData {
 
+    /** Which of [users] the previews treat as the signed-in sysadmin. */
+    const val SIGNED_IN_USER_ID = "usr-2"
+
     const val PROVIDER_CONVERGE = "prv-converge"
     const val PROVIDER_GLOBE = "prv-globe"
     const val PROVIDER_PLDT = "prv-pldt"

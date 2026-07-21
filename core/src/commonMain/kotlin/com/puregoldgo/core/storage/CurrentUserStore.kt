@@ -21,6 +21,16 @@ package com.puregoldgo.core.storage
  */
 object CurrentUserStore {
 
+    /**
+     * The signed-in account's own id.
+     *
+     * Kept so a screen can tell which row is the caller's own — the user
+     * directory needs it to stop a sysadmin deactivating themselves, which no
+     * amount of role checking can answer.
+     */
+    var id: String? = null
+        private set
+
     var name: String? = null
         private set
 
@@ -35,11 +45,13 @@ object CurrentUserStore {
         private set
 
     fun save(
+        id: String,
         name: String,
         username: String,
         role: String,
         employeeNumber: String? = null,
     ) {
+        this.id = id
         this.name = name
         this.username = username
         this.role = role
@@ -47,6 +59,7 @@ object CurrentUserStore {
     }
 
     fun clear() {
+        id = null
         name = null
         username = null
         role = null

@@ -138,6 +138,7 @@ class KtorAuthRepository(
                 data.session?.let {
                     SessionStore.save(it.accessToken, it.refreshToken)
                     CurrentUserStore.save(
+                        id = data.user.id,
                         name = data.user.name,
                         username = data.user.username,
                         role = data.user.role.wireValue,

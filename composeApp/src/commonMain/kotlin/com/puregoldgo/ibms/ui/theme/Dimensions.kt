@@ -50,6 +50,7 @@ object Dimensions {
     // Component widths
     val viewWidth24 = 24.dp
     val viewWidth56 = 56.dp
+    val viewWidth96 = 96.dp
     val viewWidth160 = 160.dp
     val viewWidth180 = 180.dp
     val viewWidth280 = 280.dp
