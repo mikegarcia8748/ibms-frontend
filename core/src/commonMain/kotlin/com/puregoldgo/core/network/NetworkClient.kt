@@ -32,7 +32,8 @@ internal val lenientJson = Json { ignoreUnknownKeys = true; isLenient = true }
  * - If the API envelope `result` field is `"failed"`, returns [Resource.Failed] with the
  *   deserialized body available via [Resource.Failed.data].
  * - If the HTTP status is 2xx without a recognized result field, returns [Resource.Success].
- * - Otherwise returns [Resource.Error] with a [DomainException.ApiException].
+ * - Otherwise returns [Resource.Error] with a [DomainException.ApiException] carrying
+ *   the backend's own `message` where the error envelope supplied one.
  * - Catches all exceptions and delegates to [handleExceptionOnce].
  */
 suspend inline fun <reified T> HttpClient.sendRequest(
@@ -79,7 +80,13 @@ suspend inline fun <reified T> HttpClient.sendRequest(
                 Resource.Error(
                     DomainException.ApiException(
                         code = statusCode.value,
-                        message = "$errorType: ${exception.message ?: "HTTP Error"}",
+                        // The error envelope's own wording where there is one.
+                        // The backend rejects with things like "username 'jdoe'
+                        // is already taken" and "missing required column 'Store
+                        // Code' in header row" — each names the thing to go fix,
+                        // which "ClientRequestError: Conflict" does not.
+                        message = getMessageValue(httpResponse)
+                            ?: "$errorType: ${exception.message ?: "HTTP Error"}",
                     ),
                 )
             }
@@ -155,11 +162,20 @@ fun <T> handleExceptionOnce(e: Exception): Resource<T> {
  * Extracts the `"result"` field value from a JSON response string.
  * Returns null if the field is not present or the string is not valid JSON.
  */
-fun getResultValue(httpResponse: String?): String? {
+fun getResultValue(httpResponse: String?): String? = jsonField(httpResponse, "result")
+
+/**
+ * Extracts the `"message"` field value from a JSON response string.
+ * Returns null if the field is absent, blank, or the string is not valid JSON.
+ */
+fun getMessageValue(httpResponse: String?): String? =
+    jsonField(httpResponse, "message")?.takeIf { it.isNotBlank() }
+
+private fun jsonField(httpResponse: String?, name: String): String? {
     if (httpResponse.isNullOrBlank()) return null
     return try {
         lenientJson.parseToJsonElement(httpResponse)
-            .jsonObject["result"]
+            .jsonObject[name]
             ?.jsonPrimitive?.content
     } catch (_: Exception) {
         null
