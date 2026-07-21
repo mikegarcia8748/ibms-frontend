@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,26 +48,26 @@ import com.puregoldgo.ibms.ui.component.StatusChip
 import com.puregoldgo.ibms.ui.component.roleLabel
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_active_directory
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_active_directory_empty
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_directory_no_matches
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_directory_search
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_employee_number
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_isp_providers
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_payment_day
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_retry
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_specify_provider
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_inactive
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_actions
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_change_role
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_deactivate
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_deactivate_last_sysadmin
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_deactivate_self
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_reactivate
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_reset_password
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_role_label
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_temporary
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_active_directory
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_active_directory_empty
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_directory_no_matches
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_directory_search
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_employee_number
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_isp_providers
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_payment_day
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_retry
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_specify_provider
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_status_inactive
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_user_actions
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_user_change_role
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_user_deactivate
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_user_deactivate_last_sysadmin
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_user_deactivate_self
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_user_reactivate
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_user_reset_password
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_user_role_label
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_user_temporary
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -84,8 +84,8 @@ import org.jetbrains.compose.resources.stringResource
  */
 @Composable
 internal fun DirectoryTab(
-    uiState: DashboardUIState,
-    callback: DashboardCallback,
+    uiState: SysadminUIState,
+    callback: SysadminCallback,
     isCompact: Boolean,
 ) {
     if (isCompact) {
@@ -119,14 +119,14 @@ internal fun DirectoryTab(
  */
 @Composable
 private fun DirectoryCard(
-    uiState: DashboardUIState,
-    callback: DashboardCallback,
+    uiState: SysadminUIState,
+    callback: SysadminCallback,
     isCompact: Boolean,
 ) {
     val users = uiState.directoryUsers
 
     SectionCard(
-        title = stringResource(Res.string.dashboard_active_directory),
+        title = stringResource(Res.string.sysadmin_active_directory),
         icon = AppIcons.Group,
         trailing = {
             TextButton(
@@ -139,7 +139,7 @@ private fun DirectoryCard(
                     modifier = Modifier.size(Dimensions.viewSize18),
                 )
                 Spacer(Modifier.width(Dimensions.viewPadding8))
-                Text(stringResource(Res.string.dashboard_add_user))
+                Text(stringResource(Res.string.sysadmin_add_user))
             }
         },
     ) {
@@ -147,7 +147,7 @@ private fun DirectoryCard(
             SearchField(
                 value = uiState.userQuery,
                 onValueChange = callback.onUserQueryChange,
-                placeholder = stringResource(Res.string.dashboard_directory_search),
+                placeholder = stringResource(Res.string.sysadmin_directory_search),
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(Dimensions.viewPadding12))
@@ -162,7 +162,7 @@ private fun DirectoryCard(
             uiState.loadError != null -> SectionErrorState(
                 message = uiState.loadError,
                 onRetry = callback.onRetryLoad,
-                retryLabel = stringResource(Res.string.dashboard_retry),
+                retryLabel = stringResource(Res.string.console_retry),
             )
 
             // "Nobody works here" and "nobody matches what you typed" are
@@ -170,9 +170,9 @@ private fun DirectoryCard(
             users.isEmpty() -> SectionEmptyState(
                 stringResource(
                     if (uiState.userQuery.isBlank()) {
-                        Res.string.dashboard_active_directory_empty
+                        Res.string.sysadmin_active_directory_empty
                     } else {
-                        Res.string.dashboard_directory_no_matches
+                        Res.string.sysadmin_directory_no_matches
                     },
                 ),
             )
@@ -200,7 +200,7 @@ private fun DirectoryCard(
 @Composable
 private fun UserRow(
     user: DirectoryUser,
-    callback: DashboardCallback,
+    callback: SysadminCallback,
     deactivateBlock: DeactivateBlock?,
     isCompact: Boolean,
 ) {
@@ -254,7 +254,7 @@ private fun UserRow(
                     if (user.employeeNumber != null) {
                         StatusChip(
                             label = stringResource(
-                                Res.string.dashboard_employee_number,
+                                Res.string.sysadmin_employee_number,
                                 user.employeeNumber,
                             ),
                         )
@@ -268,7 +268,7 @@ private fun UserRow(
     fun controls() {
         // Every row carries a role chip; only the name tells them apart, and a
         // screen reader has no column header to fall back on.
-        val roleDescription = stringResource(Res.string.dashboard_user_role_label, user.name)
+        val roleDescription = stringResource(Res.string.sysadmin_user_role_label, user.name)
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -276,7 +276,7 @@ private fun UserRow(
         ) {
             if (!user.isActive) {
                 StatusChip(
-                    label = stringResource(Res.string.dashboard_status_inactive),
+                    label = stringResource(Res.string.console_status_inactive),
                     tone = ChipTone.Negative,
                 )
             }
@@ -288,7 +288,7 @@ private fun UserRow(
             // goes with it.
             if (user.mustChangePassword) {
                 StatusChip(
-                    label = stringResource(Res.string.dashboard_user_temporary),
+                    label = stringResource(Res.string.sysadmin_user_temporary),
                     tone = ChipTone.Accent,
                 )
             }
@@ -354,7 +354,7 @@ private fun UserRow(
 @Composable
 private fun UserRowMenu(
     user: DirectoryUser,
-    callback: DashboardCallback,
+    callback: SysadminCallback,
     deactivateBlock: DeactivateBlock?,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -368,7 +368,7 @@ private fun UserRowMenu(
             Icon(
                 imageVector = AppIcons.MoreVert,
                 contentDescription = stringResource(
-                    Res.string.dashboard_user_actions,
+                    Res.string.sysadmin_user_actions,
                     user.name,
                 ),
                 modifier = Modifier.size(Dimensions.viewSize20),
@@ -377,14 +377,14 @@ private fun UserRowMenu(
 
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
-                text = { Text(stringResource(Res.string.dashboard_user_change_role)) },
+                text = { Text(stringResource(Res.string.sysadmin_user_change_role)) },
                 onClick = {
                     expanded = false
                     callback.onChangeRoleClick(user)
                 },
             )
             DropdownMenuItem(
-                text = { Text(stringResource(Res.string.dashboard_user_reset_password)) },
+                text = { Text(stringResource(Res.string.sysadmin_user_reset_password)) },
                 onClick = {
                     expanded = false
                     callback.onResetPasswordClick(user)
@@ -396,14 +396,14 @@ private fun UserRowMenu(
                         stringResource(
                             when {
                                 block == DeactivateBlock.Self ->
-                                    Res.string.dashboard_user_deactivate_self
+                                    Res.string.sysadmin_user_deactivate_self
 
                                 block == DeactivateBlock.LastSysadmin ->
-                                    Res.string.dashboard_user_deactivate_last_sysadmin
+                                    Res.string.sysadmin_user_deactivate_last_sysadmin
 
-                                user.isActive -> Res.string.dashboard_user_deactivate
+                                user.isActive -> Res.string.sysadmin_user_deactivate
 
-                                else -> Res.string.dashboard_user_reactivate
+                                else -> Res.string.sysadmin_user_reactivate
                             },
                         ),
                     )
@@ -421,7 +421,7 @@ private fun UserRowMenu(
 @Composable
 private fun IspProvidersCard(providers: List<IspProviderRow>) {
     SectionCard(
-        title = stringResource(Res.string.dashboard_isp_providers),
+        title = stringResource(Res.string.sysadmin_isp_providers),
         icon = AppIcons.Tune,
     ) {
         providers.forEach { provider ->
@@ -432,7 +432,7 @@ private fun IspProvidersCard(providers: List<IspProviderRow>) {
         // TODO: POST /providers (name + paymentScheduleDay). Writes are out of
         //  scope on this UI-only pass.
         DashedAddButton(
-            label = stringResource(Res.string.dashboard_specify_provider),
+            label = stringResource(Res.string.sysadmin_specify_provider),
             onClick = {},
             enabled = false,
         )
@@ -459,7 +459,7 @@ private fun ProviderRow(provider: IspProviderRow) {
             color = MaterialTheme.colorScheme.onSurface,
         )
         StatusChip(
-            label = stringResource(Res.string.dashboard_payment_day, provider.paymentScheduleDay),
+            label = stringResource(Res.string.sysadmin_payment_day, provider.paymentScheduleDay),
             tone = ChipTone.Neutral,
         )
     }

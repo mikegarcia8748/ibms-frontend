@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_letter_all
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_letter_all
 import org.jetbrains.compose.resources.stringResource
 
 /** The `All` entry of the A–Z rail — no letter selected. */
@@ -40,7 +40,7 @@ fun AlphabetRail(
     isCompact: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val allLabel = stringResource(Res.string.dashboard_letter_all)
+    val allLabel = stringResource(Res.string.console_letter_all)
     val entries = listOf(LETTER_ALL to allLabel) + letters.map { it to it.toString() }
 
     if (isCompact) {

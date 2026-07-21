@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import com.puregoldgo.ibms.shared.model.Account
 import com.puregoldgo.ibms.shared.model.AccountStatus
@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class DashboardMappersTest {
+class SysadminMappersTest {
 
     private fun account(
         id: String = "acc-1",

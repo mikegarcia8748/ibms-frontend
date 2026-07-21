@@ -19,7 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_all_isps
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_all_isps
 import org.jetbrains.compose.resources.stringResource
 
 /** One selectable entry: an id to filter by, and the label to show for it. */
@@ -41,7 +41,7 @@ fun IspFilterDropdown(
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val allLabel = stringResource(Res.string.dashboard_all_isps)
+    val allLabel = stringResource(Res.string.console_all_isps)
     val selectedLabel = options.firstOrNull { it.id == selectedId }?.label ?: allLabel
 
     ExposedDropdownMenuBox(

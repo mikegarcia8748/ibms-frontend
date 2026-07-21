@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,23 +28,23 @@ import com.puregoldgo.ibms.ui.component.RoleDropdown
 import com.puregoldgo.ibms.ui.component.roleLabel
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_close
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_role_body
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_role_cancel
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_role_confirm
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_role_confirming
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_role_field
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_role_pending_note
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_role_title
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_cancel
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_deactivate_body
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_deactivate_confirm
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_deactivate_confirming
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_deactivate_title
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_reactivate_body
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_reactivate_confirm
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_reactivate_confirming
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_reactivate_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_close
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_role_body
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_role_cancel
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_role_confirm
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_role_confirming
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_role_field
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_role_pending_note
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_role_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_status_cancel
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_status_deactivate_body
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_status_deactivate_confirm
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_status_deactivate_confirming
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_status_deactivate_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_status_reactivate_body
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_status_reactivate_confirm
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_status_reactivate_confirming
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_status_reactivate_title
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -68,7 +68,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun ChangeRoleDialog(
     uiState: UserAdminUIState,
-    callback: DashboardCallback,
+    callback: SysadminCallback,
 ) {
     val target = uiState.roleTarget ?: return
     val selected = uiState.pendingRole ?: target.role
@@ -79,10 +79,10 @@ internal fun ChangeRoleDialog(
         dismissOnBackPress = !uiState.isSubmitting,
     ) {
         AppDialogHeader(
-            title = stringResource(Res.string.dashboard_role_title),
+            title = stringResource(Res.string.sysadmin_role_title),
             icon = AppIcons.Group,
             onClose = callback.onChangeRoleDismiss,
-            closeDescription = stringResource(Res.string.dashboard_add_user_close),
+            closeDescription = stringResource(Res.string.sysadmin_add_user_close),
             closeEnabled = !uiState.isSubmitting,
         )
 
@@ -95,7 +95,7 @@ internal fun ChangeRoleDialog(
         ) {
             Text(
                 text = stringResource(
-                    Res.string.dashboard_role_body,
+                    Res.string.sysadmin_role_body,
                     target.name,
                     roleLabel(target.role),
                 ),
@@ -104,7 +104,7 @@ internal fun ChangeRoleDialog(
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8)) {
-                val fieldLabel = stringResource(Res.string.dashboard_role_field)
+                val fieldLabel = stringResource(Res.string.sysadmin_role_field)
                 Text(
                     text = fieldLabel,
                     style = MaterialTheme.typography.labelLarge,
@@ -134,7 +134,7 @@ internal fun ChangeRoleDialog(
                     content = MaterialTheme.colorScheme.onSecondaryContainer,
                 ) {
                     Text(
-                        text = stringResource(Res.string.dashboard_role_pending_note),
+                        text = stringResource(Res.string.sysadmin_role_pending_note),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -147,7 +147,7 @@ internal fun ChangeRoleDialog(
                 enabled = !uiState.isSubmitting,
                 shape = RoundedCornerShape(Dimensions.viewRadius8),
             ) {
-                Text(stringResource(Res.string.dashboard_role_cancel))
+                Text(stringResource(Res.string.sysadmin_role_cancel))
             }
 
             Button(
@@ -159,9 +159,9 @@ internal fun ChangeRoleDialog(
                 Text(
                     stringResource(
                         if (uiState.isSubmitting) {
-                            Res.string.dashboard_role_confirming
+                            Res.string.sysadmin_role_confirming
                         } else {
-                            Res.string.dashboard_role_confirm
+                            Res.string.sysadmin_role_confirm
                         },
                     ),
                 )
@@ -176,12 +176,12 @@ internal fun ChangeRoleDialog(
  * Deactivating is the destructive direction and gets the error-toned button;
  * reactivating is additive and gets the ordinary one. The rows this cannot be
  * reached from — your own, and the last sysadmin — are refused in
- * [DashboardUIState.deactivateBlockedReason] before this ever opens.
+ * [SysadminUIState.deactivateBlockedReason] before this ever opens.
  */
 @Composable
 internal fun UserStatusDialog(
     uiState: UserAdminUIState,
-    callback: DashboardCallback,
+    callback: SysadminCallback,
 ) {
     val target = uiState.statusTarget ?: return
     val isDeactivating = target.isActive
@@ -194,14 +194,14 @@ internal fun UserStatusDialog(
         AppDialogHeader(
             title = stringResource(
                 if (isDeactivating) {
-                    Res.string.dashboard_status_deactivate_title
+                    Res.string.sysadmin_status_deactivate_title
                 } else {
-                    Res.string.dashboard_status_reactivate_title
+                    Res.string.sysadmin_status_reactivate_title
                 },
             ),
             icon = if (isDeactivating) AppIcons.Warning else AppIcons.CheckCircle,
             onClose = callback.onUserStatusDismiss,
-            closeDescription = stringResource(Res.string.dashboard_add_user_close),
+            closeDescription = stringResource(Res.string.sysadmin_add_user_close),
             closeEnabled = !uiState.isSubmitting,
         )
 
@@ -215,9 +215,9 @@ internal fun UserStatusDialog(
             Text(
                 text = stringResource(
                     if (isDeactivating) {
-                        Res.string.dashboard_status_deactivate_body
+                        Res.string.sysadmin_status_deactivate_body
                     } else {
-                        Res.string.dashboard_status_reactivate_body
+                        Res.string.sysadmin_status_reactivate_body
                     },
                     target.name,
                 ),
@@ -241,7 +241,7 @@ internal fun UserStatusDialog(
                 enabled = !uiState.isSubmitting,
                 shape = RoundedCornerShape(Dimensions.viewRadius8),
             ) {
-                Text(stringResource(Res.string.dashboard_status_cancel))
+                Text(stringResource(Res.string.sysadmin_status_cancel))
             }
 
             Button(
@@ -262,14 +262,14 @@ internal fun UserStatusDialog(
                     stringResource(
                         when {
                             isDeactivating && uiState.isSubmitting ->
-                                Res.string.dashboard_status_deactivate_confirming
+                                Res.string.sysadmin_status_deactivate_confirming
 
-                            isDeactivating -> Res.string.dashboard_status_deactivate_confirm
+                            isDeactivating -> Res.string.sysadmin_status_deactivate_confirm
 
                             uiState.isSubmitting ->
-                                Res.string.dashboard_status_reactivate_confirming
+                                Res.string.sysadmin_status_reactivate_confirming
 
-                            else -> Res.string.dashboard_status_reactivate_confirm
+                            else -> Res.string.sysadmin_status_reactivate_confirm
                         },
                     ),
                 )

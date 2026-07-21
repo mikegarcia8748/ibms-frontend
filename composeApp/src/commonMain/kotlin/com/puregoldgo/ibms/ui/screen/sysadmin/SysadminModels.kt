@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import androidx.compose.runtime.Immutable
 import com.puregoldgo.ibms.shared.model.Role

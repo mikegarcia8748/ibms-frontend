@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import com.puregoldgo.ibms.platform.file.PickedFile
 import com.puregoldgo.ibms.shared.model.Role
@@ -7,8 +7,8 @@ import com.puregoldgo.ibms.shared.model.Role
  * Everything the control panel can do, bundled so the content composables stay
  * free of the ViewModel and remain previewable.
  */
-data class DashboardCallback(
-    val onTabSelect: (DashboardTab) -> Unit,
+data class SysadminCallback(
+    val onTabSelect: (SysadminTab) -> Unit,
     val onUserQueryChange: (String) -> Unit,
     val onBranchQueryChange: (String) -> Unit,
     val onBranchLetterSelect: (Char) -> Unit,

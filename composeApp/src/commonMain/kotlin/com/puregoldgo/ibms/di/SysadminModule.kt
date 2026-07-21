@@ -14,7 +14,7 @@ import com.puregoldgo.ibms.shared.domain.usecase.ProvisionUserUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.ResetUserPasswordUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.UpdateUserRoleUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.UpdateUserStatusUseCase
-import com.puregoldgo.ibms.ui.screen.dashboard.DashboardViewModel
+import com.puregoldgo.ibms.ui.screen.sysadmin.SysadminViewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
@@ -25,7 +25,7 @@ import org.koin.dsl.module
  * `HttpClient` and `GetProvidersUseCase` by [providerModule] — all three modules
  * land in the same container via [appModules].
  */
-val dashboardModule = module {
+val sysadminModule = module {
 
     // region Repository
     factory<AccountRepository> { KtorAccountRepository(get()) }
@@ -45,6 +45,6 @@ val dashboardModule = module {
     // endregion
 
     // region ViewModels
-    factoryOf(::DashboardViewModel)
+    factoryOf(::SysadminViewModel)
     // endregion
 }

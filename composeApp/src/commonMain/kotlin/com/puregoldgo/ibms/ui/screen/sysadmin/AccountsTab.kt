@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,12 +33,12 @@ import com.puregoldgo.ibms.ui.component.SectionErrorState
 import com.puregoldgo.ibms.ui.component.SectionLoadingState
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_accounts_db
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_accounts_empty
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_accounts_search_hint
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_clean_up
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_monthly_rate
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_retry
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_accounts_db
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_accounts_empty
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_accounts_search_hint
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_clean_up
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_monthly_rate
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_retry
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -47,8 +47,8 @@ import org.jetbrains.compose.resources.stringResource
  */
 @Composable
 internal fun AccountsTab(
-    uiState: DashboardUIState,
-    callback: DashboardCallback,
+    uiState: SysadminUIState,
+    callback: SysadminCallback,
     isCompact: Boolean,
 ) {
     val filters = @Composable { modifier: Modifier ->
@@ -63,13 +63,13 @@ internal fun AccountsTab(
         SearchField(
             value = uiState.accountQuery,
             onValueChange = callback.onAccountQueryChange,
-            placeholder = stringResource(Res.string.dashboard_accounts_search_hint),
+            placeholder = stringResource(Res.string.sysadmin_accounts_search_hint),
             modifier = modifier,
         )
     }
 
     SectionCard(
-        title = stringResource(Res.string.dashboard_accounts_db),
+        title = stringResource(Res.string.sysadmin_accounts_db),
         trailing = if (isCompact) {
             null
         } else {
@@ -97,10 +97,10 @@ internal fun AccountsTab(
             SectionErrorState(
                 message = uiState.loadError,
                 onRetry = callback.onRetryLoad,
-                retryLabel = stringResource(Res.string.dashboard_retry),
+                retryLabel = stringResource(Res.string.console_retry),
             )
         } else if (uiState.visibleAccounts.isEmpty()) {
-            SectionEmptyState(stringResource(Res.string.dashboard_accounts_empty))
+            SectionEmptyState(stringResource(Res.string.sysadmin_accounts_empty))
         } else {
             LazyColumn(
                 // Bounded so this list scrolls within the page rather than
@@ -140,7 +140,7 @@ private fun CleanUpButton() {
             modifier = Modifier.size(Dimensions.viewSize18),
         )
         Spacer(Modifier.width(Dimensions.viewPadding8))
-        Text(stringResource(Res.string.dashboard_clean_up))
+        Text(stringResource(Res.string.sysadmin_clean_up))
     }
 }
 
@@ -193,7 +193,7 @@ private fun AccountCard(account: IspAccountRow) {
             }
 
             Text(
-                text = stringResource(Res.string.dashboard_monthly_rate, account.monthlyRate),
+                text = stringResource(Res.string.sysadmin_monthly_rate, account.monthlyRate),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )

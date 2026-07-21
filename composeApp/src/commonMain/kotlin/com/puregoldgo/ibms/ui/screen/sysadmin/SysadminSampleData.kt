@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import com.puregoldgo.ibms.shared.model.Role
 import com.puregoldgo.ibms.shared.model.UserStatus
@@ -16,7 +16,7 @@ import com.puregoldgo.ibms.shared.model.UserStatus
  * for the A–Z rail to matter, and accounts from more than one provider so the
  * ISP filter visibly does something.
  */
-internal object DashboardSampleData {
+internal object SysadminSampleData {
 
     /** Which of [users] the previews treat as the signed-in sysadmin. */
     const val SIGNED_IN_USER_ID = "usr-2"

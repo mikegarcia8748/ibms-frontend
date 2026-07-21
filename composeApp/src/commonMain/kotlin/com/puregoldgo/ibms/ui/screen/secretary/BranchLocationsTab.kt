@@ -30,7 +30,7 @@ import com.puregoldgo.ibms.ui.component.SectionErrorState
 import com.puregoldgo.ibms.ui.component.SectionLoadingState
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_all_isps
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_all_isps
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_branches_empty
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_branches_search_hint
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_branches_title
@@ -47,7 +47,7 @@ internal fun BranchLocationsTab(
     callback: SecretaryCallback,
     isCompact: Boolean,
 ) {
-    val allIspsLabel = stringResource(Res.string.dashboard_all_isps)
+    val allIspsLabel = stringResource(Res.string.console_all_isps)
 
     val ispFilter = @Composable { modifier: Modifier ->
         LabeledDropdown(

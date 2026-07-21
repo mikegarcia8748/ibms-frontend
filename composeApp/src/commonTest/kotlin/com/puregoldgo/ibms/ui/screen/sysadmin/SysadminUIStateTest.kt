@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import com.puregoldgo.ibms.shared.model.Role
 import com.puregoldgo.ibms.shared.model.UserStatus
@@ -8,7 +8,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class DashboardUIStateTest {
+class SysadminUIStateTest {
 
     private fun branch(
         id: String,
@@ -69,7 +69,7 @@ class DashboardUIStateTest {
     @Test
     fun tc01_should_match_a_branch_on_any_of_its_providers() {
         // A branch with a primary and a backup line must appear under both.
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             branches = listOf(branch("b1", "SHAW", providerIds = setOf("globe", "pldt"))),
             branchProviderId = "pldt",
         )
@@ -79,7 +79,7 @@ class DashboardUIStateTest {
 
     @Test
     fun tc02_should_exclude_a_branch_without_the_selected_provider() {
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             branches = listOf(branch("b1", "SHAW", providerIds = setOf("globe"))),
             branchProviderId = "radius",
         )
@@ -89,7 +89,7 @@ class DashboardUIStateTest {
 
     @Test
     fun tc03_should_compose_letter_and_query_rather_than_override() {
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             branches = listOf(
                 branch("b1", "ALPHA"),
                 branch("b2", "AMAYA"),
@@ -104,7 +104,7 @@ class DashboardUIStateTest {
 
     @Test
     fun tc04_should_search_branches_by_code_and_city_too() {
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             branches = listOf(
                 branch("b1", "SHAW", code = "155", city = "Mandaluyong City"),
                 branch("b2", "IMUS", code = "8512", city = "Cavite"),
@@ -117,7 +117,7 @@ class DashboardUIStateTest {
 
     @Test
     fun tc05_should_only_offer_letters_that_file_a_branch() {
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             branches = listOf(
                 branch("b1", "SHAW"),
                 branch("b2", "888 CHINA TOWN"),
@@ -134,7 +134,7 @@ class DashboardUIStateTest {
 
     @Test
     fun tc11_should_search_accounts_by_number_or_store() {
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             accounts = listOf(
                 account("a1", "ZTEGC44534B3", "PARAÑAQUE"),
                 account("a2", "IC-AWZ-2200", "BACOOR"),
@@ -147,7 +147,7 @@ class DashboardUIStateTest {
 
     @Test
     fun tc12_should_filter_accounts_by_provider() {
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             accounts = listOf(
                 account("a1", "N1", "SHAW", providerId = "globe"),
                 account("a2", "N2", "IMUS", providerId = "pldt"),
@@ -164,7 +164,7 @@ class DashboardUIStateTest {
 
     @Test
     fun tc21_should_not_allow_a_second_import_once_a_summary_is_in() {
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             bulkImportFileName = "master.xlsx",
             bulkImportSummary = BulkImportSummary(
                 providers = emptyList(),
@@ -183,7 +183,7 @@ class DashboardUIStateTest {
 
     @Test
     fun tc22_should_allow_an_import_once_a_file_is_chosen() {
-        val state = DashboardUIState(bulkImportFileName = "master.xlsx")
+        val state = SysadminUIState(bulkImportFileName = "master.xlsx")
 
         assertTrue(state.canStartImport)
     }
@@ -194,7 +194,7 @@ class DashboardUIStateTest {
 
     @Test
     fun tc31_should_order_the_directory_by_name() {
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             users = listOf(
                 directoryUser(id = "u1", name = "Samuel P Baricaua Jr"),
                 directoryUser(id = "u2", name = "Angel V Rubio"),
@@ -213,7 +213,7 @@ class DashboardUIStateTest {
         // There is no approval queue to hold them back into: PENDING is an
         // account a sysadmin made and has not given a role to, and this list is
         // the only place that role can be set.
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             users = listOf(
                 directoryUser(id = "u1", name = "Rosario D Lim", role = Role.PENDING),
                 directoryUser(id = "u2", name = "Michael Garcia", role = Role.SYSADMIN),
@@ -226,7 +226,7 @@ class DashboardUIStateTest {
     @Test
     fun tc33_should_keep_a_deactivated_user_listed() {
         // A row that is gone cannot be turned back on.
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             users = listOf(directoryUser(id = "u1", status = UserStatus.INACTIVE)),
         )
 
@@ -236,7 +236,7 @@ class DashboardUIStateTest {
 
     @Test
     fun tc34_should_search_the_directory_by_name_username_or_employee_number() {
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             users = listOf(
                 directoryUser(id = "arubio", name = "Angel V Rubio", employeeNumber = "010005869"),
                 directoryUser(id = "mgarcia", name = "Michael Garcia", employeeNumber = "010005529"),
@@ -260,7 +260,7 @@ class DashboardUIStateTest {
 
     @Test
     fun tc35_should_keep_the_name_order_within_a_search() {
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             users = listOf(
                 directoryUser(id = "u1", name = "Samuel P Baricaua Jr"),
                 directoryUser(id = "u2", name = "Angel V Rubio"),
@@ -283,7 +283,7 @@ class DashboardUIStateTest {
     fun tc36_should_refuse_to_deactivate_your_own_account() {
         // Signing yourself out of user administration permanently.
         val self = directoryUser(id = "u1", role = Role.SYSADMIN)
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             currentUserId = "u1",
             users = listOf(self, directoryUser(id = "u2", role = Role.SYSADMIN)),
         )
@@ -295,7 +295,7 @@ class DashboardUIStateTest {
     fun tc37_should_refuse_to_deactivate_the_last_sysadmin() {
         // The backend refuses to *demote* the last one but will deactivate them.
         val lastAdmin = directoryUser(id = "u2", role = Role.SYSADMIN)
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             currentUserId = "u1",
             users = listOf(directoryUser(id = "u1", role = Role.SECRETARY), lastAdmin),
         )
@@ -306,7 +306,7 @@ class DashboardUIStateTest {
     @Test
     fun tc38_should_allow_deactivating_a_sysadmin_while_another_is_active() {
         val other = directoryUser(id = "u2", role = Role.SYSADMIN)
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             currentUserId = "u1",
             users = listOf(directoryUser(id = "u1", role = Role.SYSADMIN), other),
         )
@@ -318,7 +318,7 @@ class DashboardUIStateTest {
     fun tc39_should_not_count_a_deactivated_sysadmin_as_cover() {
         // Two sysadmins on the list, only one of them able to sign in.
         val lastActive = directoryUser(id = "u2", role = Role.SYSADMIN)
-        val state = DashboardUIState(
+        val state = SysadminUIState(
             currentUserId = "u1",
             users = listOf(
                 directoryUser(id = "u1", role = Role.SYSADMIN, status = UserStatus.INACTIVE),

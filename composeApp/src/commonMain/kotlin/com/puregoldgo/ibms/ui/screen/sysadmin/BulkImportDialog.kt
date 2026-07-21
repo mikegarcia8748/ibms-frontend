@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -47,29 +47,29 @@ import com.puregoldgo.ibms.ui.component.AppDialogHeader
 import com.puregoldgo.ibms.ui.component.AppIcons
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_attention
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_attention_body
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_browse
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_cancel
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_change_file
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_close
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_drop_hint
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_drop_title
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_size_bytes
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_size_kb
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_size_mb
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_start
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_title
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_import_uploading
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_upload_accounts
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_upload_dismiss
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_upload_provider_line
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_upload_provider_new
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_upload_providers
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_upload_rows
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_upload_skipped
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_upload_stores
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_upload_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_attention
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_attention_body
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_browse
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_cancel
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_change_file
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_close
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_drop_hint
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_drop_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_size_bytes
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_size_kb
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_size_mb
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_start
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_import_uploading
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_upload_accounts
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_upload_dismiss
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_upload_provider_line
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_upload_provider_new
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_upload_providers
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_upload_rows
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_upload_skipped
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_upload_stores
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_upload_title
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
@@ -90,7 +90,7 @@ private val ACCEPTED_TYPES = listOf(
  */
 @Composable
 internal fun BulkImportDialog(
-    uiState: DashboardUIState,
+    uiState: SysadminUIState,
     onFilePicked: (PickedFile) -> Unit,
     onStartImport: () -> Unit,
     onDismiss: () -> Unit,
@@ -100,10 +100,10 @@ internal fun BulkImportDialog(
 
     AppDialog(onDismissRequest = onDismiss) {
         AppDialogHeader(
-            title = stringResource(Res.string.dashboard_bulk_import_title),
+            title = stringResource(Res.string.sysadmin_bulk_import_title),
             icon = AppIcons.Description,
             onClose = onDismiss,
-            closeDescription = stringResource(Res.string.dashboard_bulk_import_close),
+            closeDescription = stringResource(Res.string.sysadmin_bulk_import_close),
             // Closing mid-upload would orphan a request that is still going to
             // commit; the only honest option is to wait.
             closeEnabled = !uiState.isBulkImporting,
@@ -225,7 +225,7 @@ private fun DropZone(
             }
 
             Text(
-                text = fileName ?: stringResource(Res.string.dashboard_bulk_import_drop_title),
+                text = fileName ?: stringResource(Res.string.sysadmin_bulk_import_drop_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
@@ -235,7 +235,7 @@ private fun DropZone(
 
             Text(
                 text = if (fileName == null) {
-                    stringResource(Res.string.dashboard_bulk_import_drop_hint)
+                    stringResource(Res.string.sysadmin_bulk_import_drop_hint)
                 } else {
                     fileSizeLabel(fileSize)
                 },
@@ -252,11 +252,11 @@ private fun DropZone(
                     enabled = enabled,
                     shape = RoundedCornerShape(Dimensions.viewRadius8),
                 ) {
-                    Text(stringResource(Res.string.dashboard_bulk_import_browse))
+                    Text(stringResource(Res.string.sysadmin_bulk_import_browse))
                 }
             } else {
                 TextButton(onClick = { launcher.launch() }, enabled = enabled) {
-                    Text(stringResource(Res.string.dashboard_bulk_import_change_file))
+                    Text(stringResource(Res.string.sysadmin_bulk_import_change_file))
                 }
             }
         }
@@ -271,12 +271,12 @@ private fun AttentionBanner() {
         content = MaterialTheme.colorScheme.onSecondaryContainer,
     ) {
         Text(
-            text = stringResource(Res.string.dashboard_bulk_import_attention),
+            text = stringResource(Res.string.sysadmin_bulk_import_attention),
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Bold,
         )
         Text(
-            text = stringResource(Res.string.dashboard_bulk_import_attention_body),
+            text = stringResource(Res.string.sysadmin_bulk_import_attention_body),
             style = MaterialTheme.typography.bodySmall,
         )
     }
@@ -312,7 +312,7 @@ private fun ErrorBanner(message: String) {
 private fun ImportSummaryBody(summary: BulkImportSummary) {
     Column(verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding4)) {
         Text(
-            text = stringResource(Res.string.dashboard_bulk_upload_title),
+            text = stringResource(Res.string.sysadmin_bulk_upload_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -321,7 +321,7 @@ private fun ImportSummaryBody(summary: BulkImportSummary) {
 
         Text(
             text = stringResource(
-                Res.string.dashboard_bulk_upload_stores,
+                Res.string.sysadmin_bulk_upload_stores,
                 summary.storesCreated,
                 summary.storesReused,
             ),
@@ -329,7 +329,7 @@ private fun ImportSummaryBody(summary: BulkImportSummary) {
         )
         Text(
             text = stringResource(
-                Res.string.dashboard_bulk_upload_accounts,
+                Res.string.sysadmin_bulk_upload_accounts,
                 summary.accountsCreated,
                 summary.accountsReused,
             ),
@@ -337,7 +337,7 @@ private fun ImportSummaryBody(summary: BulkImportSummary) {
         )
         Text(
             text = stringResource(
-                Res.string.dashboard_bulk_upload_rows,
+                Res.string.sysadmin_bulk_upload_rows,
                 summary.totalRows - summary.rowsSkipped,
                 summary.totalRows,
             ),
@@ -351,7 +351,7 @@ private fun ImportSummaryBody(summary: BulkImportSummary) {
         if (summary.providers.size > 1) {
             Spacer(Modifier.height(Dimensions.viewPadding8))
             Text(
-                text = stringResource(Res.string.dashboard_bulk_upload_providers),
+                text = stringResource(Res.string.sysadmin_bulk_upload_providers),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurface,
             )
@@ -359,9 +359,9 @@ private fun ImportSummaryBody(summary: BulkImportSummary) {
                 Text(
                     text = stringResource(
                         if (provider.created) {
-                            Res.string.dashboard_bulk_upload_provider_new
+                            Res.string.sysadmin_bulk_upload_provider_new
                         } else {
-                            Res.string.dashboard_bulk_upload_provider_line
+                            Res.string.sysadmin_bulk_upload_provider_line
                         },
                         provider.name,
                         provider.accountsCreated,
@@ -376,7 +376,7 @@ private fun ImportSummaryBody(summary: BulkImportSummary) {
         if (summary.skipReasons.isNotEmpty()) {
             Spacer(Modifier.height(Dimensions.viewPadding8))
             Text(
-                text = stringResource(Res.string.dashboard_bulk_upload_skipped),
+                text = stringResource(Res.string.sysadmin_bulk_upload_skipped),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.error,
             )
@@ -406,7 +406,7 @@ private fun DialogFooter(
                 onClick = onDismiss,
                 shape = RoundedCornerShape(Dimensions.viewRadius8),
             ) {
-                Text(stringResource(Res.string.dashboard_bulk_upload_dismiss))
+                Text(stringResource(Res.string.sysadmin_bulk_upload_dismiss))
             }
             return@AppDialogFooter
         }
@@ -416,7 +416,7 @@ private fun DialogFooter(
             enabled = !isImporting,
             shape = RoundedCornerShape(Dimensions.viewRadius8),
         ) {
-            Text(stringResource(Res.string.dashboard_bulk_import_cancel))
+            Text(stringResource(Res.string.sysadmin_bulk_import_cancel))
         }
 
         Button(
@@ -441,9 +441,9 @@ private fun DialogFooter(
             Text(
                 stringResource(
                     if (isImporting) {
-                        Res.string.dashboard_bulk_import_uploading
+                        Res.string.sysadmin_bulk_import_uploading
                     } else {
-                        Res.string.dashboard_bulk_import_start
+                        Res.string.sysadmin_bulk_import_start
                     },
                 ),
             )
@@ -464,12 +464,12 @@ private const val BYTES_PER_MB = BYTES_PER_KB * 1024L
 @Composable
 private fun fileSizeLabel(bytes: Long): String = when {
     bytes >= BYTES_PER_MB ->
-        stringResource(Res.string.dashboard_bulk_import_size_mb, oneDecimal(bytes, BYTES_PER_MB))
+        stringResource(Res.string.sysadmin_bulk_import_size_mb, oneDecimal(bytes, BYTES_PER_MB))
 
     bytes >= BYTES_PER_KB ->
-        stringResource(Res.string.dashboard_bulk_import_size_kb, oneDecimal(bytes, BYTES_PER_KB))
+        stringResource(Res.string.sysadmin_bulk_import_size_kb, oneDecimal(bytes, BYTES_PER_KB))
 
-    else -> stringResource(Res.string.dashboard_bulk_import_size_bytes, bytes.toInt())
+    else -> stringResource(Res.string.sysadmin_bulk_import_size_bytes, bytes.toInt())
 }
 
 private fun oneDecimal(bytes: Long, unit: Long): String {

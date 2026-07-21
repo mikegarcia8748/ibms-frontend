@@ -39,7 +39,7 @@ sealed interface Route : NavKey {
 
     /** The sysadmin control panel — delegations, branches and ISP accounts. */
     @Serializable
-    data object Dashboard : Route
+    data object SysadminDashboard : Route
 
     /** The secretary console — topsheets, branches, accounts and the archive. */
     @Serializable
@@ -64,7 +64,7 @@ val navSavedStateConfig = SavedStateConfiguration {
             subclass(Route.Login::class, Route.Login.serializer())
             subclass(Route.SetPassword::class, Route.SetPassword.serializer())
             subclass(Route.NoAccess::class, Route.NoAccess.serializer())
-            subclass(Route.Dashboard::class, Route.Dashboard.serializer())
+            subclass(Route.SysadminDashboard::class, Route.SysadminDashboard.serializer())
             subclass(Route.SecretaryDashboard::class, Route.SecretaryDashboard.serializer())
             subclass(Route.ProviderList::class, Route.ProviderList.serializer())
             subclass(Route.ProviderForm::class, Route.ProviderForm.serializer())

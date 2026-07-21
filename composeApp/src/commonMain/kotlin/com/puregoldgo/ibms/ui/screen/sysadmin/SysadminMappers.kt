@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import com.puregoldgo.ibms.shared.model.Account
 import com.puregoldgo.ibms.shared.model.AccountStatus

@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,14 +31,14 @@ import kotlinx.coroutines.launch
 /**
  * MVI ViewModel for the sysadmin control panel.
  *
- * Filtering lives in [DashboardUIState] rather than in the composables, so the
+ * Filtering lives in [SysadminUIState] rather than in the composables, so the
  * rules are testable and the previews can show a filtered list without running a
  * ViewModel.
  *
- * All four lists come from the API. [DashboardSampleData] survives only for the
+ * All four lists come from the API. [SysadminSampleData] survives only for the
  * `@Preview`s.
  */
-class DashboardViewModel(
+class SysadminViewModel(
     private val authRepository: AuthRepository,
     private val bulkImportAccounts: BulkImportAccountsUseCase,
     private val getProviders: GetProvidersUseCase,
@@ -54,7 +54,7 @@ class DashboardViewModel(
     // region State
 
     private val _uiState = MutableStateFlow(
-        DashboardUIState(
+        SysadminUIState(
             currentUserId = CurrentUserStore.id,
             userName = CurrentUserStore.name.orEmpty(),
             userRole = CurrentUserStore.role.orEmpty(),
@@ -62,14 +62,14 @@ class DashboardViewModel(
     )
     val uiState = _uiState.asStateFlow()
 
-    /** The spreadsheet awaiting upload. Kept out of the state — see [DashboardUIState]. */
+    /** The spreadsheet awaiting upload. Kept out of the state — see [SysadminUIState]. */
     private var pickedFile: PickedFile? = null
 
     // endregion
 
     // region Events
 
-    private val _uiEvent = MutableSharedFlow<DashboardUiEvent>()
+    private val _uiEvent = MutableSharedFlow<SysadminUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
     // endregion
@@ -144,7 +144,7 @@ class DashboardViewModel(
         }
     }
 
-    fun onTabSelect(tab: DashboardTab) {
+    fun onTabSelect(tab: SysadminTab) {
         _uiState.update { it.copy(selectedTab = tab) }
     }
 
@@ -188,7 +188,7 @@ class DashboardViewModel(
     }
 
     /**
-     * Accepts a chosen file. The bytes stay here rather than in [DashboardUIState]
+     * Accepts a chosen file. The bytes stay here rather than in [SysadminUIState]
      * — see the note on its bulk-import fields.
      */
     fun onBulkImportFilePicked(file: PickedFile) {
@@ -381,7 +381,7 @@ class DashboardViewModel(
      * Asks for confirmation before switching an account on or off.
      *
      * Deactivating revokes nothing retroactively but blocks every future
-     * sign-in, and it used to fire straight off a menu item. [DashboardUIState]
+     * sign-in, and it used to fire straight off a menu item. [SysadminUIState]
      * refuses the cases that would lock the company out of its own user
      * administration before this is ever reached.
      */
@@ -417,7 +417,7 @@ class DashboardViewModel(
         updateUserAdmin { UserAdminUIState() }
         authRepository.signOut()
         viewModelScope.launch {
-            _uiEvent.emit(DashboardUiEvent.NavigateToLogin)
+            _uiEvent.emit(SysadminUiEvent.NavigateToLogin)
         }
     }
 

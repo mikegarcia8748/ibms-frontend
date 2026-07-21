@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,12 +33,12 @@ import com.puregoldgo.ibms.ui.component.SectionLoadingState
 import com.puregoldgo.ibms.ui.component.StatusChip
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_branch_empty
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_branch_locations
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_branch_search_hint
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_retry
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_active
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_inactive
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_branch_empty
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_branch_locations
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_branch_search_hint
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_retry
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_status_active
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_status_inactive
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -47,8 +47,8 @@ import org.jetbrains.compose.resources.stringResource
  */
 @Composable
 internal fun StoresTab(
-    uiState: DashboardUIState,
-    callback: DashboardCallback,
+    uiState: SysadminUIState,
+    callback: SysadminCallback,
     isCompact: Boolean,
 ) {
     val rail = @Composable {
@@ -62,7 +62,7 @@ internal fun StoresTab(
 
     val card = @Composable { modifier: Modifier ->
         SectionCard(
-            title = stringResource(Res.string.dashboard_branch_locations),
+            title = stringResource(Res.string.sysadmin_branch_locations),
             icon = AppIcons.Domain,
             modifier = modifier,
             trailing = if (isCompact) {
@@ -78,7 +78,7 @@ internal fun StoresTab(
                         SearchField(
                             value = uiState.branchQuery,
                             onValueChange = callback.onBranchQueryChange,
-                            placeholder = stringResource(Res.string.dashboard_branch_search_hint),
+                            placeholder = stringResource(Res.string.sysadmin_branch_search_hint),
                             modifier = Modifier.width(Dimensions.viewWidth280),
                         )
                     }
@@ -98,7 +98,7 @@ internal fun StoresTab(
                 SearchField(
                     value = uiState.branchQuery,
                     onValueChange = callback.onBranchQueryChange,
-                    placeholder = stringResource(Res.string.dashboard_branch_search_hint),
+                    placeholder = stringResource(Res.string.sysadmin_branch_search_hint),
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(Dimensions.viewPadding16))
@@ -110,10 +110,10 @@ internal fun StoresTab(
                 SectionErrorState(
                     message = uiState.loadError,
                     onRetry = callback.onRetryLoad,
-                    retryLabel = stringResource(Res.string.dashboard_retry),
+                    retryLabel = stringResource(Res.string.console_retry),
                 )
             } else if (uiState.visibleBranches.isEmpty()) {
-                SectionEmptyState(stringResource(Res.string.dashboard_branch_empty))
+                SectionEmptyState(stringResource(Res.string.sysadmin_branch_empty))
             } else {
                 LazyColumn(
                     // Bounded: this list sits inside a scrolling page, so it
@@ -184,7 +184,7 @@ private val BranchRow.displayName: String
 internal fun RecordStatusChip(isActive: Boolean) {
     StatusChip(
         label = stringResource(
-            if (isActive) Res.string.dashboard_status_active else Res.string.dashboard_status_inactive,
+            if (isActive) Res.string.console_status_active else Res.string.console_status_inactive,
         ),
         tone = if (isActive) ChipTone.Positive else ChipTone.Negative,
     )

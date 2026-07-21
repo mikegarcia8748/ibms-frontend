@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
  *
  * TODO: the wiring pass replaces [loadPanel] with concurrent calls to
  *  `GET /stores`, `GET /accounts`, `GET /providers` and `GET /topsheets`,
- *  awaited together the way `DashboardViewModel.loadPanel` does — the rows are
+ *  awaited together the way `SysadminViewModel.loadPanel` does — the rows are
  *  cross-joined, so a panel with only some lists in would draw rows that are
  *  quietly wrong. The two submits then call `POST /stores` and `POST /accounts`,
  *  and export calls `GET /exports/topsheet/{id}.xlsx`.

@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -41,16 +41,16 @@ import com.puregoldgo.ibms.ui.component.AppIcons
 import com.puregoldgo.ibms.ui.component.SegmentedTabRow
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_brand
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_brand_suffix
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_bulk_upload
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_logout
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_logout_content_description
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_subtitle
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_tab_accounts
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_tab_directory
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_tab_stores
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_brand
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_brand_suffix
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_bulk_upload
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_logout
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_logout_content_description
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_subtitle
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_tab_accounts
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_tab_directory
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_tab_stores
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_title
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.img_puregold_logo
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.login_logo_content_description
 import org.jetbrains.compose.resources.painterResource
@@ -61,26 +61,26 @@ import org.koin.compose.viewmodel.koinViewModel
  * The sysadmin control panel — delegations, branch locations and the ISP
  * accounts database, behind one segmented switch.
  *
- * Runs on sample data this pass; see [DashboardSampleData] for why.
+ * Runs on sample data this pass; see [SysadminSampleData] for why.
  */
 @Composable
-fun DashboardScreen(
+fun SysadminScreen(
     onSignedOut: () -> Unit,
-    viewModel: DashboardViewModel = koinViewModel(),
+    viewModel: SysadminViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
             when (event) {
-                is DashboardUiEvent.NavigateToLogin -> onSignedOut()
+                is SysadminUiEvent.NavigateToLogin -> onSignedOut()
             }
         }
     }
 
-    DashboardContent(
+    SysadminContent(
         uiState = uiState,
-        callback = DashboardCallback(
+        callback = SysadminCallback(
             onTabSelect = viewModel::onTabSelect,
             onUserQueryChange = viewModel::onUserQueryChange,
             onBranchQueryChange = viewModel::onBranchQueryChange,
@@ -120,16 +120,16 @@ fun DashboardScreen(
 /**
  * Pure UI content — no ViewModel dependency.
  *
- * `internal` rather than private so [DashboardScreenPreview.kt] can draw it.
+ * `internal` rather than private so [SysadminScreenPreview.kt] can draw it.
  */
 @Composable
-internal fun DashboardContent(
-    uiState: DashboardUIState,
-    callback: DashboardCallback,
+internal fun SysadminContent(
+    uiState: SysadminUIState,
+    callback: SysadminCallback,
 ) {
     Scaffold(
         topBar = {
-            DashboardAppBar(
+            SysadminAppBar(
                 userName = uiState.userName,
                 userRole = uiState.userRole,
                 onLogoutClick = callback.onLogoutClick,
@@ -163,7 +163,7 @@ internal fun DashboardContent(
                 ) {
                     Spacer(Modifier.height(Dimensions.viewPadding32))
 
-                    DashboardHeader(
+                    SysadminHeader(
                         isCompact = isCompact,
                         onBulkUploadClick = callback.onBulkUploadClick,
                     )
@@ -172,12 +172,12 @@ internal fun DashboardContent(
 
                     SegmentedTabRow(
                         tabs = listOf(
-                            DashboardTab.Directory to
-                                stringResource(Res.string.dashboard_tab_directory),
-                            DashboardTab.Stores to
-                                stringResource(Res.string.dashboard_tab_stores),
-                            DashboardTab.Accounts to
-                                stringResource(Res.string.dashboard_tab_accounts),
+                            SysadminTab.Directory to
+                                stringResource(Res.string.sysadmin_tab_directory),
+                            SysadminTab.Stores to
+                                stringResource(Res.string.sysadmin_tab_stores),
+                            SysadminTab.Accounts to
+                                stringResource(Res.string.sysadmin_tab_accounts),
                         ),
                         selected = uiState.selectedTab,
                         onSelect = callback.onTabSelect,
@@ -187,9 +187,9 @@ internal fun DashboardContent(
                     Spacer(Modifier.height(Dimensions.viewPadding24))
 
                     when (uiState.selectedTab) {
-                        DashboardTab.Directory -> DirectoryTab(uiState, callback, isCompact)
-                        DashboardTab.Stores -> StoresTab(uiState, callback, isCompact)
-                        DashboardTab.Accounts -> AccountsTab(uiState, callback, isCompact)
+                        SysadminTab.Directory -> DirectoryTab(uiState, callback, isCompact)
+                        SysadminTab.Stores -> StoresTab(uiState, callback, isCompact)
+                        SysadminTab.Accounts -> AccountsTab(uiState, callback, isCompact)
                     }
 
                     Spacer(Modifier.height(Dimensions.viewPadding48))
@@ -235,7 +235,7 @@ internal fun DashboardContent(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DashboardAppBar(
+private fun SysadminAppBar(
     userName: String,
     userRole: String,
     onLogoutClick: () -> Unit,
@@ -256,7 +256,7 @@ private fun DashboardAppBar(
         ),
         actions = {
             val logoutDescription =
-                stringResource(Res.string.dashboard_logout_content_description)
+                stringResource(Res.string.console_logout_content_description)
 
             if (isCompact) {
                 // Icon only — the label does not fit, and the content
@@ -282,7 +282,7 @@ private fun DashboardAppBar(
                         modifier = Modifier.size(Dimensions.viewSize18),
                     )
                     Spacer(Modifier.width(Dimensions.viewPadding8))
-                    Text(stringResource(Res.string.dashboard_logout))
+                    Text(stringResource(Res.string.console_logout))
                 }
             }
         },
@@ -301,7 +301,7 @@ private fun DashboardAppBar(
                 )
 
                 Text(
-                    text = stringResource(Res.string.dashboard_brand),
+                    text = stringResource(Res.string.console_brand),
                     style = MaterialTheme.typography.titleMedium,
                 )
 
@@ -309,7 +309,7 @@ private fun DashboardAppBar(
                 // dropping it keeps the identity and the sign-out both readable.
                 if (!isCompact) {
                     Text(
-                        text = stringResource(Res.string.dashboard_brand_suffix),
+                        text = stringResource(Res.string.console_brand_suffix),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = ALPHA_MUTED),
                     )
@@ -354,7 +354,7 @@ private fun DashboardAppBar(
 
 /** Title, supporting line, and the bulk-upload action. Stacks when narrow. */
 @Composable
-private fun DashboardHeader(
+private fun SysadminHeader(
     isCompact: Boolean,
     onBulkUploadClick: () -> Unit,
 ) {
@@ -362,13 +362,13 @@ private fun DashboardHeader(
     fun titleBlock() {
         Column {
             Text(
-                text = stringResource(Res.string.dashboard_title),
+                text = stringResource(Res.string.sysadmin_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Spacer(Modifier.height(Dimensions.viewPadding4))
             Text(
-                text = stringResource(Res.string.dashboard_subtitle),
+                text = stringResource(Res.string.sysadmin_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -388,7 +388,7 @@ private fun DashboardHeader(
                 modifier = Modifier.size(Dimensions.viewSize18),
             )
             Spacer(Modifier.width(Dimensions.viewPadding8))
-            Text(stringResource(Res.string.dashboard_bulk_upload))
+            Text(stringResource(Res.string.sysadmin_bulk_upload))
         }
     }
 

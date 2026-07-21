@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import androidx.compose.runtime.Immutable
 import com.puregoldgo.ibms.shared.model.Role
@@ -7,17 +7,17 @@ import com.puregoldgo.ibms.shared.validation.Validation
 import com.puregoldgo.ibms.ui.component.LETTER_ALL
 
 /** Which of the three panels the control panel is showing. */
-enum class DashboardTab { Directory, Stores, Accounts }
+enum class SysadminTab { Directory, Stores, Accounts }
 
 @Immutable
-data class DashboardUIState(
+data class SysadminUIState(
     // Who is signed in — drawn in the app bar, and the answer to "is this row
     // me?" that the directory's own guards need.
     val currentUserId: String? = null,
     val userName: String = "",
     val userRole: String = "",
 
-    val selectedTab: DashboardTab = DashboardTab.Directory,
+    val selectedTab: SysadminTab = SysadminTab.Directory,
 
     // Data. All four lists come from the API.
     val users: List<DirectoryUser> = emptyList(),

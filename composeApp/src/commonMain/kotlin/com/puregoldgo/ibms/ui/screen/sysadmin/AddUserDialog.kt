@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,35 +44,35 @@ import com.puregoldgo.ibms.ui.component.AppIcons
 import com.puregoldgo.ibms.ui.component.RoleDropdown
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_cancel
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_close
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_employee_number
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_employee_number_hint
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_first_name
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_last_name
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_middle_initial
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_note
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_role
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_submit
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_submitting
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_title
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_username
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user_username_hint
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_credential_copied
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_credential_copy
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_credential_created_title
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_credential_done
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_credential_expires
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_credential_password
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_credential_reset_title
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_credential_username
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_credential_warning_body
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_credential_warning_title
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_reset_body
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_reset_cancel
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_reset_confirm
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_reset_confirming
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_reset_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_cancel
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_close
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_employee_number
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_employee_number_hint
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_first_name
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_last_name
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_middle_initial
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_note
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_role
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_submit
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_submitting
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_username
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_add_user_username_hint
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_credential_copied
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_credential_copy
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_credential_created_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_credential_done
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_credential_expires
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_credential_password
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_credential_reset_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_credential_username
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_credential_warning_body
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_credential_warning_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_reset_body
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_reset_cancel
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_reset_confirm
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_reset_confirming
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.sysadmin_reset_title
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -89,7 +89,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun AddUserDialog(
     uiState: UserAdminUIState,
-    callback: DashboardCallback,
+    callback: SysadminCallback,
 ) {
     val issued = uiState.issued
 
@@ -102,10 +102,10 @@ internal fun AddUserDialog(
         dismissOnBackPress = issued == null && !uiState.isSubmitting,
     ) {
         AppDialogHeader(
-            title = stringResource(Res.string.dashboard_add_user_title),
+            title = stringResource(Res.string.sysadmin_add_user_title),
             icon = AppIcons.PersonAdd,
             onClose = callback.onAddUserDismiss,
-            closeDescription = stringResource(Res.string.dashboard_add_user_close),
+            closeDescription = stringResource(Res.string.sysadmin_add_user_close),
             // Closing mid-submit would orphan a request that is still going to
             // create the account — and take its password with it.
             closeEnabled = !uiState.isSubmitting,
@@ -130,7 +130,7 @@ internal fun AddUserDialog(
                     onClick = callback.onAddUserDismiss,
                     shape = RoundedCornerShape(Dimensions.viewRadius8),
                 ) {
-                    Text(stringResource(Res.string.dashboard_credential_done))
+                    Text(stringResource(Res.string.sysadmin_credential_done))
                 }
                 return@AppDialogFooter
             }
@@ -140,7 +140,7 @@ internal fun AddUserDialog(
                 enabled = !uiState.isSubmitting,
                 shape = RoundedCornerShape(Dimensions.viewRadius8),
             ) {
-                Text(stringResource(Res.string.dashboard_add_user_cancel))
+                Text(stringResource(Res.string.sysadmin_add_user_cancel))
             }
 
             Button(
@@ -165,9 +165,9 @@ internal fun AddUserDialog(
                 Text(
                     stringResource(
                         if (uiState.isSubmitting) {
-                            Res.string.dashboard_add_user_submitting
+                            Res.string.sysadmin_add_user_submitting
                         } else {
-                            Res.string.dashboard_add_user_submit
+                            Res.string.sysadmin_add_user_submit
                         },
                     ),
                 )
@@ -190,7 +190,7 @@ internal fun AddUserDialog(
 @Composable
 private fun NewUserFormBody(
     uiState: UserAdminUIState,
-    callback: DashboardCallback,
+    callback: SysadminCallback,
 ) {
     val form = uiState.form
     val enabled = !uiState.isSubmitting
@@ -206,7 +206,7 @@ private fun NewUserFormBody(
         OutlinedTextField(
             value = form.firstName,
             onValueChange = callback.onNewUserFirstNameChange,
-            label = { Text(stringResource(Res.string.dashboard_add_user_first_name)) },
+            label = { Text(stringResource(Res.string.sysadmin_add_user_first_name)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             enabled = enabled,
@@ -223,7 +223,7 @@ private fun NewUserFormBody(
             OutlinedTextField(
                 value = form.lastName,
                 onValueChange = callback.onNewUserLastNameChange,
-                label = { Text(stringResource(Res.string.dashboard_add_user_last_name)) },
+                label = { Text(stringResource(Res.string.sysadmin_add_user_last_name)) },
                 modifier = Modifier.weight(1f),
                 singleLine = true,
                 enabled = enabled,
@@ -237,7 +237,7 @@ private fun NewUserFormBody(
             OutlinedTextField(
                 value = form.middleInitial,
                 onValueChange = callback.onNewUserMiddleInitialChange,
-                label = { Text(stringResource(Res.string.dashboard_add_user_middle_initial)) },
+                label = { Text(stringResource(Res.string.sysadmin_add_user_middle_initial)) },
                 modifier = Modifier.width(Dimensions.viewWidth96),
                 singleLine = true,
                 enabled = enabled,
@@ -252,7 +252,7 @@ private fun NewUserFormBody(
         OutlinedTextField(
             value = form.username,
             onValueChange = callback.onNewUserUsernameChange,
-            label = { Text(stringResource(Res.string.dashboard_add_user_username)) },
+            label = { Text(stringResource(Res.string.sysadmin_add_user_username)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             enabled = enabled,
@@ -260,7 +260,7 @@ private fun NewUserFormBody(
             supportingText = {
                 Text(
                     text = usernameError
-                        ?: stringResource(Res.string.dashboard_add_user_username_hint),
+                        ?: stringResource(Res.string.sysadmin_add_user_username_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (usernameError != null) {
                         MaterialTheme.colorScheme.error
@@ -280,7 +280,7 @@ private fun NewUserFormBody(
         OutlinedTextField(
             value = form.employeeNumber,
             onValueChange = callback.onNewUserEmployeeNumberChange,
-            label = { Text(stringResource(Res.string.dashboard_add_user_employee_number)) },
+            label = { Text(stringResource(Res.string.sysadmin_add_user_employee_number)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             enabled = enabled,
@@ -288,7 +288,7 @@ private fun NewUserFormBody(
             supportingText = {
                 Text(
                     text = employeeNumberError
-                        ?: stringResource(Res.string.dashboard_add_user_employee_number_hint),
+                        ?: stringResource(Res.string.sysadmin_add_user_employee_number_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (employeeNumberError != null) {
                         MaterialTheme.colorScheme.error
@@ -307,7 +307,7 @@ private fun NewUserFormBody(
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8)) {
-            val roleLabel = stringResource(Res.string.dashboard_add_user_role)
+            val roleLabel = stringResource(Res.string.sysadmin_add_user_role)
             Text(
                 text = roleLabel,
                 style = MaterialTheme.typography.labelLarge,
@@ -336,7 +336,7 @@ private fun NewUserFormBody(
                 content = MaterialTheme.colorScheme.onSecondaryContainer,
             ) {
                 Text(
-                    text = stringResource(Res.string.dashboard_add_user_note),
+                    text = stringResource(Res.string.sysadmin_add_user_note),
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -371,9 +371,9 @@ private fun TemporaryPasswordPanel(credential: IssuedCredential) {
         Text(
             text = stringResource(
                 if (credential.isNewUser) {
-                    Res.string.dashboard_credential_created_title
+                    Res.string.sysadmin_credential_created_title
                 } else {
-                    Res.string.dashboard_credential_reset_title
+                    Res.string.sysadmin_credential_reset_title
                 },
                 credential.name,
             ),
@@ -382,12 +382,12 @@ private fun TemporaryPasswordPanel(credential: IssuedCredential) {
         )
 
         CredentialField(
-            label = stringResource(Res.string.dashboard_credential_username),
+            label = stringResource(Res.string.sysadmin_credential_username),
             value = credential.username,
         )
 
         CredentialField(
-            label = stringResource(Res.string.dashboard_credential_password),
+            label = stringResource(Res.string.sysadmin_credential_password),
             value = credential.temporaryPassword,
             trailing = {
                 TextButton(
@@ -405,9 +405,9 @@ private fun TemporaryPasswordPanel(credential: IssuedCredential) {
                     Text(
                         stringResource(
                             if (copied) {
-                                Res.string.dashboard_credential_copied
+                                Res.string.sysadmin_credential_copied
                             } else {
-                                Res.string.dashboard_credential_copy
+                                Res.string.sysadmin_credential_copy
                             },
                         ),
                     )
@@ -416,7 +416,7 @@ private fun TemporaryPasswordPanel(credential: IssuedCredential) {
         )
 
         Text(
-            text = stringResource(Res.string.dashboard_credential_expires, credential.expiresAt),
+            text = stringResource(Res.string.sysadmin_credential_expires, credential.expiresAt),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -426,12 +426,12 @@ private fun TemporaryPasswordPanel(credential: IssuedCredential) {
             content = MaterialTheme.colorScheme.onErrorContainer,
         ) {
             Text(
-                text = stringResource(Res.string.dashboard_credential_warning_title),
+                text = stringResource(Res.string.sysadmin_credential_warning_title),
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                text = stringResource(Res.string.dashboard_credential_warning_body),
+                text = stringResource(Res.string.sysadmin_credential_warning_body),
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -474,7 +474,7 @@ private fun CredentialField(
 @Composable
 internal fun ResetPasswordDialog(
     uiState: UserAdminUIState,
-    callback: DashboardCallback,
+    callback: SysadminCallback,
 ) {
     val target = uiState.resetTarget ?: return
     val issued = uiState.issued
@@ -487,10 +487,10 @@ internal fun ResetPasswordDialog(
         dismissOnBackPress = issued == null && !uiState.isSubmitting,
     ) {
         AppDialogHeader(
-            title = stringResource(Res.string.dashboard_reset_title),
+            title = stringResource(Res.string.sysadmin_reset_title),
             icon = AppIcons.Key,
             onClose = callback.onResetPasswordDismiss,
-            closeDescription = stringResource(Res.string.dashboard_add_user_close),
+            closeDescription = stringResource(Res.string.sysadmin_add_user_close),
             closeEnabled = !uiState.isSubmitting,
         )
 
@@ -505,7 +505,7 @@ internal fun ResetPasswordDialog(
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding12)) {
                     Text(
-                        text = stringResource(Res.string.dashboard_reset_body, target.name),
+                        text = stringResource(Res.string.sysadmin_reset_body, target.name),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
@@ -531,7 +531,7 @@ internal fun ResetPasswordDialog(
                     onClick = callback.onResetPasswordDismiss,
                     shape = RoundedCornerShape(Dimensions.viewRadius8),
                 ) {
-                    Text(stringResource(Res.string.dashboard_credential_done))
+                    Text(stringResource(Res.string.sysadmin_credential_done))
                 }
                 return@AppDialogFooter
             }
@@ -541,7 +541,7 @@ internal fun ResetPasswordDialog(
                 enabled = !uiState.isSubmitting,
                 shape = RoundedCornerShape(Dimensions.viewRadius8),
             ) {
-                Text(stringResource(Res.string.dashboard_reset_cancel))
+                Text(stringResource(Res.string.sysadmin_reset_cancel))
             }
 
             Button(
@@ -560,9 +560,9 @@ internal fun ResetPasswordDialog(
                 Text(
                     stringResource(
                         if (uiState.isSubmitting) {
-                            Res.string.dashboard_reset_confirming
+                            Res.string.sysadmin_reset_confirming
                         } else {
-                            Res.string.dashboard_reset_confirm
+                            Res.string.sysadmin_reset_confirm
                         },
                     ),
                 )

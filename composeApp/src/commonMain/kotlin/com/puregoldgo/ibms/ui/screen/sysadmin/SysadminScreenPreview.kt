@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.dashboard
+package com.puregoldgo.ibms.ui.screen.sysadmin
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Devices
@@ -9,66 +9,66 @@ import com.puregoldgo.ibms.ui.theme.AppTheme
 /**
  * Every `@Preview` for the sysadmin control panel.
  *
- * Kept beside [DashboardScreen] rather than inside it: the screen is long
+ * Kept beside [SysadminScreen] rather than inside it: the screen is long
  * enough already, and a dozen preview functions between the reader and the
  * composables they exercise is a dozen functions of noise. Nothing here ships —
- * it draws [DashboardContent] against [DashboardSampleData].
+ * it draws [SysadminContent] against [SysadminSampleData].
  */
 
-@Preview(name = "Dashboard — directory", group = "WebApp", device = Devices.DESKTOP)
+@Preview(name = "Sysadmin — directory", group = "WebApp", device = Devices.DESKTOP)
 @Composable
-private fun DashboardDirectoryWidePreview() {
+private fun SysadminDirectoryWidePreview() {
     AppTheme {
-        DashboardContent(uiState = previewState(), callback = previewCallback())
+        SysadminContent(uiState = previewState(), callback = previewCallback())
     }
 }
 
-@Preview(name = "Dashboard — stores", group = "WebApp", device = Devices.DESKTOP)
+@Preview(name = "Sysadmin — stores", group = "WebApp", device = Devices.DESKTOP)
 @Composable
-private fun DashboardStoresWidePreview() {
+private fun SysadminStoresWidePreview() {
     AppTheme {
-        DashboardContent(
-            uiState = previewState().copy(selectedTab = DashboardTab.Stores),
+        SysadminContent(
+            uiState = previewState().copy(selectedTab = SysadminTab.Stores),
             callback = previewCallback(),
         )
     }
 }
 
-@Preview(name = "Dashboard — accounts", group = "WebApp", device = Devices.DESKTOP)
+@Preview(name = "Sysadmin — accounts", group = "WebApp", device = Devices.DESKTOP)
 @Composable
-private fun DashboardAccountsWidePreview() {
+private fun SysadminAccountsWidePreview() {
     AppTheme {
-        DashboardContent(
-            uiState = previewState().copy(selectedTab = DashboardTab.Accounts),
+        SysadminContent(
+            uiState = previewState().copy(selectedTab = SysadminTab.Accounts),
             callback = previewCallback(),
         )
     }
 }
 
-@Preview(name = "Dashboard — directory", group = "MobileApp")
+@Preview(name = "Sysadmin — directory", group = "MobileApp")
 @Composable
-private fun DashboardDirectoryPreview() {
+private fun SysadminDirectoryPreview() {
     AppTheme {
-        DashboardContent(uiState = previewState(), callback = previewCallback())
+        SysadminContent(uiState = previewState(), callback = previewCallback())
     }
 }
 
-@Preview(name = "Dashboard — stores", group = "MobileApp")
+@Preview(name = "Sysadmin — stores", group = "MobileApp")
 @Composable
-private fun DashboardStoresPreview() {
+private fun SysadminStoresPreview() {
     AppTheme {
-        DashboardContent(
-            uiState = previewState().copy(selectedTab = DashboardTab.Stores),
+        SysadminContent(
+            uiState = previewState().copy(selectedTab = SysadminTab.Stores),
             callback = previewCallback(),
         )
     }
 }
 
-@Preview(name = "Dashboard — empty states", group = "WebApp", device = Devices.DESKTOP)
+@Preview(name = "Sysadmin — empty states", group = "WebApp", device = Devices.DESKTOP)
 @Composable
-private fun DashboardEmptyPreview() {
+private fun SysadminEmptyPreview() {
     AppTheme {
-        DashboardContent(
+        SysadminContent(
             uiState = previewState().copy(
                 // Nobody in the directory, and a branch query that matches nothing.
                 users = emptyList(),
@@ -79,22 +79,22 @@ private fun DashboardEmptyPreview() {
     }
 }
 
-@Preview(name = "Dashboard — import, no file", group = "WebApp", device = Devices.DESKTOP)
+@Preview(name = "Sysadmin — import, no file", group = "WebApp", device = Devices.DESKTOP)
 @Composable
-private fun DashboardBulkImportEmptyPreview() {
+private fun SysadminBulkImportEmptyPreview() {
     AppTheme {
-        DashboardContent(
+        SysadminContent(
             uiState = previewState().copy(isBulkImportOpen = true),
             callback = previewCallback(),
         )
     }
 }
 
-@Preview(name = "Dashboard — import, file chosen", group = "WebApp", device = Devices.DESKTOP)
+@Preview(name = "Sysadmin — import, file chosen", group = "WebApp", device = Devices.DESKTOP)
 @Composable
-private fun DashboardBulkImportChosenPreview() {
+private fun SysadminBulkImportChosenPreview() {
     AppTheme {
-        DashboardContent(
+        SysadminContent(
             uiState = previewState().copy(
                 isBulkImportOpen = true,
                 bulkImportFileName = "Globe Accounts.xlsx",
@@ -105,27 +105,27 @@ private fun DashboardBulkImportChosenPreview() {
     }
 }
 
-@Preview(name = "Dashboard — import summary", group = "WebApp", device = Devices.DESKTOP)
+@Preview(name = "Sysadmin — import summary", group = "WebApp", device = Devices.DESKTOP)
 @Composable
-private fun DashboardBulkImportSummaryPreview() {
+private fun SysadminBulkImportSummaryPreview() {
     AppTheme {
-        DashboardContent(
+        SysadminContent(
             uiState = previewState().copy(
                 isBulkImportOpen = true,
                 bulkImportFileName = "Globe Accounts.xlsx",
                 bulkImportFileSize = 48_128,
-                bulkImportSummary = DashboardSampleData.bulkImportSummary,
+                bulkImportSummary = SysadminSampleData.bulkImportSummary,
             ),
             callback = previewCallback(),
         )
     }
 }
 
-@Preview(name = "Dashboard — add user", group = "WebApp", device = Devices.DESKTOP)
+@Preview(name = "Sysadmin — add user", group = "WebApp", device = Devices.DESKTOP)
 @Composable
-private fun DashboardAddUserPreview() {
+private fun SysadminAddUserPreview() {
     AppTheme {
-        DashboardContent(
+        SysadminContent(
             uiState = previewState().copy(
                 userAdmin = UserAdminUIState(
                     isAddOpen = true,
@@ -144,15 +144,15 @@ private fun DashboardAddUserPreview() {
     }
 }
 
-@Preview(name = "Dashboard — password issued", group = "WebApp", device = Devices.DESKTOP)
+@Preview(name = "Sysadmin — password issued", group = "WebApp", device = Devices.DESKTOP)
 @Composable
-private fun DashboardCredentialIssuedPreview() {
+private fun SysadminCredentialIssuedPreview() {
     AppTheme {
-        DashboardContent(
+        SysadminContent(
             uiState = previewState().copy(
                 userAdmin = UserAdminUIState(
                     isAddOpen = true,
-                    issued = DashboardSampleData.issuedCredential,
+                    issued = SysadminSampleData.issuedCredential,
                 ),
             ),
             callback = previewCallback(),
@@ -160,14 +160,14 @@ private fun DashboardCredentialIssuedPreview() {
     }
 }
 
-@Preview(name = "Dashboard — reset confirm", group = "WebApp", device = Devices.DESKTOP)
+@Preview(name = "Sysadmin — reset confirm", group = "WebApp", device = Devices.DESKTOP)
 @Composable
-private fun DashboardResetPasswordPreview() {
+private fun SysadminResetPasswordPreview() {
     AppTheme {
-        DashboardContent(
+        SysadminContent(
             uiState = previewState().copy(
                 userAdmin = UserAdminUIState(
-                    resetTarget = DashboardSampleData.users.first(),
+                    resetTarget = SysadminSampleData.users.first(),
                 ),
             ),
             callback = previewCallback(),
@@ -175,16 +175,16 @@ private fun DashboardResetPasswordPreview() {
     }
 }
 
-private fun previewState() = DashboardUIState(
+private fun previewState() = SysadminUIState(
     userName = "Michael Garcia",
     userRole = "sysadmin",
-    users = DashboardSampleData.users,
-    activeProviders = DashboardSampleData.activeProviders,
-    branches = DashboardSampleData.branches,
-    accounts = DashboardSampleData.accounts,
+    users = SysadminSampleData.users,
+    activeProviders = SysadminSampleData.activeProviders,
+    branches = SysadminSampleData.branches,
+    accounts = SysadminSampleData.accounts,
 )
 
-private fun previewCallback() = DashboardCallback(
+private fun previewCallback() = SysadminCallback(
     onTabSelect = {},
     onBranchQueryChange = {},
     onBranchLetterSelect = {},

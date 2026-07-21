@@ -32,7 +32,7 @@ import com.puregoldgo.ibms.ui.component.SectionErrorState
 import com.puregoldgo.ibms.ui.component.SectionLoadingState
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_all_isps
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_all_isps
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_accounts_all_status
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_accounts_empty
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_accounts_monthly_rate
@@ -53,7 +53,7 @@ internal fun IspAccountsTab(
     callback: SecretaryCallback,
     isCompact: Boolean,
 ) {
-    val allIspsLabel = stringResource(Res.string.dashboard_all_isps)
+    val allIspsLabel = stringResource(Res.string.console_all_isps)
     val allStatusLabel = stringResource(Res.string.secretary_accounts_all_status)
     val statusOptions = accountStatusFilterOptions()
 

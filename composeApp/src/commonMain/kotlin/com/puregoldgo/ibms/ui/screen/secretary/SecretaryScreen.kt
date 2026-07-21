@@ -38,10 +38,10 @@ import com.puregoldgo.ibms.ui.component.AppIcons
 import com.puregoldgo.ibms.ui.component.SegmentedTabRow
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_brand
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_brand_suffix
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_logout
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_logout_content_description
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_brand
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_brand_suffix
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_logout
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_logout_content_description
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.img_puregold_logo
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.login_logo_content_description
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_subtitle
@@ -251,7 +251,7 @@ private fun SecretaryAppBar(
         ),
         actions = {
             val logoutDescription =
-                stringResource(Res.string.dashboard_logout_content_description)
+                stringResource(Res.string.console_logout_content_description)
 
             if (isCompact) {
                 IconButton(onClick = onLogoutClick) {
@@ -275,7 +275,7 @@ private fun SecretaryAppBar(
                         modifier = Modifier.size(Dimensions.viewSize18),
                     )
                     Spacer(Modifier.width(Dimensions.viewPadding8))
-                    Text(stringResource(Res.string.dashboard_logout))
+                    Text(stringResource(Res.string.console_logout))
                 }
             }
         },
@@ -294,13 +294,13 @@ private fun SecretaryAppBar(
                 )
 
                 Text(
-                    text = stringResource(Res.string.dashboard_brand),
+                    text = stringResource(Res.string.console_brand),
                     style = MaterialTheme.typography.titleMedium,
                 )
 
                 if (!isCompact) {
                     Text(
-                        text = stringResource(Res.string.dashboard_brand_suffix),
+                        text = stringResource(Res.string.console_brand_suffix),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.inverseOnSurface
                             .copy(alpha = ALPHA_MUTED),

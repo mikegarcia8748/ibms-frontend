@@ -12,7 +12,7 @@ import com.puregoldgo.core.storage.SessionStore
 import com.puregoldgo.ibms.shared.model.Role
 import com.puregoldgo.ibms.shared.model.wireValue
 import com.puregoldgo.ibms.ui.screen.access.NoAccessScreen
-import com.puregoldgo.ibms.ui.screen.dashboard.DashboardScreen
+import com.puregoldgo.ibms.ui.screen.sysadmin.SysadminScreen
 import com.puregoldgo.ibms.ui.screen.auth.LoginScreen
 import com.puregoldgo.ibms.ui.screen.auth.SetPasswordScreen
 import com.puregoldgo.ibms.ui.screen.provider.ProviderFormScreen
@@ -45,7 +45,7 @@ fun AppNavigation() {
      * subject to the server's own role checks.
      */
     fun homeRoute(): NavKey = when (CurrentUserStore.role) {
-        Role.SYSADMIN.wireValue -> Route.Dashboard
+        Role.SYSADMIN.wireValue -> Route.SysadminDashboard
         Role.SECRETARY.wireValue -> Route.SecretaryDashboard
         else -> Route.ProviderList
     }
@@ -101,8 +101,8 @@ fun AppNavigation() {
                     onSignedOut = { resetTo(Route.Login) },
                 )
             }
-            entry<Route.Dashboard> {
-                DashboardScreen(
+            entry<Route.SysadminDashboard> {
+                SysadminScreen(
                     onSignedOut = { resetTo(Route.Login) },
                 )
             }

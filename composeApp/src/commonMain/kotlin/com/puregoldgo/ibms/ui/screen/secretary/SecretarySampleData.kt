@@ -3,7 +3,7 @@ package com.puregoldgo.ibms.ui.screen.secretary
 /**
  * Stand-in data for the secretary console.
  *
- * This screen is not wired to the API yet, so unlike `DashboardSampleData` —
+ * This screen is not wired to the API yet, so unlike `SysadminSampleData` —
  * which survives only for previews — this is what the console actually renders
  * at runtime. It goes away in the same commit that introduces the repositories.
  *
