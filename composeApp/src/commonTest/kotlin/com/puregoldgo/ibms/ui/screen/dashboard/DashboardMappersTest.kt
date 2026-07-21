@@ -2,9 +2,14 @@ package com.puregoldgo.ibms.ui.screen.dashboard
 
 import com.puregoldgo.ibms.shared.model.Account
 import com.puregoldgo.ibms.shared.model.AccountStatus
+import com.puregoldgo.ibms.shared.model.Provider
+import com.puregoldgo.ibms.shared.model.ProviderStatus
+import com.puregoldgo.ibms.shared.model.Role
 import com.puregoldgo.ibms.shared.model.Store
 import com.puregoldgo.ibms.shared.model.StoreStatus
 import com.puregoldgo.ibms.shared.model.StoreType
+import com.puregoldgo.ibms.shared.model.UserProfile
+import com.puregoldgo.ibms.shared.model.UserStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -38,6 +43,17 @@ class DashboardMappersTest {
         branchCode = "155",
         name = name,
         city = city,
+        status = status,
+    )
+
+    private fun provider(
+        id: String = "prv-1",
+        name: String = "Globe",
+        status: ProviderStatus = ProviderStatus.ACTIVE,
+    ) = Provider(
+        id = id,
+        name = name,
+        paymentScheduleDay = 5,
         status = status,
     )
 
@@ -180,6 +196,74 @@ class DashboardMappersTest {
         val row = store(city = null).toRow(emptySet())
 
         assertTrue(row.city == null)
+    }
+
+    // endregion
+
+    // region Provider -> IspProviderRow
+
+    @Test
+    fun tc41_should_keep_only_active_providers() {
+        // Nothing in this app can deactivate a provider, so the panel lists the
+        // active ones and has no section an inactive one could appear in.
+        val rows = listOf(
+            provider(id = "prv-1", status = ProviderStatus.ACTIVE),
+            provider(id = "prv-2", status = ProviderStatus.INACTIVE),
+        ).activeRows()
+
+        assertEquals(listOf("prv-1"), rows.map { it.id })
+    }
+
+    // endregion
+
+    // region UserProfile -> DirectoryUser
+
+    @Test
+    fun tc51_should_carry_the_fields_the_row_draws() {
+        val row = UserProfile(
+            id = "usr-1",
+            username = "rlim",
+            name = "Rosario D Lim",
+            employeeNumber = "010007422",
+            role = Role.PENDING,
+            status = UserStatus.ACTIVE,
+            mustChangePassword = true,
+        ).toRow()
+
+        assertEquals("rlim", row.username)
+        assertEquals("010007422", row.employeeNumber)
+        assertEquals(Role.PENDING, row.role)
+        assertTrue(row.isActive)
+        // Drives the TEMPORARY chip, and is the only trace a temporary password
+        // leaves once the dialog that showed it is gone.
+        assertTrue(row.mustChangePassword)
+    }
+
+    @Test
+    fun tc52_should_mark_a_deactivated_user_inactive() {
+        val row = UserProfile(
+            id = "usr-1",
+            username = "garciaga",
+            name = "Gilbert Arciaga",
+            role = Role.SECRETARY,
+            status = UserStatus.INACTIVE,
+            mustChangePassword = false,
+        ).toRow()
+
+        assertFalse(row.isActive)
+    }
+
+    @Test
+    fun tc53_should_fall_back_to_the_username_for_a_blank_name() {
+        val row = UserProfile(
+            id = "usr-1",
+            username = "jdoe",
+            name = "",
+            role = Role.PENDING,
+            mustChangePassword = false,
+        ).toRow()
+
+        assertEquals("J", row.initial)
     }
 
     // endregion

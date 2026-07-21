@@ -1,6 +1,7 @@
 package com.puregoldgo.ibms.ui.screen.dashboard
 
 import com.puregoldgo.ibms.platform.file.PickedFile
+import com.puregoldgo.ibms.shared.model.Role
 
 /**
  * Everything the control panel can do, bundled so the content composables stay
@@ -17,6 +18,22 @@ data class DashboardCallback(
     val onBulkImportFilePicked: (PickedFile) -> Unit,
     val onBulkImportStart: () -> Unit,
     val onBulkUploadDismiss: () -> Unit,
+
+    // User administration.
+    val onAddUserClick: () -> Unit,
+    val onNewUserNameChange: (String) -> Unit,
+    val onNewUserUsernameChange: (String) -> Unit,
+    val onNewUserEmployeeNumberChange: (String) -> Unit,
+    val onNewUserRoleChange: (Role) -> Unit,
+    val onAddUserSubmit: () -> Unit,
+    val onAddUserDismiss: () -> Unit,
+    val onResetPasswordClick: (DirectoryUser) -> Unit,
+    val onResetPasswordConfirm: () -> Unit,
+    val onResetPasswordDismiss: () -> Unit,
+    val onUserRoleChange: (String, Role) -> Unit,
+    val onUserStatusToggle: (DirectoryUser) -> Unit,
+    val onRowErrorDismiss: () -> Unit,
+
     val onRetryLoad: () -> Unit,
     val onLogoutClick: () -> Unit,
 )

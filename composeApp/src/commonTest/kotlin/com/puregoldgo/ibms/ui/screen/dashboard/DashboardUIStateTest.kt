@@ -1,5 +1,7 @@
 package com.puregoldgo.ibms.ui.screen.dashboard
 
+import com.puregoldgo.ibms.shared.model.Role
+import com.puregoldgo.ibms.shared.model.UserStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -19,6 +21,22 @@ class DashboardUIStateTest {
         city = city,
         providerIds = providerIds,
         isActive = true,
+    )
+
+    private fun directoryUser(
+        id: String,
+        name: String = "Jane Doe",
+        role: Role = Role.SECRETARY,
+        status: UserStatus = UserStatus.ACTIVE,
+        mustChangePassword: Boolean = false,
+    ) = DirectoryUser(
+        id = id,
+        name = name,
+        username = id,
+        employeeNumber = null,
+        role = role,
+        status = status,
+        mustChangePassword = mustChangePassword,
     )
 
     private fun account(
@@ -157,6 +175,96 @@ class DashboardUIStateTest {
         val state = DashboardUIState(bulkImportFileName = "master.xlsx")
 
         assertTrue(state.canStartImport)
+    }
+
+    // endregion
+
+    // region Directory
+
+    @Test
+    fun tc31_should_order_the_directory_by_name() {
+        val state = DashboardUIState(
+            users = listOf(
+                directoryUser(id = "u1", name = "Samuel P Baricaua Jr"),
+                directoryUser(id = "u2", name = "Angel V Rubio"),
+                directoryUser(id = "u3", name = "Michael Garcia"),
+            ),
+        )
+
+        assertEquals(
+            listOf("Angel V Rubio", "Michael Garcia", "Samuel P Baricaua Jr"),
+            state.directoryUsers.map { it.name },
+        )
+    }
+
+    @Test
+    fun tc32_should_keep_a_user_who_has_no_role_yet() {
+        // There is no approval queue to hold them back into: PENDING is an
+        // account a sysadmin made and has not given a role to, and this list is
+        // the only place that role can be set.
+        val state = DashboardUIState(
+            users = listOf(
+                directoryUser(id = "u1", name = "Rosario D Lim", role = Role.PENDING),
+                directoryUser(id = "u2", name = "Michael Garcia", role = Role.SYSADMIN),
+            ),
+        )
+
+        assertEquals(2, state.directoryUsers.size)
+    }
+
+    @Test
+    fun tc33_should_keep_a_deactivated_user_listed() {
+        // A row that is gone cannot be turned back on.
+        val state = DashboardUIState(
+            users = listOf(directoryUser(id = "u1", status = UserStatus.INACTIVE)),
+        )
+
+        assertEquals(1, state.directoryUsers.size)
+        assertTrue(!state.directoryUsers.first().isActive)
+    }
+
+    // endregion
+
+    // region Add-user gating
+
+    @Test
+    fun tc41_should_not_allow_a_submit_without_both_required_fields() {
+        assertTrue(!UserAdminUIState(form = NewUserForm(name = "Jane Doe")).canSubmit)
+        assertTrue(!UserAdminUIState(form = NewUserForm(username = "jdoe")).canSubmit)
+    }
+
+    @Test
+    fun tc42_should_not_allow_a_second_submit_once_a_credential_is_issued() {
+        // A second one would provision a second account.
+        val state = UserAdminUIState(
+            form = NewUserForm(name = "Jane Doe", username = "jdoe"),
+            issued = IssuedCredential(
+                username = "jdoe",
+                name = "Jane Doe",
+                temporaryPassword = "TEST-temporary-password",
+                expiresAt = "2026-07-24T09:00:00Z",
+                isNewUser = true,
+            ),
+        )
+
+        assertTrue(!state.canSubmit)
+    }
+
+    @Test
+    fun tc43_should_not_allow_a_submit_while_one_is_in_flight() {
+        val state = UserAdminUIState(
+            form = NewUserForm(name = "Jane Doe", username = "jdoe"),
+            isSubmitting = true,
+        )
+
+        assertTrue(!state.canSubmit)
+    }
+
+    @Test
+    fun tc44_should_allow_a_submit_once_both_required_fields_are_filled() {
+        val state = UserAdminUIState(form = NewUserForm(name = "Jane Doe", username = "jdoe"))
+
+        assertTrue(state.canSubmit)
     }
 
     // endregion

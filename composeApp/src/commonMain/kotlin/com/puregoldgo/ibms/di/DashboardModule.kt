@@ -2,11 +2,18 @@ package com.puregoldgo.ibms.di
 
 import com.puregoldgo.ibms.data.repository.KtorAccountRepository
 import com.puregoldgo.ibms.data.repository.KtorStoreRepository
+import com.puregoldgo.ibms.data.repository.KtorUserRepository
 import com.puregoldgo.ibms.shared.domain.AccountRepository
 import com.puregoldgo.ibms.shared.domain.StoreRepository
+import com.puregoldgo.ibms.shared.domain.UserRepository
 import com.puregoldgo.ibms.shared.domain.usecase.BulkImportAccountsUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetAccountsUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetStoresUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.GetUsersUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.ProvisionUserUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.ResetUserPasswordUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.UpdateUserRoleUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.UpdateUserStatusUseCase
 import com.puregoldgo.ibms.ui.screen.dashboard.DashboardViewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
@@ -23,12 +30,18 @@ val dashboardModule = module {
     // region Repository
     factory<AccountRepository> { KtorAccountRepository(get()) }
     factory<StoreRepository> { KtorStoreRepository(get()) }
+    factory<UserRepository> { KtorUserRepository(get()) }
     // endregion
 
     // region UseCases
     factoryOf(::BulkImportAccountsUseCase)
     factoryOf(::GetStoresUseCase)
     factoryOf(::GetAccountsUseCase)
+    factoryOf(::GetUsersUseCase)
+    factoryOf(::ProvisionUserUseCase)
+    factoryOf(::ResetUserPasswordUseCase)
+    factoryOf(::UpdateUserRoleUseCase)
+    factoryOf(::UpdateUserStatusUseCase)
     // endregion
 
     // region ViewModels

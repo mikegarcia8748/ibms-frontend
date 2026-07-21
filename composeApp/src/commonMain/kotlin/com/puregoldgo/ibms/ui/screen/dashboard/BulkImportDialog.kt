@@ -5,8 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,15 +12,12 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -37,17 +32,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.puregoldgo.ibms.platform.file.PickedFile
 import com.puregoldgo.ibms.platform.file.fileDropTarget
 import com.puregoldgo.ibms.platform.file.rememberFilePicker
+import com.puregoldgo.ibms.ui.component.AppDialog
+import com.puregoldgo.ibms.ui.component.AppDialogBanner
+import com.puregoldgo.ibms.ui.component.AppDialogFooter
+import com.puregoldgo.ibms.ui.component.AppDialogHeader
 import com.puregoldgo.ibms.ui.component.AppIcons
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
@@ -91,9 +87,6 @@ private val ACCEPTED_TYPES = listOf(
  * One dialog rather than two: choosing a file, watching it upload and reading
  * what it did are three views of the same task, and bouncing the user between
  * surfaces would lose the file name the summary is about.
- *
- * Built from a [Dialog] and plain surfaces instead of `AlertDialog`, which has
- * no room for a tinted header band, a drop zone or a split footer.
  */
 @Composable
 internal fun BulkImportDialog(
@@ -105,116 +98,52 @@ internal fun BulkImportDialog(
     val summary = uiState.bulkImportSummary
     val isDone = summary != null
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        // The mock's dialog is wider than the platform default and caps itself;
-        // opting out of that default is the only way to say so.
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Surface(
+    AppDialog(onDismissRequest = onDismiss) {
+        AppDialogHeader(
+            title = stringResource(Res.string.dashboard_bulk_import_title),
+            icon = AppIcons.Description,
+            onClose = onDismiss,
+            closeDescription = stringResource(Res.string.dashboard_bulk_import_close),
+            // Closing mid-upload would orphan a request that is still going to
+            // commit; the only honest option is to wait.
+            closeEnabled = !uiState.isBulkImporting,
+        )
+
+        Column(
             modifier = Modifier
-                .padding(Dimensions.viewPadding24)
-                .widthIn(max = Dimensions.viewWidth560),
-            shape = RoundedCornerShape(Dimensions.viewRadius16),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = Dimensions.viewElevation2,
+                // A long list of skipped rows must not push the footer off a
+                // laptop screen.
+                .heightIn(max = Dimensions.viewHeight480)
+                .verticalScroll(rememberScrollState())
+                .padding(Dimensions.viewPadding24),
         ) {
-            Column {
-                DialogHeader(
-                    onClose = onDismiss,
-                    // Closing mid-upload would orphan a request that is still
-                    // going to commit; the only honest option is to wait.
-                    closeEnabled = !uiState.isBulkImporting,
+            if (summary != null) {
+                ImportSummaryBody(summary)
+            } else {
+                DropZone(
+                    fileName = uiState.bulkImportFileName,
+                    fileSize = uiState.bulkImportFileSize,
+                    enabled = !uiState.isBulkImporting,
+                    onFilePicked = onFilePicked,
                 )
 
-                Column(
-                    modifier = Modifier
-                        // A long list of skipped rows must not push the footer
-                        // off a laptop screen.
-                        .heightIn(max = Dimensions.viewHeight480)
-                        .verticalScroll(rememberScrollState())
-                        .padding(Dimensions.viewPadding24),
-                ) {
-                    if (summary != null) {
-                        ImportSummaryBody(summary)
-                    } else {
-                        DropZone(
-                            fileName = uiState.bulkImportFileName,
-                            fileSize = uiState.bulkImportFileSize,
-                            enabled = !uiState.isBulkImporting,
-                            onFilePicked = onFilePicked,
-                        )
+                Spacer(Modifier.height(Dimensions.viewPadding20))
 
-                        Spacer(Modifier.height(Dimensions.viewPadding20))
-
-                        if (uiState.bulkImportError != null) {
-                            ErrorBanner(uiState.bulkImportError)
-                        } else {
-                            AttentionBanner()
-                        }
-                    }
+                if (uiState.bulkImportError != null) {
+                    ErrorBanner(uiState.bulkImportError)
+                } else {
+                    AttentionBanner()
                 }
-
-                DialogFooter(
-                    isDone = isDone,
-                    isImporting = uiState.isBulkImporting,
-                    canStart = uiState.canStartImport,
-                    onDismiss = onDismiss,
-                    onStartImport = onStartImport,
-                )
             }
         }
-    }
-}
 
-/** Badge, title and the close affordance, on a tinted band. */
-@Composable
-private fun DialogHeader(
-    onClose: () -> Unit,
-    closeEnabled: Boolean,
-) {
-    Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = Dimensions.viewPadding24,
-                    end = Dimensions.viewPadding12,
-                    top = Dimensions.viewPadding16,
-                    bottom = Dimensions.viewPadding16,
-                ),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding12),
-        ) {
-            Surface(
-                shape = RoundedCornerShape(Dimensions.viewRadius8),
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            ) {
-                Icon(
-                    imageVector = AppIcons.Description,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(Dimensions.viewPadding8)
-                        .size(Dimensions.viewSize20),
-                )
-            }
-
-            Text(
-                text = stringResource(Res.string.dashboard_bulk_import_title),
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-
-            IconButton(onClick = onClose, enabled = closeEnabled) {
-                Icon(
-                    imageVector = AppIcons.Close,
-                    contentDescription = stringResource(Res.string.dashboard_bulk_import_close),
-                    modifier = Modifier.size(Dimensions.viewSize20),
-                )
-            }
-        }
+        DialogFooter(
+            isDone = isDone,
+            isImporting = uiState.isBulkImporting,
+            canStart = uiState.canStartImport,
+            onDismiss = onDismiss,
+            onStartImport = onStartImport,
+        )
     }
 }
 
@@ -337,7 +266,7 @@ private fun DropZone(
 /** What the spreadsheet has to look like. Shown before the upload, not after it fails. */
 @Composable
 private fun AttentionBanner() {
-    Banner(
+    AppDialogBanner(
         container = MaterialTheme.colorScheme.secondaryContainer,
         content = MaterialTheme.colorScheme.onSecondaryContainer,
     ) {
@@ -362,40 +291,11 @@ private fun AttentionBanner() {
  */
 @Composable
 private fun ErrorBanner(message: String) {
-    Banner(
+    AppDialogBanner(
         container = MaterialTheme.colorScheme.errorContainer,
         content = MaterialTheme.colorScheme.onErrorContainer,
     ) {
         Text(text = message, style = MaterialTheme.typography.bodySmall)
-    }
-}
-
-@Composable
-private fun Banner(
-    container: Color,
-    content: Color,
-    body: @Composable ColumnScope.() -> Unit,
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(Dimensions.viewRadius8),
-        color = container,
-        contentColor = content,
-    ) {
-        Row(
-            modifier = Modifier.padding(Dimensions.viewPadding12),
-            horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8),
-        ) {
-            Icon(
-                imageVector = AppIcons.Warning,
-                contentDescription = null,
-                modifier = Modifier.size(Dimensions.viewSize18),
-            )
-            Column(
-                verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding2),
-                content = body,
-            )
-        }
     }
 }
 
@@ -500,65 +400,53 @@ private fun DialogFooter(
     onDismiss: () -> Unit,
     onStartImport: () -> Unit,
 ) {
-    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Dimensions.viewPadding16),
-            horizontalArrangement = Arrangement.spacedBy(
-                space = Dimensions.viewPadding12,
-                alignment = Alignment.End,
-            ),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (isDone) {
-                Button(
-                    onClick = onDismiss,
-                    shape = RoundedCornerShape(Dimensions.viewRadius8),
-                ) {
-                    Text(stringResource(Res.string.dashboard_bulk_upload_dismiss))
-                }
-                return@Row
-            }
-
-            OutlinedButton(
-                onClick = onDismiss,
-                enabled = !isImporting,
-                shape = RoundedCornerShape(Dimensions.viewRadius8),
-            ) {
-                Text(stringResource(Res.string.dashboard_bulk_import_cancel))
-            }
-
+    AppDialogFooter {
+        if (isDone) {
             Button(
-                onClick = onStartImport,
-                enabled = canStart,
+                onClick = onDismiss,
                 shape = RoundedCornerShape(Dimensions.viewRadius8),
-                colors = ButtonDefaults.buttonColors(),
             ) {
-                if (isImporting) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(Dimensions.viewSize18),
-                        strokeWidth = Dimensions.viewStroke2,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                } else {
-                    Icon(
-                        imageVector = AppIcons.CheckCircle,
-                        contentDescription = null,
-                        modifier = Modifier.size(Dimensions.viewSize18),
-                    )
-                }
-                Spacer(Modifier.width(Dimensions.viewPadding8))
-                Text(
-                    stringResource(
-                        if (isImporting) {
-                            Res.string.dashboard_bulk_import_uploading
-                        } else {
-                            Res.string.dashboard_bulk_import_start
-                        },
-                    ),
+                Text(stringResource(Res.string.dashboard_bulk_upload_dismiss))
+            }
+            return@AppDialogFooter
+        }
+
+        OutlinedButton(
+            onClick = onDismiss,
+            enabled = !isImporting,
+            shape = RoundedCornerShape(Dimensions.viewRadius8),
+        ) {
+            Text(stringResource(Res.string.dashboard_bulk_import_cancel))
+        }
+
+        Button(
+            onClick = onStartImport,
+            enabled = canStart,
+            shape = RoundedCornerShape(Dimensions.viewRadius8),
+        ) {
+            if (isImporting) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(Dimensions.viewSize18),
+                    strokeWidth = Dimensions.viewStroke2,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+            } else {
+                Icon(
+                    imageVector = AppIcons.CheckCircle,
+                    contentDescription = null,
+                    modifier = Modifier.size(Dimensions.viewSize18),
                 )
             }
+            Spacer(Modifier.width(Dimensions.viewPadding8))
+            Text(
+                stringResource(
+                    if (isImporting) {
+                        Res.string.dashboard_bulk_import_uploading
+                    } else {
+                        Res.string.dashboard_bulk_import_start
+                    },
+                ),
+            )
         }
     }
 }

@@ -22,7 +22,10 @@ interface IbmsApiClient {
     // ─── Users ───────────────────────────────────────────────────────────────
     suspend fun getCurrentUser(): UserProfile
     suspend fun listUsers(): List<UserProfile>
+    suspend fun provisionUser(request: ProvisionUserRequest): ProvisionedUser
+    suspend fun resetUserPassword(userId: String): ProvisionedUser
     suspend fun updateUserRole(userId: String, role: Role): UserProfile
+    suspend fun updateUserStatus(userId: String, status: UserStatus): UserProfile
 
     // ─── Providers ───────────────────────────────────────────────────────────
     suspend fun listProviders(): List<Provider>
@@ -152,6 +155,56 @@ data class ChangePasswordRequest(
 data class RefreshRequest(
     val refreshToken: String,
 )
+
+// ─── User DTOs ──────────────────────────────────────────────────────────────
+// Mirrors ibms-backend/src/domain/model/DomainModels.kt (user administration).
+//
+// These endpoints are sysadmin-only. There is no self-registration: `POST /users`
+// is the only way a user comes into existence.
+
+/**
+ * Body for `POST /users`.
+ *
+ * [role] defaults to [Role.PENDING] to match the backend: an account can be
+ * created before anyone has decided what it may do, and a role assigned after.
+ */
+@kotlinx.serialization.Serializable
+data class ProvisionUserRequest(
+    val username: String,
+    val name: String,
+    val firstName: String? = null,
+    val middleInitial: String? = null,
+    val lastName: String? = null,
+    val employeeNumber: String? = null,
+    val role: Role = Role.PENDING,
+    val status: UserStatus = UserStatus.ACTIVE,
+)
+
+/**
+ * What `POST /users` and `POST /users/{id}/reset-password` answer with.
+ *
+ * [temporaryPassword] is the one and only time the password is readable. The
+ * backend stores a bcrypt hash, so a lost temporary password can be *replaced*
+ * — by another reset — but never recovered. Callers must show it immediately and
+ * must not persist it anywhere.
+ *
+ * [temporaryPasswordExpiresAt] is an ISO-8601 instant, kept as a String to match
+ * how every other timestamp crosses the wire in this module.
+ */
+@kotlinx.serialization.Serializable
+data class ProvisionedUser(
+    val user: UserProfile,
+    val temporaryPassword: String,
+    val temporaryPasswordExpiresAt: String,
+)
+
+/** Body for `PATCH /users/{id}/role`. */
+@kotlinx.serialization.Serializable
+data class UpdateRoleRequest(val role: Role)
+
+/** Body for `PATCH /users/{id}/status`. */
+@kotlinx.serialization.Serializable
+data class UpdateUserStatusRequest(val status: UserStatus)
 
 // ─── Provider DTOs ──────────────────────────────────────────────────────────
 

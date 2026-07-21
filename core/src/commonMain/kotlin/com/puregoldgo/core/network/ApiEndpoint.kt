@@ -15,6 +15,9 @@ sealed class ApiEndpoint(val path: String) {
     data object CurrentUser : ApiEndpoint("/auth/me")
     data object Logout : ApiEndpoint("/auth/logout")
 
+    // ─── Users ───────────────────────────────────────────────────────────────
+    data object Users : ApiEndpoint("/users")
+
     // ─── Providers ───────────────────────────────────────────────────────────
     data object Providers : ApiEndpoint("/providers")
 

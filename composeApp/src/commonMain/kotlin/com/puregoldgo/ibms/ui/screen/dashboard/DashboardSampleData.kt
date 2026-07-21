@@ -1,20 +1,20 @@
 package com.puregoldgo.ibms.ui.screen.dashboard
 
 import com.puregoldgo.ibms.shared.model.Role
+import com.puregoldgo.ibms.shared.model.UserStatus
 
 /**
  * Stand-in data for the control panel's `@Preview`s.
  *
- * Providers, branches and accounts now come from the API at runtime — only
- * [users] is still served from here, because the delegations panel has not had
- * its wiring pass. The rest survives so the previews can draw a populated screen
- * without a ViewModel, a session or a running backend.
+ * Every list here now comes from the API at runtime; this survives only so the
+ * previews can draw a populated screen without a ViewModel, a session or a
+ * running backend.
  *
- * Shaped to exercise the layout, not to be pretty: a pending user so the
- * delegations card is non-empty, branches spread across enough letters for the
- * A–Z rail to matter, accounts from more than one provider so the ISP filter
- * visibly does something, and an inactive provider list that starts empty so
- * that empty state is the one seen first.
+ * Shaped to exercise the layout, not to be pretty: a user still holding a
+ * temporary password and a deactivated one so both row states are visible at a
+ * glance, one account with no role yet, branches spread across enough letters
+ * for the A–Z rail to matter, and accounts from more than one provider so the
+ * ISP filter visibly does something.
  */
 internal object DashboardSampleData {
 
@@ -30,6 +30,8 @@ internal object DashboardSampleData {
             username = "arubio",
             employeeNumber = "010005869",
             role = Role.SECRETARY,
+            status = UserStatus.ACTIVE,
+            mustChangePassword = false,
         ),
         DirectoryUser(
             id = "usr-2",
@@ -37,6 +39,8 @@ internal object DashboardSampleData {
             username = "mgarcia",
             employeeNumber = null,
             role = Role.SYSADMIN,
+            status = UserStatus.ACTIVE,
+            mustChangePassword = false,
         ),
         DirectoryUser(
             id = "usr-3",
@@ -44,21 +48,45 @@ internal object DashboardSampleData {
             username = "sbaricaua",
             employeeNumber = "350000017",
             role = Role.PAYABLES,
+            status = UserStatus.ACTIVE,
+            mustChangePassword = false,
         ),
+        // Left the company: still listed, because a row that is gone cannot be
+        // turned back on.
         DirectoryUser(
             id = "usr-4",
             name = "Gilbert Arciaga",
             username = "garciaga",
             employeeNumber = "010000000",
             role = Role.SECRETARY,
+            status = UserStatus.INACTIVE,
+            mustChangePassword = false,
         ),
+        // Just provisioned: no role decided yet, and still on the temporary
+        // password the admin was handed.
         DirectoryUser(
             id = "usr-5",
             name = "Rosario D Lim",
             username = "rlim",
             employeeNumber = "010007422",
             role = Role.PENDING,
+            status = UserStatus.ACTIVE,
+            mustChangePassword = true,
         ),
+    )
+
+    /**
+     * A freshly issued temporary password, for the credential panel's preview.
+     *
+     * Obviously fake — nothing that looks like a real generated secret belongs
+     * in a source file, even a preview one.
+     */
+    val issuedCredential = IssuedCredential(
+        username = "rlim",
+        name = "Rosario D Lim",
+        temporaryPassword = "SAMPLE-not-a-real-password",
+        expiresAt = "2026-07-24T09:00:00Z",
+        isNewUser = true,
     )
 
     val activeProviders: List<IspProviderRow> = listOf(
@@ -67,8 +95,6 @@ internal object DashboardSampleData {
         IspProviderRow(id = PROVIDER_PLDT, name = "PLDT", paymentScheduleDay = 5),
         IspProviderRow(id = PROVIDER_RADIUS, name = "Radius", paymentScheduleDay = 5),
     )
-
-    val inactiveProviders: List<IspProviderRow> = emptyList()
 
     val branches: List<BranchRow> = listOf(
         BranchRow("br-1", "316", "888 CHINA TOWN SQUARE, BACOLOD CITY", "Bacolod City", setOf(PROVIDER_GLOBE), true),

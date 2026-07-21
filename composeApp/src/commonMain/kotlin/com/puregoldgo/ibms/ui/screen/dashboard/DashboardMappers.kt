@@ -6,6 +6,7 @@ import com.puregoldgo.ibms.shared.model.Provider
 import com.puregoldgo.ibms.shared.model.ProviderStatus
 import com.puregoldgo.ibms.shared.model.Store
 import com.puregoldgo.ibms.shared.model.StoreStatus
+import com.puregoldgo.ibms.shared.model.UserProfile
 
 /**
  * Turns API models into the rows this screen draws.
@@ -22,6 +23,16 @@ internal fun Provider.toRow() = IspProviderRow(
     id = id,
     name = name,
     paymentScheduleDay = paymentScheduleDay,
+)
+
+internal fun UserProfile.toRow() = DirectoryUser(
+    id = id,
+    name = name,
+    username = username,
+    employeeNumber = employeeNumber,
+    role = role,
+    status = status,
+    mustChangePassword = mustChangePassword,
 )
 
 /**
@@ -58,11 +69,14 @@ internal fun providerIdsByStore(accounts: List<Account>): Map<String, Set<String
     accounts.groupBy { it.storeId }
         .mapValues { (_, forStore) -> forStore.map { it.providerId }.toSet() }
 
-/** Providers split into the two sections the delegations panel draws. */
-internal fun List<Provider>.partitionByStatus(): Pair<List<IspProviderRow>, List<IspProviderRow>> {
-    val (active, inactive) = partition { it.status == ProviderStatus.ACTIVE }
-    return active.map { it.toRow() } to inactive.map { it.toRow() }
-}
+/**
+ * The providers the panel draws.
+ *
+ * Inactive ones are dropped rather than listed separately: nothing in this app
+ * can deactivate a provider, so a section for them could only ever be empty.
+ */
+internal fun List<Provider>.activeRows(): List<IspProviderRow> =
+    filter { it.status == ProviderStatus.ACTIVE }.map { it.toRow() }
 
 /**
  * Groups a decimal string for display: `"2489.99"` → `"2,489.99"`.

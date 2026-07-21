@@ -60,7 +60,7 @@ object AppIcons {
         )
     }
 
-    /** A delegation — a role handed to someone. */
+    /** A credential — the temporary password being issued or re-issued. */
     val Key: ImageVector by lazy {
         materialIcon(
             name = "Key",
@@ -91,13 +91,30 @@ object AppIcons {
         )
     }
 
-    /** Switched off — the inactive providers panel. */
-    val Power: ImageVector by lazy {
+    /** Provision an account. */
+    val PersonAdd: ImageVector by lazy {
         materialIcon(
-            name = "Power",
-            pathData = "M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87" +
-                "-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 " +
-                "9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z",
+            name = "PersonAdd",
+            pathData = "M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h" +
+                "3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
+        )
+    }
+
+    /** A row's own menu — reset password, deactivate. */
+    val MoreVert: ImageVector by lazy {
+        materialIcon(
+            name = "MoreVert",
+            pathData = "M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 " +
+                "2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z",
+        )
+    }
+
+    /** Take the temporary password to the clipboard. */
+    val ContentCopy: ImageVector by lazy {
+        materialIcon(
+            name = "ContentCopy",
+            pathData = "M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 " +
+                "2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z",
         )
     }
 

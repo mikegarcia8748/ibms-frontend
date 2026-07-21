@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +30,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,7 +54,7 @@ import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_l
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_logout_content_description
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_subtitle
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_tab_accounts
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_tab_delegations
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_tab_directory
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_tab_stores
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_title
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.img_puregold_logo
@@ -94,6 +97,19 @@ fun DashboardScreen(
             onBulkImportFilePicked = viewModel::onBulkImportFilePicked,
             onBulkImportStart = viewModel::onBulkImportStart,
             onBulkUploadDismiss = viewModel::onBulkUploadDismiss,
+            onAddUserClick = viewModel::onAddUserClick,
+            onNewUserNameChange = viewModel::onNewUserNameChange,
+            onNewUserUsernameChange = viewModel::onNewUserUsernameChange,
+            onNewUserEmployeeNumberChange = viewModel::onNewUserEmployeeNumberChange,
+            onNewUserRoleChange = viewModel::onNewUserRoleChange,
+            onAddUserSubmit = viewModel::onAddUserSubmit,
+            onAddUserDismiss = viewModel::onAddUserDismiss,
+            onResetPasswordClick = viewModel::onResetPasswordClick,
+            onResetPasswordConfirm = viewModel::onResetPasswordConfirm,
+            onResetPasswordDismiss = viewModel::onResetPasswordDismiss,
+            onUserRoleChange = viewModel::onUserRoleChange,
+            onUserStatusToggle = viewModel::onUserStatusToggle,
+            onRowErrorDismiss = viewModel::onRowErrorDismiss,
             onRetryLoad = { viewModel.loadPanel() },
             onLogoutClick = viewModel::onLogout,
         ),
@@ -160,7 +176,7 @@ private fun DashboardContent(
                     Spacer(Modifier.height(Dimensions.viewPadding24))
 
                     when (uiState.selectedTab) {
-                        DashboardTab.Delegations -> DelegationsTab(uiState, isCompact)
+                        DashboardTab.Directory -> DirectoryTab(uiState, callback, isCompact)
                         DashboardTab.Stores -> StoresTab(uiState, callback, isCompact)
                         DashboardTab.Accounts -> AccountsTab(uiState, callback, isCompact)
                     }
@@ -177,6 +193,15 @@ private fun DashboardContent(
                     onDismiss = callback.onBulkUploadDismiss,
                 )
             }
+
+            // Mutually exclusive by construction: opening either resets the
+            // whole user-admin block, so a credential on screen always belongs
+            // to whichever one is showing.
+            if (uiState.userAdmin.isAddOpen) {
+                AddUserDialog(uiState = uiState.userAdmin, callback = callback)
+            } else if (uiState.userAdmin.resetTarget != null) {
+                ResetPasswordDialog(uiState = uiState.userAdmin, callback = callback)
+            }
         }
     }
 }
@@ -188,26 +213,64 @@ private fun DashboardContent(
  * answer to "a dark surface in a light app", so it stays coherent with the rest
  * of [AppTheme] and inverts correctly if a dark scheme is ever switched on.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DashboardAppBar(
     userName: String,
     userRole: String,
     onLogoutClick: () -> Unit,
-) {
-    Surface(
-        color = MaterialTheme.colorScheme.inverseSurface,
-        contentColor = MaterialTheme.colorScheme.inverseOnSurface,
-    ) {
-        BoxWithConstraints {
-            // The bar sits in the Scaffold's topBar, outside the body's own
-            // measurement, so it has to ask about width itself.
-            val isCompact = maxWidth <= Dimensions.viewWidth600
+) = BoxWithConstraints {
+    // The bar sits in the Scaffold's topBar, outside the body's own
+    // measurement, so it has to ask about width itself. Measured out here
+    // rather than inside a slot because both the title and the actions need
+    // the answer.
+    val isCompact = maxWidth <= Dimensions.viewWidth600
 
+    TopAppBar(
+        // `TopAppBar` defaults to the surface colours; the inverse pair is what
+        // makes this the dark bar the rest of the theme expects.
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.inverseSurface,
+            titleContentColor = MaterialTheme.colorScheme.inverseOnSurface,
+            actionIconContentColor = MaterialTheme.colorScheme.inverseOnSurface,
+        ),
+        actions = {
+            val logoutDescription =
+                stringResource(Res.string.dashboard_logout_content_description)
+
+            if (isCompact) {
+                // Icon only — the label does not fit, and the content
+                // description keeps it named for a screen reader.
+                IconButton(onClick = onLogoutClick) {
+                    Icon(
+                        imageVector = AppIcons.Logout,
+                        contentDescription = logoutDescription,
+                        modifier = Modifier.size(Dimensions.viewSize20),
+                        tint = MaterialTheme.colorScheme.inverseOnSurface,
+                    )
+                }
+            } else {
+                TextButton(
+                    onClick = onLogoutClick,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    ),
+                ) {
+                    Icon(
+                        imageVector = AppIcons.Logout,
+                        contentDescription = logoutDescription,
+                        modifier = Modifier.size(Dimensions.viewSize18),
+                    )
+                    Spacer(Modifier.width(Dimensions.viewPadding8))
+                    Text(stringResource(Res.string.dashboard_logout))
+                }
+            }
+        },
+        title = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(Dimensions.viewHeight64)
-                    .padding(horizontal = Dimensions.viewPadding16),
+                    .height(Dimensions.viewHeight64),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding12),
             ) {
@@ -264,42 +327,9 @@ private fun DashboardAppBar(
                         )
                     }
                 }
-
-                Spacer(Modifier.weight(1f))
-
-                val logoutDescription =
-                    stringResource(Res.string.dashboard_logout_content_description)
-
-                if (isCompact) {
-                    // Icon only — the label does not fit, and the content
-                    // description keeps it named for a screen reader.
-                    IconButton(onClick = onLogoutClick) {
-                        Icon(
-                            imageVector = AppIcons.Logout,
-                            contentDescription = logoutDescription,
-                            modifier = Modifier.size(Dimensions.viewSize20),
-                            tint = MaterialTheme.colorScheme.inverseOnSurface,
-                        )
-                    }
-                } else {
-                    TextButton(
-                        onClick = onLogoutClick,
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                        ),
-                    ) {
-                        Icon(
-                            imageVector = AppIcons.Logout,
-                            contentDescription = logoutDescription,
-                            modifier = Modifier.size(Dimensions.viewSize18),
-                        )
-                        Spacer(Modifier.width(Dimensions.viewPadding8))
-                        Text(stringResource(Res.string.dashboard_logout))
-                    }
-                }
             }
-        }
-    }
+        },
+    )
 }
 
 /** Title, supporting line, and the bulk-upload action. Stacks when narrow. */
@@ -374,7 +404,7 @@ private fun DashboardTabRow(
     isCompact: Boolean,
 ) {
     val tabs = listOf(
-        DashboardTab.Delegations to stringResource(Res.string.dashboard_tab_delegations),
+        DashboardTab.Directory to stringResource(Res.string.dashboard_tab_directory),
         DashboardTab.Stores to stringResource(Res.string.dashboard_tab_stores),
         DashboardTab.Accounts to stringResource(Res.string.dashboard_tab_accounts),
     )
@@ -437,9 +467,9 @@ private fun DashboardTabRow(
 private const val ALPHA_MUTED = 0.7f
 private const val ALPHA_DIVIDER = 0.3f
 
-@Preview(name = "Dashboard — delegations", group = "WebApp", device = Devices.DESKTOP)
+@Preview(name = "Dashboard — directory", group = "WebApp", device = Devices.DESKTOP)
 @Composable
-private fun DashboardDelegationsWidePreview() {
+private fun DashboardDirectoryWidePreview() {
     AppTheme {
         DashboardContent(uiState = previewState(), callback = previewCallback())
     }
@@ -467,9 +497,9 @@ private fun DashboardAccountsWidePreview() {
     }
 }
 
-@Preview(name = "Dashboard — delegations", group = "MobileApp")
+@Preview(name = "Dashboard — directory", group = "MobileApp")
 @Composable
-private fun DashboardDelegationsPreview() {
+private fun DashboardDirectoryPreview() {
     AppTheme {
         DashboardContent(uiState = previewState(), callback = previewCallback())
     }
@@ -492,8 +522,8 @@ private fun DashboardEmptyPreview() {
     AppTheme {
         DashboardContent(
             uiState = previewState().copy(
-                // No pending user, and a branch query that matches nothing.
-                users = DashboardSampleData.users.filter { it.role != Role.PENDING },
+                // Nobody in the directory, and a branch query that matches nothing.
+                users = emptyList(),
                 branchQuery = "zzzz",
             ),
             callback = previewCallback(),
@@ -543,12 +573,63 @@ private fun DashboardBulkImportSummaryPreview() {
     }
 }
 
+@Preview(name = "Dashboard — add user", group = "WebApp", device = Devices.DESKTOP)
+@Composable
+private fun DashboardAddUserPreview() {
+    AppTheme {
+        DashboardContent(
+            uiState = previewState().copy(
+                userAdmin = UserAdminUIState(
+                    isAddOpen = true,
+                    form = NewUserForm(
+                        name = "Rosario D Lim",
+                        username = "rlim",
+                        employeeNumber = "010007422",
+                        role = Role.SECRETARY,
+                    ),
+                ),
+            ),
+            callback = previewCallback(),
+        )
+    }
+}
+
+@Preview(name = "Dashboard — password issued", group = "WebApp", device = Devices.DESKTOP)
+@Composable
+private fun DashboardCredentialIssuedPreview() {
+    AppTheme {
+        DashboardContent(
+            uiState = previewState().copy(
+                userAdmin = UserAdminUIState(
+                    isAddOpen = true,
+                    issued = DashboardSampleData.issuedCredential,
+                ),
+            ),
+            callback = previewCallback(),
+        )
+    }
+}
+
+@Preview(name = "Dashboard — reset confirm", group = "WebApp", device = Devices.DESKTOP)
+@Composable
+private fun DashboardResetPasswordPreview() {
+    AppTheme {
+        DashboardContent(
+            uiState = previewState().copy(
+                userAdmin = UserAdminUIState(
+                    resetTarget = DashboardSampleData.users.first(),
+                ),
+            ),
+            callback = previewCallback(),
+        )
+    }
+}
+
 private fun previewState() = DashboardUIState(
     userName = "Michael Garcia",
     userRole = "sysadmin",
     users = DashboardSampleData.users,
     activeProviders = DashboardSampleData.activeProviders,
-    inactiveProviders = DashboardSampleData.inactiveProviders,
     branches = DashboardSampleData.branches,
     accounts = DashboardSampleData.accounts,
 )
@@ -564,6 +645,19 @@ private fun previewCallback() = DashboardCallback(
     onBulkImportFilePicked = {},
     onBulkImportStart = {},
     onBulkUploadDismiss = {},
+    onAddUserClick = {},
+    onNewUserNameChange = {},
+    onNewUserUsernameChange = {},
+    onNewUserEmployeeNumberChange = {},
+    onNewUserRoleChange = {},
+    onAddUserSubmit = {},
+    onAddUserDismiss = {},
+    onResetPasswordClick = {},
+    onResetPasswordConfirm = {},
+    onResetPasswordDismiss = {},
+    onUserRoleChange = { _, _ -> },
+    onUserStatusToggle = {},
+    onRowErrorDismiss = {},
     onRetryLoad = {},
     onLogoutClick = {},
 )

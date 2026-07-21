@@ -72,22 +72,65 @@
     <string name="dashboard_bulk_upload">Bulk Upload Master List</string>
 
     <!-- Dashboard — tabs -->
-    <string name="dashboard_tab_delegations">User Delegations</string>
+    <string name="dashboard_tab_directory">Users &amp; Providers</string>
     <string name="dashboard_tab_stores">Stores / Branches View</string>
     <string name="dashboard_tab_accounts">ISP Accounts View</string>
 
-    <!-- Dashboard — delegations tab -->
-    <string name="dashboard_pending_delegations">Pending Delegations</string>
-    <string name="dashboard_pending_delegations_empty">No pending delegations.</string>
-    <string name="dashboard_assign_role">Assign role</string>
+    <!-- Dashboard — directory tab -->
     <string name="dashboard_active_directory">Active Directory</string>
     <string name="dashboard_active_directory_empty">No directory entries.</string>
     <string name="dashboard_employee_number">EMP:%1$s</string>
+    <string name="dashboard_add_user">Add User</string>
+    <string name="dashboard_user_actions">Manage %1$s</string>
+    <string name="dashboard_user_reset_password">Reset password</string>
+    <string name="dashboard_user_deactivate">Deactivate</string>
+    <string name="dashboard_user_reactivate">Reactivate</string>
+    <string name="dashboard_user_temporary">TEMPORARY</string>
+    <string name="dashboard_dismiss">Dismiss</string>
+    <string name="dashboard_user_role_label">Role for %1$s</string>
     <string name="dashboard_isp_providers">ISP Providers</string>
     <string name="dashboard_payment_day">DAY %1$d</string>
     <string name="dashboard_specify_provider">+ SPECIFY PROVIDER</string>
-    <string name="dashboard_inactive_providers">Inactive Providers</string>
-    <string name="dashboard_inactive_providers_empty">No inactive providers.</string>
+
+    <!-- Dashboard — roles -->
+    <string name="role_sysadmin">Sysadmin</string>
+    <string name="role_secretary">Secretary</string>
+    <string name="role_payables">Payables</string>
+    <string name="role_finance">Finance</string>
+    <string name="role_manager">Manager</string>
+    <string name="role_pending">No role yet</string>
+
+    <!-- Dashboard — add user -->
+    <string name="dashboard_add_user_title">Add User</string>
+    <string name="dashboard_add_user_close">Close</string>
+    <string name="dashboard_add_user_name">Full name</string>
+    <string name="dashboard_add_user_username">Username</string>
+    <string name="dashboard_add_user_username_hint">3–32 characters: letters, digits, dot, underscore or hyphen</string>
+    <string name="dashboard_add_user_employee_number">Employee number (optional)</string>
+    <string name="dashboard_add_user_role">Role</string>
+    <string name="dashboard_add_user_note">A temporary password is generated on submit. It is shown once, on the next screen — relay it to the user yourself.</string>
+    <string name="dashboard_add_user_cancel">Cancel</string>
+    <string name="dashboard_add_user_submit">Create User</string>
+    <string name="dashboard_add_user_submitting">Creating…</string>
+
+    <!-- Dashboard — temporary password -->
+    <string name="dashboard_credential_created_title">%1$s can now sign in</string>
+    <string name="dashboard_credential_reset_title">New temporary password for %1$s</string>
+    <string name="dashboard_credential_username">Username</string>
+    <string name="dashboard_credential_password">Temporary password</string>
+    <string name="dashboard_credential_copy">Copy</string>
+    <string name="dashboard_credential_copied">Copied</string>
+    <string name="dashboard_credential_expires">Expires %1$s</string>
+    <string name="dashboard_credential_warning_title">This is the only time this password is shown.</string>
+    <string name="dashboard_credential_warning_body">It is stored hashed and cannot be looked up again. Relay it securely; the user must change it at first sign-in. If it is lost, issue another from their row menu.</string>
+    <string name="dashboard_credential_done">Done</string>
+
+    <!-- Dashboard — reset password -->
+    <string name="dashboard_reset_title">Reset password</string>
+    <string name="dashboard_reset_body">A new temporary password will be generated for %1$s. Their current password stops working immediately and they are signed out everywhere.</string>
+    <string name="dashboard_reset_cancel">Cancel</string>
+    <string name="dashboard_reset_confirm">Issue new password</string>
+    <string name="dashboard_reset_confirming">Issuing…</string>
 
     <!-- Dashboard — stores tab -->
     <string name="dashboard_branch_locations">Branch Locations</string>
