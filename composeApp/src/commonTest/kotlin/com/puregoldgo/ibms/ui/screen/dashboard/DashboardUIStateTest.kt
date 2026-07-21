@@ -4,6 +4,8 @@ import com.puregoldgo.ibms.shared.model.Role
 import com.puregoldgo.ibms.shared.model.UserStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class DashboardUIStateTest {
@@ -28,15 +30,24 @@ class DashboardUIStateTest {
         name: String = "Jane Doe",
         role: Role = Role.SECRETARY,
         status: UserStatus = UserStatus.ACTIVE,
+        employeeNumber: String? = null,
         mustChangePassword: Boolean = false,
     ) = DirectoryUser(
         id = id,
         name = name,
         username = id,
-        employeeNumber = null,
+        employeeNumber = employeeNumber,
         role = role,
         status = status,
         mustChangePassword = mustChangePassword,
+    )
+
+    /** A form that passes every rule, so each test varies exactly one thing. */
+    private fun validForm() = NewUserForm(
+        firstName = "Jane",
+        lastName = "Doe",
+        username = "jdoe",
+        employeeNumber = "010005529",
     )
 
     private fun account(
@@ -223,21 +234,118 @@ class DashboardUIStateTest {
         assertTrue(!state.directoryUsers.first().isActive)
     }
 
+    @Test
+    fun tc34_should_search_the_directory_by_name_username_or_employee_number() {
+        val state = DashboardUIState(
+            users = listOf(
+                directoryUser(id = "arubio", name = "Angel V Rubio", employeeNumber = "010005869"),
+                directoryUser(id = "mgarcia", name = "Michael Garcia", employeeNumber = "010005529"),
+            ),
+        )
+
+        assertEquals(
+            listOf("Michael Garcia"),
+            state.copy(userQuery = "garc").directoryUsers.map { it.name },
+        )
+        assertEquals(
+            listOf("Angel V Rubio"),
+            state.copy(userQuery = "arub").directoryUsers.map { it.name },
+        )
+        // The employee number is what an admin has in hand when HR asks.
+        assertEquals(
+            listOf("Michael Garcia"),
+            state.copy(userQuery = "010005529").directoryUsers.map { it.name },
+        )
+    }
+
+    @Test
+    fun tc35_should_keep_the_name_order_within_a_search() {
+        val state = DashboardUIState(
+            users = listOf(
+                directoryUser(id = "u1", name = "Samuel P Baricaua Jr"),
+                directoryUser(id = "u2", name = "Angel V Rubio"),
+                directoryUser(id = "u3", name = "Michael Garcia"),
+            ),
+            userQuery = "a",
+        )
+
+        assertEquals(
+            listOf("Angel V Rubio", "Michael Garcia", "Samuel P Baricaua Jr"),
+            state.directoryUsers.map { it.name },
+        )
+    }
+
+    // endregion
+
+    // region Deactivation guards
+
+    @Test
+    fun tc36_should_refuse_to_deactivate_your_own_account() {
+        // Signing yourself out of user administration permanently.
+        val self = directoryUser(id = "u1", role = Role.SYSADMIN)
+        val state = DashboardUIState(
+            currentUserId = "u1",
+            users = listOf(self, directoryUser(id = "u2", role = Role.SYSADMIN)),
+        )
+
+        assertEquals(DeactivateBlock.Self, state.deactivateBlockedReason(self))
+    }
+
+    @Test
+    fun tc37_should_refuse_to_deactivate_the_last_sysadmin() {
+        // The backend refuses to *demote* the last one but will deactivate them.
+        val lastAdmin = directoryUser(id = "u2", role = Role.SYSADMIN)
+        val state = DashboardUIState(
+            currentUserId = "u1",
+            users = listOf(directoryUser(id = "u1", role = Role.SECRETARY), lastAdmin),
+        )
+
+        assertEquals(DeactivateBlock.LastSysadmin, state.deactivateBlockedReason(lastAdmin))
+    }
+
+    @Test
+    fun tc38_should_allow_deactivating_a_sysadmin_while_another_is_active() {
+        val other = directoryUser(id = "u2", role = Role.SYSADMIN)
+        val state = DashboardUIState(
+            currentUserId = "u1",
+            users = listOf(directoryUser(id = "u1", role = Role.SYSADMIN), other),
+        )
+
+        assertNull(state.deactivateBlockedReason(other))
+    }
+
+    @Test
+    fun tc39_should_not_count_a_deactivated_sysadmin_as_cover() {
+        // Two sysadmins on the list, only one of them able to sign in.
+        val lastActive = directoryUser(id = "u2", role = Role.SYSADMIN)
+        val state = DashboardUIState(
+            currentUserId = "u1",
+            users = listOf(
+                directoryUser(id = "u1", role = Role.SYSADMIN, status = UserStatus.INACTIVE),
+                lastActive,
+            ),
+        )
+
+        assertEquals(DeactivateBlock.LastSysadmin, state.deactivateBlockedReason(lastActive))
+    }
+
     // endregion
 
     // region Add-user gating
 
     @Test
-    fun tc41_should_not_allow_a_submit_without_both_required_fields() {
-        assertTrue(!UserAdminUIState(form = NewUserForm(name = "Jane Doe")).canSubmit)
-        assertTrue(!UserAdminUIState(form = NewUserForm(username = "jdoe")).canSubmit)
+    fun tc41_should_not_allow_a_submit_while_a_required_field_is_empty() {
+        assertTrue(!UserAdminUIState(form = validForm().copy(firstName = "")).canSubmit)
+        assertTrue(!UserAdminUIState(form = validForm().copy(lastName = "")).canSubmit)
+        assertTrue(!UserAdminUIState(form = validForm().copy(username = "")).canSubmit)
+        assertTrue(!UserAdminUIState(form = validForm().copy(employeeNumber = "")).canSubmit)
     }
 
     @Test
     fun tc42_should_not_allow_a_second_submit_once_a_credential_is_issued() {
         // A second one would provision a second account.
         val state = UserAdminUIState(
-            form = NewUserForm(name = "Jane Doe", username = "jdoe"),
+            form = validForm(),
             issued = IssuedCredential(
                 username = "jdoe",
                 name = "Jane Doe",
@@ -252,19 +360,35 @@ class DashboardUIStateTest {
 
     @Test
     fun tc43_should_not_allow_a_submit_while_one_is_in_flight() {
-        val state = UserAdminUIState(
-            form = NewUserForm(name = "Jane Doe", username = "jdoe"),
-            isSubmitting = true,
-        )
+        val state = UserAdminUIState(form = validForm(), isSubmitting = true)
 
         assertTrue(!state.canSubmit)
     }
 
     @Test
-    fun tc44_should_allow_a_submit_once_both_required_fields_are_filled() {
-        val state = UserAdminUIState(form = NewUserForm(name = "Jane Doe", username = "jdoe"))
+    fun tc44_should_allow_a_submit_once_every_field_is_valid() {
+        assertTrue(UserAdminUIState(form = validForm()).canSubmit)
+    }
 
-        assertTrue(state.canSubmit)
+    @Test
+    fun tc45_should_not_allow_a_submit_over_a_field_already_showing_an_error() {
+        // The button used to stay live here, and the round trip could only fail.
+        val malformedUsername = UserAdminUIState(form = validForm().copy(username = "jane doe"))
+        val malformedNumber = UserAdminUIState(form = validForm().copy(employeeNumber = "EMP-1"))
+
+        assertTrue(!malformedUsername.canSubmit)
+        assertNotNull(malformedUsername.form.usernameError)
+        assertTrue(!malformedNumber.canSubmit)
+        assertNotNull(malformedNumber.form.employeeNumberError)
+    }
+
+    @Test
+    fun tc46_should_not_report_an_untouched_field_as_an_error() {
+        // A form that greets you in red is telling you off for opening it.
+        val fresh = NewUserForm()
+
+        assertNull(fresh.usernameError)
+        assertNull(fresh.employeeNumberError)
     }
 
     // endregion

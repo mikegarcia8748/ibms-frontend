@@ -82,6 +82,7 @@ fun DashboardScreen(
         uiState = uiState,
         callback = DashboardCallback(
             onTabSelect = viewModel::onTabSelect,
+            onUserQueryChange = viewModel::onUserQueryChange,
             onBranchQueryChange = viewModel::onBranchQueryChange,
             onBranchLetterSelect = viewModel::onBranchLetterSelect,
             onBranchProviderSelect = viewModel::onBranchProviderSelect,
@@ -92,7 +93,9 @@ fun DashboardScreen(
             onBulkImportStart = viewModel::onBulkImportStart,
             onBulkUploadDismiss = viewModel::onBulkUploadDismiss,
             onAddUserClick = viewModel::onAddUserClick,
-            onNewUserNameChange = viewModel::onNewUserNameChange,
+            onNewUserFirstNameChange = viewModel::onNewUserFirstNameChange,
+            onNewUserMiddleInitialChange = viewModel::onNewUserMiddleInitialChange,
+            onNewUserLastNameChange = viewModel::onNewUserLastNameChange,
             onNewUserUsernameChange = viewModel::onNewUserUsernameChange,
             onNewUserEmployeeNumberChange = viewModel::onNewUserEmployeeNumberChange,
             onNewUserRoleChange = viewModel::onNewUserRoleChange,
@@ -101,9 +104,13 @@ fun DashboardScreen(
             onResetPasswordClick = viewModel::onResetPasswordClick,
             onResetPasswordConfirm = viewModel::onResetPasswordConfirm,
             onResetPasswordDismiss = viewModel::onResetPasswordDismiss,
-            onUserRoleChange = viewModel::onUserRoleChange,
-            onUserStatusToggle = viewModel::onUserStatusToggle,
-            onRowErrorDismiss = viewModel::onRowErrorDismiss,
+            onChangeRoleClick = viewModel::onChangeRoleClick,
+            onRoleSelectionChange = viewModel::onRoleSelectionChange,
+            onChangeRoleConfirm = viewModel::onChangeRoleConfirm,
+            onChangeRoleDismiss = viewModel::onChangeRoleDismiss,
+            onUserStatusToggleClick = viewModel::onUserStatusToggleClick,
+            onUserStatusConfirm = viewModel::onUserStatusConfirm,
+            onUserStatusDismiss = viewModel::onUserStatusDismiss,
             onRetryLoad = { viewModel.loadPanel() },
             onLogoutClick = viewModel::onLogout,
         ),
@@ -198,13 +205,22 @@ internal fun DashboardContent(
                 )
             }
 
-            // Mutually exclusive by construction: opening either resets the
+            // Mutually exclusive by construction: opening any of them resets the
             // whole user-admin block, so a credential on screen always belongs
             // to whichever one is showing.
-            if (uiState.userAdmin.isAddOpen) {
-                AddUserDialog(uiState = uiState.userAdmin, callback = callback)
-            } else if (uiState.userAdmin.resetTarget != null) {
-                ResetPasswordDialog(uiState = uiState.userAdmin, callback = callback)
+            val userAdmin = uiState.userAdmin
+            when {
+                userAdmin.isAddOpen ->
+                    AddUserDialog(uiState = userAdmin, callback = callback)
+
+                userAdmin.resetTarget != null ->
+                    ResetPasswordDialog(uiState = userAdmin, callback = callback)
+
+                userAdmin.roleTarget != null ->
+                    ChangeRoleDialog(uiState = userAdmin, callback = callback)
+
+                userAdmin.statusTarget != null ->
+                    UserStatusDialog(uiState = userAdmin, callback = callback)
             }
         }
     }

@@ -33,21 +33,26 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import com.puregoldgo.ibms.shared.model.Role
 import com.puregoldgo.ibms.ui.component.AppIcons
 import com.puregoldgo.ibms.ui.component.ChipTone
-import com.puregoldgo.ibms.ui.component.RoleDropdown
+import com.puregoldgo.ibms.ui.component.SearchField
 import com.puregoldgo.ibms.ui.component.SectionCard
 import com.puregoldgo.ibms.ui.component.SectionEmptyState
 import com.puregoldgo.ibms.ui.component.SectionErrorState
 import com.puregoldgo.ibms.ui.component.SectionLoadingState
 import com.puregoldgo.ibms.ui.component.StatusChip
+import com.puregoldgo.ibms.ui.component.roleLabel
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_active_directory
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_active_directory_empty
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_add_user
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_dismiss
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_directory_no_matches
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_directory_search
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_employee_number
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_isp_providers
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_payment_day
@@ -55,7 +60,10 @@ import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_r
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_specify_provider
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_status_inactive
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_actions
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_change_role
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_deactivate
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_deactivate_last_sysadmin
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_deactivate_self
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_reactivate
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_reset_password
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_user_role_label
@@ -104,6 +112,10 @@ internal fun DirectoryTab(
  * Bulk Upload: it acts on this list, and a global action bar that mixes "import
  * a spreadsheet of accounts" with "create a person" invites the wrong one to be
  * clicked.
+ *
+ * The search matches the employee number as well as the name and username. It
+ * filters what is already loaded — the whole directory arrives in one walk — so
+ * it costs nothing and stays correct.
  */
 @Composable
 private fun DirectoryCard(
@@ -131,6 +143,16 @@ private fun DirectoryCard(
             }
         },
     ) {
+        if (!uiState.isLoading && uiState.loadError == null) {
+            SearchField(
+                value = uiState.userQuery,
+                onValueChange = callback.onUserQueryChange,
+                placeholder = stringResource(Res.string.dashboard_directory_search),
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(Dimensions.viewPadding12))
+        }
+
         when {
             // The panel loads its four lists together, so this is the shared
             // spinner — without it an empty directory and one still in flight
@@ -143,31 +165,27 @@ private fun DirectoryCard(
                 retryLabel = stringResource(Res.string.dashboard_retry),
             )
 
-            users.isEmpty() ->
-                SectionEmptyState(stringResource(Res.string.dashboard_active_directory_empty))
+            // "Nobody works here" and "nobody matches what you typed" are
+            // different facts, and only one of them is a reason to worry.
+            users.isEmpty() -> SectionEmptyState(
+                stringResource(
+                    if (uiState.userQuery.isBlank()) {
+                        Res.string.dashboard_active_directory_empty
+                    } else {
+                        Res.string.dashboard_directory_no_matches
+                    },
+                ),
+            )
 
             else -> users.forEachIndexed { index, user ->
                 if (index > 0) HorizontalDivider(thickness = Dimensions.viewHeight1)
                 UserRow(
                     user = user,
                     callback = callback,
-                    isBusy = uiState.userAdmin.busyUserId == user.id,
+                    deactivateBlock = uiState.deactivateBlockedReason(user),
                     isCompact = isCompact,
                 )
             }
-        }
-
-        // A rejected role or status change — "cannot demote the last sysadmin"
-        // lands here. Below the list rather than on the row, because the row it
-        // belongs to has already snapped back to its old value.
-        val rowError = uiState.userAdmin.rowError
-        if (rowError != null) {
-            Spacer(Modifier.height(Dimensions.viewPadding12))
-            SectionErrorState(
-                message = rowError,
-                onRetry = callback.onRowErrorDismiss,
-                retryLabel = stringResource(Res.string.dashboard_dismiss),
-            )
         }
     }
 }
@@ -175,15 +193,15 @@ private fun DirectoryCard(
 /**
  * Avatar, identity, standing, role and the row's own menu.
  *
- * Stacks its controls under the identity when compact: a role dropdown and a
- * menu button do not fit beside a name on a phone, and truncating the name to
- * make them fit would hide the one thing that says whose row this is.
+ * Stacks its controls under the identity when compact: the chips and a menu
+ * button do not fit beside a name on a phone, and truncating the name to make
+ * them fit would hide the one thing that says whose row this is.
  */
 @Composable
 private fun UserRow(
     user: DirectoryUser,
     callback: DashboardCallback,
-    isBusy: Boolean,
+    deactivateBlock: DeactivateBlock?,
     isCompact: Boolean,
 ) {
     // A deactivated account is still listed — it has to be findable to be turned
@@ -248,6 +266,10 @@ private fun UserRow(
 
     @Composable
     fun controls() {
+        // Every row carries a role chip; only the name tells them apart, and a
+        // screen reader has no column header to fall back on.
+        val roleDescription = stringResource(Res.string.dashboard_user_role_label, user.name)
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8),
@@ -271,14 +293,24 @@ private fun UserRow(
                 )
             }
 
-            RoleDropdown(
-                selected = user.role,
-                onSelect = { role -> callback.onUserRoleChange(user.id, role) },
-                label = stringResource(Res.string.dashboard_user_role_label, user.name),
-                enabled = !isBusy,
+            // Read-only. This was a live dropdown, which put "grant this person
+            // sysadmin" one stray click away on every row of a scrolling list;
+            // the change now happens in a dialog that names who it is for. An
+            // account with no role is toned differently — it is the one state
+            // here that means "cannot use the app".
+            StatusChip(
+                label = roleLabel(user.role),
+                tone = if (user.role == Role.PENDING) ChipTone.Accent else ChipTone.Neutral,
+                modifier = Modifier.semantics {
+                    contentDescription = roleDescription
+                },
             )
 
-            UserRowMenu(user = user, callback = callback, enabled = !isBusy)
+            UserRowMenu(
+                user = user,
+                callback = callback,
+                deactivateBlock = deactivateBlock,
+            )
         }
     }
 
@@ -307,22 +339,32 @@ private fun UserRow(
 }
 
 /**
- * Reset password and deactivate, behind an overflow.
+ * Change role, reset password and deactivate, behind an overflow.
  *
- * Both are low-frequency and consequential — one revokes every session the user
- * holds, the other locks them out entirely — so neither earns a permanent button
- * on every row where it could be hit by accident.
+ * All three are low-frequency and consequential — one rewrites what the user may
+ * do, one revokes every session they hold, the last locks them out entirely — so
+ * none earns a permanent control on every row where it could be hit by accident.
+ * Each opens a dialog; nothing here sends a request on its own.
+ *
+ * [deactivateBlock] disables that one item rather than hiding it. A missing
+ * option reads as a bug; a disabled one that says "last sysadmin" explains a
+ * rule the admin is better off knowing before they go looking for a way around
+ * it.
  */
 @Composable
 private fun UserRowMenu(
     user: DirectoryUser,
     callback: DashboardCallback,
-    enabled: Boolean,
+    deactivateBlock: DeactivateBlock?,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
+    // Only deactivation can lock the company out of its own administration —
+    // turning an account back on never does.
+    val block = deactivateBlock.takeIf { user.isActive }
+
     Box {
-        IconButton(onClick = { expanded = true }, enabled = enabled) {
+        IconButton(onClick = { expanded = true }) {
             Icon(
                 imageVector = AppIcons.MoreVert,
                 contentDescription = stringResource(
@@ -335,6 +377,13 @@ private fun UserRowMenu(
 
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
+                text = { Text(stringResource(Res.string.dashboard_user_change_role)) },
+                onClick = {
+                    expanded = false
+                    callback.onChangeRoleClick(user)
+                },
+            )
+            DropdownMenuItem(
                 text = { Text(stringResource(Res.string.dashboard_user_reset_password)) },
                 onClick = {
                     expanded = false
@@ -345,17 +394,24 @@ private fun UserRowMenu(
                 text = {
                     Text(
                         stringResource(
-                            if (user.isActive) {
-                                Res.string.dashboard_user_deactivate
-                            } else {
-                                Res.string.dashboard_user_reactivate
+                            when {
+                                block == DeactivateBlock.Self ->
+                                    Res.string.dashboard_user_deactivate_self
+
+                                block == DeactivateBlock.LastSysadmin ->
+                                    Res.string.dashboard_user_deactivate_last_sysadmin
+
+                                user.isActive -> Res.string.dashboard_user_deactivate
+
+                                else -> Res.string.dashboard_user_reactivate
                             },
                         ),
                     )
                 },
+                enabled = block == null,
                 onClick = {
                     expanded = false
-                    callback.onUserStatusToggle(user)
+                    callback.onUserStatusToggleClick(user)
                 },
             )
         }

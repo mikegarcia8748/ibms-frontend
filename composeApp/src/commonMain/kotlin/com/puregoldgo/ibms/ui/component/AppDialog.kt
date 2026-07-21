@@ -32,16 +32,28 @@ import com.puregoldgo.ibms.ui.theme.Dimensions
  * no room for a tinted header band, a drop zone or a split footer. The platform
  * default width is opted out of because these are wider than it allows and cap
  * themselves instead.
+ *
+ * [dismissOnClickOutside] and [dismissOnBackPress] default to the platform
+ * behaviour and exist for the dialogs that must not lose what they are showing:
+ * a stray click beside a temporary password would take the only readable copy of
+ * it with them. Turning both off leaves the header's close button and the
+ * footer's own action as the deliberate ways out.
  */
 @Composable
 fun AppDialog(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
+    dismissOnClickOutside: Boolean = true,
+    dismissOnBackPress: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+        properties = DialogProperties(
+            dismissOnBackPress = dismissOnBackPress,
+            dismissOnClickOutside = dismissOnClickOutside,
+            usePlatformDefaultWidth = false,
+        ),
     ) {
         Surface(
             modifier = modifier

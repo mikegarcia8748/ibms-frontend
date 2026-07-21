@@ -13,6 +13,13 @@ object Validation {
     /** Mirrors the backend's `UsernamePolicy` and the `users_username_format` CHECK. */
     private val USERNAME_REGEX = Regex("""^[a-zA-Z0-9._-]{3,32}$""")
 
+    /**
+     * Digits only, so a zero-padded number such as `010005529` survives intact.
+     * Kept as text everywhere for that reason — parsed as a number it would lose
+     * its leading zeros and stop matching the payroll record.
+     */
+    private val EMPLOYEE_NUMBER_REGEX = Regex("""^\d{4,20}$""")
+
     fun validatePeriod(period: String): String? {
         if (!PERIOD_REGEX.matches(period)) {
             return "Period must be in YYYY-MM format (e.g. 2026-08)"
@@ -83,6 +90,49 @@ object Validation {
 
     /** Trim + lowercase, matching the backend's `UsernamePolicy.normalize`. */
     fun normalizeUsername(username: String): String = username.trim().lowercase()
+
+    /**
+     * Gate for an employee number, which every provisioned account must carry.
+     *
+     * The column is nullable and has no unique index, so nothing downstream will
+     * catch a missing or malformed one — this is the only check between a typo
+     * and a permanent record, since there is no endpoint to edit it afterwards.
+     */
+    fun validateEmployeeNumber(employeeNumber: String): String? {
+        if (employeeNumber.isBlank()) return "Employee number is required"
+        if (!EMPLOYEE_NUMBER_REGEX.matches(employeeNumber.trim())) {
+            return "Employee number must be 4-20 digits"
+        }
+        return null
+    }
+
+    /**
+     * Builds the display name the directory shows out of its three parts.
+     *
+     * The backend keeps `first_name`, `middle_initial` and `last_name` alongside
+     * a required `name`, and treats the latter as the authority for display — so
+     * the parts are captured separately and joined here rather than the admin
+     * being asked to type the same person twice.
+     *
+     * A middle initial is normalised to a single letter and a dot: it is entered
+     * either way ("P" or "P."), and a directory where half the rows carry the dot
+     * reads like two different conventions.
+     */
+    fun composeFullName(
+        firstName: String,
+        middleInitial: String,
+        lastName: String,
+    ): String = listOf(
+        firstName.trim(),
+        formatMiddleInitial(middleInitial),
+        lastName.trim(),
+    ).filter { it.isNotBlank() }.joinToString(" ")
+
+    /** `"p"` → `"P."`, `"P."` → `"P."`, blank → blank. */
+    fun formatMiddleInitial(middleInitial: String): String {
+        val letter = middleInitial.trim().firstOrNull()?.takeIf { it.isLetter() } ?: return ""
+        return "${letter.uppercaseChar()}."
+    }
 
     /**
      * Gate for a self-chosen password, phrased like the backend's rejection so
