@@ -15,6 +15,8 @@ import com.puregoldgo.ibms.shared.domain.usecase.ResetUserPasswordUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.UpdateUserRoleUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.UpdateUserStatusUseCase
 import com.puregoldgo.ibms.ui.screen.sysadmin.SysadminViewModel
+import com.puregoldgo.ibms.ui.screen.sysadmin.directory.DirectoryViewModel
+import com.puregoldgo.ibms.ui.screen.sysadmin.registry.RegistryViewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
@@ -45,6 +47,10 @@ val sysadminModule = module {
     // endregion
 
     // region ViewModels
+    // One per responsibility: the shell, the staff directory, and the two
+    // registries that share a fetch.
     factoryOf(::SysadminViewModel)
+    factoryOf(::DirectoryViewModel)
+    factoryOf(::RegistryViewModel)
     // endregion
 }

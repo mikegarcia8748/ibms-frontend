@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.sysadmin
+package com.puregoldgo.ibms.ui.screen.sysadmin.registry
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,8 +47,8 @@ import org.jetbrains.compose.resources.stringResource
  */
 @Composable
 internal fun AccountsTab(
-    uiState: SysadminUIState,
-    callback: SysadminCallback,
+    uiState: RegistryUIState,
+    callback: RegistryCallback,
     isCompact: Boolean,
 ) {
     val filters = @Composable { modifier: Modifier ->

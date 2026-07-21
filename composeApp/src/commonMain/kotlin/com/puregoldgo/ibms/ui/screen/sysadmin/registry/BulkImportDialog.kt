@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.sysadmin
+package com.puregoldgo.ibms.ui.screen.sysadmin.registry
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -90,7 +90,7 @@ private val ACCEPTED_TYPES = listOf(
  */
 @Composable
 internal fun BulkImportDialog(
-    uiState: SysadminUIState,
+    uiState: RegistryUIState,
     onFilePicked: (PickedFile) -> Unit,
     onStartImport: () -> Unit,
     onDismiss: () -> Unit,

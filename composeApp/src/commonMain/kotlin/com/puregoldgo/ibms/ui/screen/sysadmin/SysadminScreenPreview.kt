@@ -3,79 +3,62 @@ package com.puregoldgo.ibms.ui.screen.sysadmin
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import com.puregoldgo.ibms.shared.model.Role
+import com.puregoldgo.ibms.ui.screen.sysadmin.directory.DirectoryCallback
+import com.puregoldgo.ibms.ui.screen.sysadmin.directory.DirectoryUIState
+import com.puregoldgo.ibms.ui.screen.sysadmin.directory.NewUserForm
+import com.puregoldgo.ibms.ui.screen.sysadmin.directory.UserAdminUIState
+import com.puregoldgo.ibms.ui.screen.sysadmin.registry.RegistryCallback
+import com.puregoldgo.ibms.ui.screen.sysadmin.registry.RegistryUIState
 import com.puregoldgo.ibms.ui.theme.AppTheme
 
 /**
  * Every `@Preview` for the sysadmin control panel.
  *
- * Kept beside [SysadminScreen] rather than inside it: the screen is long
- * enough already, and a dozen preview functions between the reader and the
- * composables they exercise is a dozen functions of noise. Nothing here ships —
- * it draws [SysadminContent] against [SysadminSampleData].
+ * Kept beside [SysadminScreen] rather than inside it: the screen is long enough
+ * already, and a dozen preview functions between the reader and the composables
+ * they exercise is a dozen functions of noise. Nothing here ships — it draws
+ * [SysadminContent] against [SysadminSampleData].
+ *
+ * Each panel's state is built separately, which is the point of the split: a
+ * preview can now put the directory in one state while the registries stay in
+ * another, because they no longer share a `loadError` or a loading flag.
  */
 
 @Preview(name = "Sysadmin — directory", group = "WebApp", device = Devices.DESKTOP)
 @Composable
 private fun SysadminDirectoryWidePreview() {
-    AppTheme {
-        SysadminContent(uiState = previewState(), callback = previewCallback())
-    }
+    AppTheme { PreviewContent() }
 }
 
 @Preview(name = "Sysadmin — stores", group = "WebApp", device = Devices.DESKTOP)
 @Composable
 private fun SysadminStoresWidePreview() {
-    AppTheme {
-        SysadminContent(
-            uiState = previewState().copy(selectedTab = SysadminTab.Stores),
-            callback = previewCallback(),
-        )
-    }
+    AppTheme { PreviewContent(shell = previewShell().copy(selectedTab = SysadminTab.Stores)) }
 }
 
 @Preview(name = "Sysadmin — accounts", group = "WebApp", device = Devices.DESKTOP)
 @Composable
 private fun SysadminAccountsWidePreview() {
-    AppTheme {
-        SysadminContent(
-            uiState = previewState().copy(selectedTab = SysadminTab.Accounts),
-            callback = previewCallback(),
-        )
-    }
+    AppTheme { PreviewContent(shell = previewShell().copy(selectedTab = SysadminTab.Accounts)) }
 }
 
 @Preview(name = "Sysadmin — directory", group = "MobileApp")
 @Composable
 private fun SysadminDirectoryPreview() {
-    AppTheme {
-        SysadminContent(uiState = previewState(), callback = previewCallback())
-    }
+    AppTheme { PreviewContent() }
 }
 
 @Preview(name = "Sysadmin — stores", group = "MobileApp")
 @Composable
 private fun SysadminStoresPreview() {
-    AppTheme {
-        SysadminContent(
-            uiState = previewState().copy(selectedTab = SysadminTab.Stores),
-            callback = previewCallback(),
-        )
-    }
+    AppTheme { PreviewContent(shell = previewShell().copy(selectedTab = SysadminTab.Stores)) }
 }
 
 @Preview(name = "Sysadmin — empty states", group = "WebApp", device = Devices.DESKTOP)
 @Composable
 private fun SysadminEmptyPreview() {
     AppTheme {
-        SysadminContent(
-            uiState = previewState().copy(
-                // Nobody in the directory, and a branch query that matches nothing.
-                users = emptyList(),
-                branchQuery = "zzzz",
-            ),
-            callback = previewCallback(),
-        )
+        PreviewContent(directory = DirectoryUIState(), registry = RegistryUIState())
     }
 }
 
@@ -83,10 +66,7 @@ private fun SysadminEmptyPreview() {
 @Composable
 private fun SysadminBulkImportEmptyPreview() {
     AppTheme {
-        SysadminContent(
-            uiState = previewState().copy(isBulkImportOpen = true),
-            callback = previewCallback(),
-        )
+        PreviewContent(registry = previewRegistry().copy(isBulkImportOpen = true))
     }
 }
 
@@ -94,13 +74,12 @@ private fun SysadminBulkImportEmptyPreview() {
 @Composable
 private fun SysadminBulkImportChosenPreview() {
     AppTheme {
-        SysadminContent(
-            uiState = previewState().copy(
+        PreviewContent(
+            registry = previewRegistry().copy(
                 isBulkImportOpen = true,
-                bulkImportFileName = "Globe Accounts.xlsx",
-                bulkImportFileSize = 48_128,
+                bulkImportFileName = "isp-master-list-june.xlsx",
+                bulkImportFileSize = 348_160,
             ),
-            callback = previewCallback(),
         )
     }
 }
@@ -109,14 +88,13 @@ private fun SysadminBulkImportChosenPreview() {
 @Composable
 private fun SysadminBulkImportSummaryPreview() {
     AppTheme {
-        SysadminContent(
-            uiState = previewState().copy(
+        PreviewContent(
+            registry = previewRegistry().copy(
                 isBulkImportOpen = true,
-                bulkImportFileName = "Globe Accounts.xlsx",
-                bulkImportFileSize = 48_128,
+                bulkImportFileName = "isp-master-list-june.xlsx",
+                bulkImportFileSize = 348_160,
                 bulkImportSummary = SysadminSampleData.bulkImportSummary,
             ),
-            callback = previewCallback(),
         )
     }
 }
@@ -125,21 +103,19 @@ private fun SysadminBulkImportSummaryPreview() {
 @Composable
 private fun SysadminAddUserPreview() {
     AppTheme {
-        SysadminContent(
-            uiState = previewState().copy(
+        PreviewContent(
+            directory = previewDirectory().copy(
                 userAdmin = UserAdminUIState(
                     isAddOpen = true,
                     form = NewUserForm(
-                        username = "rlim",
-                        employeeNumber = "010007422",
-                        role = Role.SECRETARY,
                         firstName = "Rosario",
                         middleInitial = "D",
                         lastName = "Lim",
+                        username = "rlim",
+                        employeeNumber = "010007422",
                     ),
                 ),
             ),
-            callback = previewCallback(),
         )
     }
 }
@@ -148,14 +124,13 @@ private fun SysadminAddUserPreview() {
 @Composable
 private fun SysadminCredentialIssuedPreview() {
     AppTheme {
-        SysadminContent(
-            uiState = previewState().copy(
+        PreviewContent(
+            directory = previewDirectory().copy(
                 userAdmin = UserAdminUIState(
                     isAddOpen = true,
                     issued = SysadminSampleData.issuedCredential,
                 ),
             ),
-            callback = previewCallback(),
         )
     }
 }
@@ -164,21 +139,43 @@ private fun SysadminCredentialIssuedPreview() {
 @Composable
 private fun SysadminResetPasswordPreview() {
     AppTheme {
-        SysadminContent(
-            uiState = previewState().copy(
-                userAdmin = UserAdminUIState(
-                    resetTarget = SysadminSampleData.users.first(),
-                ),
+        PreviewContent(
+            directory = previewDirectory().copy(
+                userAdmin = UserAdminUIState(resetTarget = SysadminSampleData.users.first()),
             ),
-            callback = previewCallback(),
         )
     }
 }
 
-private fun previewState() = SysadminUIState(
+/** The whole console against sample data, with any one panel's state swapped in. */
+@Composable
+private fun PreviewContent(
+    shell: SysadminUIState = previewShell(),
+    directory: DirectoryUIState = previewDirectory(),
+    registry: RegistryUIState = previewRegistry(),
+) {
+    SysadminContent(
+        uiState = shell,
+        callback = previewCallback(),
+        directoryState = directory,
+        directoryCallback = previewDirectoryCallback(),
+        registryState = registry,
+        registryCallback = previewRegistryCallback(),
+    )
+}
+
+private fun previewShell() = SysadminUIState(
     userName = "Michael Garcia",
     userRole = "sysadmin",
+)
+
+private fun previewDirectory() = DirectoryUIState(
+    currentUserId = SysadminSampleData.SIGNED_IN_USER_ID,
     users = SysadminSampleData.users,
+    activeProviders = SysadminSampleData.activeProviders,
+)
+
+private fun previewRegistry() = RegistryUIState(
     activeProviders = SysadminSampleData.activeProviders,
     branches = SysadminSampleData.branches,
     accounts = SysadminSampleData.accounts,
@@ -186,6 +183,34 @@ private fun previewState() = SysadminUIState(
 
 private fun previewCallback() = SysadminCallback(
     onTabSelect = {},
+    onLogoutClick = {},
+)
+
+private fun previewDirectoryCallback() = DirectoryCallback(
+    onUserQueryChange = {},
+    onAddUserClick = {},
+    onNewUserFirstNameChange = {},
+    onNewUserMiddleInitialChange = {},
+    onNewUserLastNameChange = {},
+    onNewUserUsernameChange = {},
+    onNewUserEmployeeNumberChange = {},
+    onNewUserRoleChange = {},
+    onAddUserSubmit = {},
+    onAddUserDismiss = {},
+    onResetPasswordClick = {},
+    onResetPasswordConfirm = {},
+    onResetPasswordDismiss = {},
+    onChangeRoleClick = {},
+    onRoleSelectionChange = {},
+    onChangeRoleConfirm = {},
+    onChangeRoleDismiss = {},
+    onUserStatusToggleClick = {},
+    onUserStatusConfirm = {},
+    onUserStatusDismiss = {},
+    onRetryLoad = {},
+)
+
+private fun previewRegistryCallback() = RegistryCallback(
     onBranchQueryChange = {},
     onBranchLetterSelect = {},
     onBranchProviderSelect = {},
@@ -195,26 +220,5 @@ private fun previewCallback() = SysadminCallback(
     onBulkImportFilePicked = {},
     onBulkImportStart = {},
     onBulkUploadDismiss = {},
-    onAddUserClick = {},
-    onNewUserUsernameChange = {},
-    onNewUserEmployeeNumberChange = {},
-    onNewUserRoleChange = {},
-    onAddUserSubmit = {},
-    onAddUserDismiss = {},
-    onResetPasswordClick = {},
-    onResetPasswordConfirm = {},
-    onResetPasswordDismiss = {},
     onRetryLoad = {},
-    onUserQueryChange = {},
-    onNewUserFirstNameChange = {},
-    onNewUserMiddleInitialChange = {},
-    onNewUserLastNameChange = {},
-    onChangeRoleClick = {},
-    onRoleSelectionChange = {},
-    onChangeRoleConfirm = {},
-    onChangeRoleDismiss = {},
-    onUserStatusToggleClick = {},
-    onUserStatusConfirm = {},
-    onUserStatusDismiss = {},
-    onLogoutClick = {},
 )

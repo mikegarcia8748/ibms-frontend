@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.sysadmin
+package com.puregoldgo.ibms.ui.screen.sysadmin.directory
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +38,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import com.puregoldgo.ibms.shared.model.Role
 import com.puregoldgo.ibms.ui.component.AppIcons
+import com.puregoldgo.ibms.ui.screen.sysadmin.IspProviderRow
 import com.puregoldgo.ibms.ui.component.ChipTone
 import com.puregoldgo.ibms.ui.component.SearchField
 import com.puregoldgo.ibms.ui.component.SectionCard
@@ -84,8 +85,8 @@ import org.jetbrains.compose.resources.stringResource
  */
 @Composable
 internal fun DirectoryTab(
-    uiState: SysadminUIState,
-    callback: SysadminCallback,
+    uiState: DirectoryUIState,
+    callback: DirectoryCallback,
     isCompact: Boolean,
 ) {
     if (isCompact) {
@@ -119,8 +120,8 @@ internal fun DirectoryTab(
  */
 @Composable
 private fun DirectoryCard(
-    uiState: SysadminUIState,
-    callback: SysadminCallback,
+    uiState: DirectoryUIState,
+    callback: DirectoryCallback,
     isCompact: Boolean,
 ) {
     val users = uiState.directoryUsers
@@ -200,7 +201,7 @@ private fun DirectoryCard(
 @Composable
 private fun UserRow(
     user: DirectoryUser,
-    callback: SysadminCallback,
+    callback: DirectoryCallback,
     deactivateBlock: DeactivateBlock?,
     isCompact: Boolean,
 ) {
@@ -354,7 +355,7 @@ private fun UserRow(
 @Composable
 private fun UserRowMenu(
     user: DirectoryUser,
-    callback: SysadminCallback,
+    callback: DirectoryCallback,
     deactivateBlock: DeactivateBlock?,
 ) {
     var expanded by remember { mutableStateOf(false) }

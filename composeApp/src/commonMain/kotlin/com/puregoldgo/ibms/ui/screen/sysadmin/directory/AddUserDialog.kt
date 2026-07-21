@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.sysadmin
+package com.puregoldgo.ibms.ui.screen.sysadmin.directory
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -89,7 +89,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun AddUserDialog(
     uiState: UserAdminUIState,
-    callback: SysadminCallback,
+    callback: DirectoryCallback,
 ) {
     val issued = uiState.issued
 
@@ -190,7 +190,7 @@ internal fun AddUserDialog(
 @Composable
 private fun NewUserFormBody(
     uiState: UserAdminUIState,
-    callback: SysadminCallback,
+    callback: DirectoryCallback,
 ) {
     val form = uiState.form
     val enabled = !uiState.isSubmitting
@@ -474,7 +474,7 @@ private fun CredentialField(
 @Composable
 internal fun ResetPasswordDialog(
     uiState: UserAdminUIState,
-    callback: SysadminCallback,
+    callback: DirectoryCallback,
 ) {
     val target = uiState.resetTarget ?: return
     val issued = uiState.issued

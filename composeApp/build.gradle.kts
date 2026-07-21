@@ -67,6 +67,9 @@ kotlin {
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            // The panel ViewModels are tested directly, which needs runTest and
+            // a Main dispatcher that a test can drive.
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }

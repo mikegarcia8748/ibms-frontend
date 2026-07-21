@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.sysadmin
+package com.puregoldgo.ibms.ui.screen.sysadmin.registry
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontFamily
 import com.puregoldgo.ibms.ui.component.AlphabetRail
 import com.puregoldgo.ibms.ui.component.AppIcons
+import com.puregoldgo.ibms.ui.screen.sysadmin.IspProviderRow
 import com.puregoldgo.ibms.ui.component.ChipTone
 import com.puregoldgo.ibms.ui.component.FilterOption
 import com.puregoldgo.ibms.ui.component.IspFilterDropdown
@@ -47,8 +48,8 @@ import org.jetbrains.compose.resources.stringResource
  */
 @Composable
 internal fun StoresTab(
-    uiState: SysadminUIState,
-    callback: SysadminCallback,
+    uiState: RegistryUIState,
+    callback: RegistryCallback,
     isCompact: Boolean,
 ) {
     val rail = @Composable {

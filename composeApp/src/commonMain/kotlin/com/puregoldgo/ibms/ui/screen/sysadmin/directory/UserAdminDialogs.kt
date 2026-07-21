@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.sysadmin
+package com.puregoldgo.ibms.ui.screen.sysadmin.directory
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -68,7 +68,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun ChangeRoleDialog(
     uiState: UserAdminUIState,
-    callback: SysadminCallback,
+    callback: DirectoryCallback,
 ) {
     val target = uiState.roleTarget ?: return
     val selected = uiState.pendingRole ?: target.role
@@ -176,12 +176,12 @@ internal fun ChangeRoleDialog(
  * Deactivating is the destructive direction and gets the error-toned button;
  * reactivating is additive and gets the ordinary one. The rows this cannot be
  * reached from — your own, and the last sysadmin — are refused in
- * [SysadminUIState.deactivateBlockedReason] before this ever opens.
+ * [DirectoryUIState.deactivateBlockedReason] before this ever opens.
  */
 @Composable
 internal fun UserStatusDialog(
     uiState: UserAdminUIState,
-    callback: SysadminCallback,
+    callback: DirectoryCallback,
 ) {
     val target = uiState.statusTarget ?: return
     val isDeactivating = target.isActive
