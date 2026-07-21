@@ -50,7 +50,7 @@ internal object SysadminSampleData {
             name = "Samuel P Baricaua Jr",
             username = "sbaricaua",
             employeeNumber = "350000017",
-            role = Role.PAYABLES,
+            role = Role.FINANCE,
             status = UserStatus.ACTIVE,
             mustChangePassword = false,
         ),

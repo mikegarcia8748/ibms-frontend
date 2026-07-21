@@ -299,4 +299,90 @@
     <string name="secretary_dialog_offline_body">This form is the finished layout, but there is no endpoint behind it yet — submitting does nothing. It saves once the backend pass lands.</string>
     <string name="secretary_select_placeholder">Select…</string>
     <string name="secretary_retry">Try again</string>
+
+    <!-- Finance — header and tabs -->
+    <string name="finance_title">Finance Console</string>
+    <string name="finance_subtitle">Approve compiled topsheets, release payment, and keep each ISP on its schedule.</string>
+    <string name="finance_tab_approvals">For Approval</string>
+    <string name="finance_tab_payments">For Payment</string>
+    <string name="finance_tab_schedule">Payment Schedule</string>
+
+    <!-- Finance — topsheet rows -->
+    <string name="finance_period">Period %1$s</string>
+    <string name="finance_compiled">Compiled %1$s</string>
+    <string name="finance_accounts">%1$d accounts</string>
+    <string name="finance_total_label">Validated total</string>
+    <string name="finance_total">₱%1$s</string>
+    <string name="finance_variance">%1$d OFF CONTRACT</string>
+    <string name="finance_balanced">BALANCED</string>
+
+    <!-- Finance — approvals -->
+    <string name="finance_approvals_title">Awaiting Approval</string>
+    <string name="finance_approvals_search_hint">Search invoice, ISP or period…</string>
+    <string name="finance_approvals_empty">Nothing is waiting on an approval.</string>
+    <string name="finance_approvals_variance">%1$d of these do not balance against contract.</string>
+    <string name="finance_approve">Approve</string>
+
+    <!-- Finance — payments -->
+    <string name="finance_payments_title">Approved, Awaiting Payment</string>
+    <string name="finance_payments_search_hint">Search invoice, ISP or period…</string>
+    <string name="finance_payments_empty">Nothing is waiting on a payment.</string>
+    <string name="finance_pay">Mark as paid</string>
+    <string name="finance_export">Export</string>
+
+    <!-- Finance — payment schedule -->
+    <string name="finance_schedule_title">ISP Payment Schedule</string>
+    <string name="finance_schedule_empty">No active ISPs to schedule.</string>
+    <string name="finance_schedule_day">DAY %1$d</string>
+    <string name="finance_schedule_awaiting">%1$d sheet(s) awaiting — ₱%2$s</string>
+    <string name="finance_schedule_clear">Nothing queued</string>
+
+    <!-- Finance — confirmation -->
+    <string name="finance_confirm_approve_title">Approve topsheet</string>
+    <string name="finance_confirm_approve_body">%1$s for %2$s will be approved and move to the payment queue. There is no way back from an approval.</string>
+    <string name="finance_confirm_approve_submit">Approve</string>
+    <string name="finance_confirm_approve_submitting">Approving…</string>
+    <string name="finance_confirm_pay_title">Mark as paid</string>
+    <string name="finance_confirm_pay_body">%1$s for %2$s will be recorded as paid. This is the record the ISP is reconciled against, and it cannot be undone.</string>
+    <string name="finance_confirm_pay_submit">Mark as paid</string>
+    <string name="finance_confirm_pay_submitting">Recording…</string>
+    <string name="finance_confirm_close">Close</string>
+    <string name="finance_dialog_cancel">Cancel</string>
+    <string name="finance_dialog_offline_title">Not connected yet.</string>
+    <string name="finance_dialog_offline_body">This confirmation is the finished layout, but there is no endpoint behind it yet — confirming does nothing. It posts once the backend pass lands.</string>
+
+    <!-- Manager — header and tabs -->
+    <string name="manager_title">Oversight</string>
+    <string name="manager_subtitle">Where the money went this period, and what the team has been doing with it.</string>
+    <string name="manager_tab_overview">Overview</string>
+    <string name="manager_tab_topsheets">Topsheets</string>
+    <string name="manager_tab_activity">Activity</string>
+
+    <!-- Manager — overview -->
+    <string name="manager_overview_title">This Period</string>
+    <string name="manager_overview_empty">Nothing has been compiled for this period yet.</string>
+    <string name="manager_metric_billed">Total billed</string>
+    <string name="manager_metric_awaiting">Awaiting approval</string>
+    <string name="manager_metric_paid">Released</string>
+    <string name="manager_metric_accounts">Accounts billed</string>
+    <string name="manager_metric_peso">₱%1$s</string>
+    <string name="manager_overview_by_isp">By ISP</string>
+    <string name="manager_overview_share">%1$s of the period</string>
+    <string name="manager_isp_accounts">%1$d accounts</string>
+
+    <!-- Manager — topsheets -->
+    <string name="manager_topsheets_title">Topsheets</string>
+    <string name="manager_topsheets_search_hint">Search invoice, ISP or period…</string>
+    <string name="manager_topsheets_empty">No topsheets match your filters.</string>
+    <string name="manager_read_only">Read-only. Compilation is the secretary\'s, approval and payment are finance\'s.</string>
+
+    <!-- Manager — activity -->
+    <string name="manager_activity_title">Recent Activity</string>
+    <string name="manager_activity_empty">No activity recorded yet.</string>
+    <string name="manager_activity_search_hint">Search person or record…</string>
+
+    <!-- Console shell — topsheet status, shared by finance and manager -->
+    <string name="console_status_paid">PAID</string>
+    <string name="console_status_approved">APPROVED</string>
+    <string name="console_status_compiled">COMPILED</string>
 </resources>

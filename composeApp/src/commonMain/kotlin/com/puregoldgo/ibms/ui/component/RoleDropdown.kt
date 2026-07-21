@@ -30,7 +30,20 @@ import ibmsispbillingmanagementsystem.composeapp.generated.resources.role_sysadm
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Picks one of the six roles.
+ * The roles a sysadmin may actually hand out.
+ *
+ * Every constant except [Role.PAYABLES], which is retired — see its own note for
+ * why the constant still exists. Filtered here rather than at each call site so
+ * there is one list to change when the backend migration lands, and no dropdown
+ * can quietly keep offering it.
+ *
+ * [Role.PENDING] stays: it is a real answer for an account nobody has decided
+ * about, and it is the only way to take a role back off someone.
+ */
+val assignableRoles: List<Role> = Role.entries.filterNot { it == Role.PAYABLES }
+
+/**
+ * Picks one of the assignable roles.
  *
  * Deliberately not [IspFilterDropdown]: that one models "no selection" as a null
  * id, and a role is never absent — `PENDING` *is* the answer for an account
@@ -77,7 +90,10 @@ fun RoleDropdown(
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            Role.entries.forEach { role ->
+            // The selected role is added back when it is one this list no longer
+            // offers: a payables account still has to be openable in the dialog
+            // that moves it off payables.
+            (assignableRoles + selected).distinct().forEach { role ->
                 DropdownMenuItem(
                     text = { Text(roleLabel(role)) },
                     onClick = {
