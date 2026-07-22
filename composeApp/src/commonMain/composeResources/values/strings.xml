@@ -231,7 +231,37 @@
 
     <!-- Secretary — compile topsheet -->
     <string name="secretary_compile_title">Compile TopSheet</string>
-    <string name="secretary_compile_empty">TopSheet compilation is not available yet.</string>
+    <string name="secretary_compile_empty">No accounts to compile for the selected context.</string>
+    <string name="secretary_compile_review_title">Compilation Review</string>
+    <string name="secretary_compile_select_isp">Select ISP Context:</string>
+    <string name="secretary_compile_all_providers">-- All Providers (Select to Compile) --</string>
+    <string name="secretary_compile_total_accounts">Total Accounts</string>
+    <string name="secretary_compile_total_amount">Total Amount</string>
+    <string name="secretary_compile_amount">₱%1$s</string>
+    <string name="secretary_compile_button">Compile ISP TopSheet</string>
+    <string name="secretary_compile_showing">Showing %1$d accounts for the selected context.</string>
+    <string name="secretary_compile_showing_pick">Select an ISP context to compile its TopSheet.</string>
+    <string name="secretary_compile_accounts_title">Accounts for Review</string>
+    <string name="secretary_compile_search_hint">Search store or account…</string>
+    <string name="secretary_compile_billing_day">Billing Day: %1$d</string>
+    <string name="secretary_compile_amount_to_bill">AMOUNT TO BILL</string>
+
+    <!-- Secretary — compile topsheet, RFP entry -->
+    <string name="secretary_compile_rfp_title">Assign RFP Numbers</string>
+    <string name="secretary_compile_rfp_subtitle">Enter the RFP number for each line, then confirm to mint the invoice.</string>
+    <string name="secretary_compile_batch">Batch %1$s</string>
+    <string name="secretary_compile_rfp_hint">RFP #</string>
+    <string name="secretary_compile_rfp_empty">This draft has no lines.</string>
+    <string name="secretary_compile_remove_line">Remove line</string>
+    <string name="secretary_compile_back">Back to review</string>
+    <string name="secretary_compile_confirm">Confirm Compilation</string>
+    <string name="secretary_compile_line_prorated">Prorated: ₱%1$s</string>
+
+    <!-- Secretary — compile topsheet, result -->
+    <string name="secretary_compile_done_title">TopSheet Compiled</string>
+    <string name="secretary_compile_done_invoice">Invoice %1$s</string>
+    <string name="secretary_compile_done_summary">%1$d accounts • ₱%2$s</string>
+    <string name="secretary_compile_start_new">Compile another</string>
 
     <!-- Secretary — branch locations -->
     <string name="secretary_branches_title">Branch Locations</string>

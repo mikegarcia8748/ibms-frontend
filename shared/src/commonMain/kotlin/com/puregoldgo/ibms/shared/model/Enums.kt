@@ -111,6 +111,7 @@ enum class AccountStatus {
 
 @Serializable
 enum class TopsheetStatus {
+    @SerialName("draft") DRAFT,
     @SerialName("compiled") COMPILED,
     @SerialName("approved") APPROVED,
     @SerialName("paid") PAID,
