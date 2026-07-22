@@ -2,6 +2,7 @@ package com.puregoldgo.ibms
 
 import androidx.compose.runtime.Composable
 import com.puregoldgo.ibms.di.appModules
+import com.puregoldgo.ibms.ui.adaptive.ProvideWindowSizeClass
 import com.puregoldgo.ibms.ui.navigation.AppNavigation
 import com.puregoldgo.ibms.ui.theme.AppTheme
 import org.koin.compose.KoinApplication
@@ -20,7 +21,9 @@ fun App() {
         ),
         content = {
             AppTheme {
-                AppNavigation()
+                ProvideWindowSizeClass {
+                    AppNavigation()
+                }
             }
         },
     )
