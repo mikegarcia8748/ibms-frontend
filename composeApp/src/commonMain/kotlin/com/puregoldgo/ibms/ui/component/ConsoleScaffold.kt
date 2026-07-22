@@ -34,6 +34,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
+import com.puregoldgo.ibms.ui.adaptive.WindowSizeClass
+import com.puregoldgo.ibms.ui.adaptive.WindowWidthSizeClass
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_brand
@@ -83,8 +86,10 @@ fun ConsoleScaffold(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
         ) {
+            val windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight))
             val layout = ConsoleLayout(
-                isCompact = maxWidth <= Dimensions.viewWidth600,
+                windowSizeClass = windowSizeClass,
+                isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact,
                 isTabRowCompact = maxWidth < Dimensions.viewWidth1200,
             )
             val contentPadding = if (layout.isCompact) {
@@ -115,17 +120,21 @@ fun ConsoleScaffold(
 }
 
 /**
- * The two breakpoints a console body needs, measured once by [ConsoleScaffold].
+ * What a console body needs to reflow itself, measured once by [ConsoleScaffold].
  *
- * They are separate because they answer different questions.
- * [isCompact] is "is this a phone" — it decides stacking and padding.
- * [isTabRowCompact] is "do the tab labels still fit", which goes wrong well
- * before that: six labels only fit at the full capped width, so a tab row on a
- * half-width desktop window has to scroll while the body around it is still laid
- * out wide.
+ * [windowSizeClass] is the full three-bucket classification, there for consoles
+ * that want to tell Medium (tablet) apart from Expanded (desktop). The two
+ * booleans are the questions the current consoles actually ask, kept because they
+ * answer different things and short-circuit the common cases.
+ * [isCompact] is "is this a phone" (the Compact width bucket) — it decides
+ * stacking and padding. [isTabRowCompact] is "do the tab labels still fit", which
+ * goes wrong well before that: six labels only fit at the full capped width, so a
+ * tab row on a half-width desktop window has to scroll while the body around it is
+ * still laid out wide — a question the size-class buckets can't express.
  */
 @Immutable
 data class ConsoleLayout(
+    val windowSizeClass: WindowSizeClass,
     val isCompact: Boolean,
     val isTabRowCompact: Boolean,
 )
@@ -152,8 +161,11 @@ fun ConsoleAppBar(
     // The bar sits in the Scaffold's topBar, outside the body's own
     // measurement, so it has to ask about width itself. Measured out here
     // rather than inside a slot because both the title and the actions need
-    // the answer.
-    val isCompact = maxWidth <= Dimensions.viewWidth600
+    // the answer. Classified through the same breakpoints as the body so the
+    // two never disagree about what "compact" means.
+    val isCompact = WindowSizeClass
+        .calculateFromSize(DpSize(maxWidth, maxHeight))
+        .widthSizeClass == WindowWidthSizeClass.Compact
 
     TopAppBar(
         // `TopAppBar` defaults to the surface colours; the inverse pair is what

@@ -47,6 +47,9 @@ object Dimensions {
     val viewHeight360 = 360.dp
     val viewHeight480 = 480.dp
 
+    // Window size class breakpoint (height)
+    val viewHeight900 = 900.dp
+
     // Component widths
     val viewWidth24 = 24.dp
     val viewWidth56 = 56.dp
@@ -57,6 +60,7 @@ object Dimensions {
     val viewWidth420 = 420.dp
     val viewWidth560 = 560.dp
     val viewWidth600 = 600.dp
+    val viewWidth840 = 840.dp
     val viewWidth1200 = 1200.dp
 
     // Component sizes (both width & height)
