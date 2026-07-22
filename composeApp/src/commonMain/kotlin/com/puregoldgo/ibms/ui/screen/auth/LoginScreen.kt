@@ -51,6 +51,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.puregoldgo.core.network.AuthFailure
 import com.puregoldgo.ibms.ui.component.PasswordField
 import com.puregoldgo.ibms.ui.screen.access.NoAccessReason
+import com.puregoldgo.ibms.ui.screen.error.ServerUnavailableContent
 import com.puregoldgo.ibms.ui.theme.AppTheme
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
@@ -95,6 +96,11 @@ fun LoginScreen(
                 is LoginUiEvent.ShowError -> { }
             }
         }
+    }
+
+    if (uiState.serverUnavailable) {
+        ServerUnavailableContent(onRetry = viewModel::onRetry)
+        return
     }
 
     LoginContent(

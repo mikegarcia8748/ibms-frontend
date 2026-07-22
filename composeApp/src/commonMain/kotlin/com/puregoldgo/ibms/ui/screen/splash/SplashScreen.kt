@@ -14,11 +14,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.puregoldgo.ibms.ui.screen.access.NoAccessReason
+import com.puregoldgo.ibms.ui.screen.error.ServerUnavailableContent
 import com.puregoldgo.ibms.ui.theme.AppTheme
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
@@ -41,6 +44,8 @@ fun SplashScreen(
     onUnauthenticated: () -> Unit,
     viewModel: SplashViewModel = koinViewModel(),
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
             when (event) {
@@ -51,7 +56,10 @@ fun SplashScreen(
         }
     }
 
-    SplashContent()
+    when (uiState) {
+        SplashUiState.Resolving -> SplashContent()
+        SplashUiState.Unreachable -> ServerUnavailableContent(onRetry = viewModel::retry)
+    }
 }
 
 @Composable

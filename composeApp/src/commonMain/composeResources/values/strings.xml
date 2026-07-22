@@ -54,6 +54,11 @@
     <!-- Splash -->
     <string name="splash_restoring_session">Restoring your session…</string>
 
+    <!-- Server unavailable -->
+    <string name="server_unavailable_title">Server unavailable</string>
+    <string name="server_unavailable_message">We can't reach the server right now. Check your connection and try again.</string>
+    <string name="server_unavailable_retry">Retry</string>
+
     <!-- No access -->
     <string name="no_access_title">No access yet</string>
     <string name="no_access_pending">You are signed in, but your account has no role assigned yet. A sysadmin has to grant one before you can use IBMS.</string>
