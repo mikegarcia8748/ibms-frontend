@@ -1,19 +1,46 @@
 package com.puregoldgo.ibms.di
 
+import com.puregoldgo.ibms.data.repository.KtorTopSheetRepository
+import com.puregoldgo.ibms.shared.domain.TopSheetRepository
+import com.puregoldgo.ibms.shared.domain.usecase.ConfirmTopSheetUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.CreateTopSheetDraftUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.DeleteTopSheetLineUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.GetTopSheetLinesUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.PreviewTopSheetUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.UpdateTopSheetLineUseCase
 import com.puregoldgo.ibms.ui.screen.secretary.SecretaryViewModel
+import com.puregoldgo.ibms.ui.screen.secretary.compile.CompileViewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 /**
  * Koin DI module for the secretary console.
  *
- * Only the ViewModel: the console renders sample data this pass, and its one
- * real dependency — `AuthRepository`, for sign-out — is declared by [authModule].
- * The repositories and use cases arrive with the wiring pass.
+ * The console shell renders sample data this pass, but the Compile TopSheet
+ * panel is fully wired: it has its own [CompileViewModel] and the topsheet
+ * repository + use cases below. The panel's browse view reuses the account, store
+ * and provider use cases already bound by [sysadminModule] and [providerModule]
+ * — all land in the same container via [appModules], so [CompileViewModel]
+ * resolves them without re-declaration. `AuthRepository` (sign-out) comes from
+ * [authModule]; the shared `HttpClient` from [providerModule].
  */
 val secretaryModule = module {
 
+    // region Repository
+    factory<TopSheetRepository> { KtorTopSheetRepository(get()) }
+    // endregion
+
+    // region UseCases
+    factoryOf(::PreviewTopSheetUseCase)
+    factoryOf(::CreateTopSheetDraftUseCase)
+    factoryOf(::GetTopSheetLinesUseCase)
+    factoryOf(::UpdateTopSheetLineUseCase)
+    factoryOf(::DeleteTopSheetLineUseCase)
+    factoryOf(::ConfirmTopSheetUseCase)
+    // endregion
+
     // region ViewModels
     factoryOf(::SecretaryViewModel)
+    factoryOf(::CompileViewModel)
     // endregion
 }

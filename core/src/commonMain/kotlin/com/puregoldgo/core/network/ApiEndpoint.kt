@@ -28,6 +28,27 @@ sealed class ApiEndpoint(val path: String) {
     data object Accounts : ApiEndpoint("/accounts")
     data object AccountsBulkImport : ApiEndpoint("/accounts/bulk-import")
 
+    // ─── Topsheets ─────────────────────────────────────────────────────────────
+    data object TopsheetsPreview : ApiEndpoint("/topsheets/preview")
+    data object TopsheetsDraft : ApiEndpoint("/topsheets/draft")
+
     /** Resolves this endpoint against [baseUrl], e.g. `http://localhost:8080/auth/login`. */
     fun url(baseUrl: String): String = baseUrl.trimEnd('/') + path
+
+    /**
+     * Id-scoped topsheet paths.
+     *
+     * Functions rather than [ApiEndpoint] objects because the id (and line id) are
+     * runtime values — a `data object` can only hold a fixed path.
+     */
+    companion object {
+        fun topsheetLines(baseUrl: String, id: String): String =
+            "${baseUrl.trimEnd('/')}/topsheets/$id/lines"
+
+        fun topsheetLine(baseUrl: String, id: String, lineId: String): String =
+            "${baseUrl.trimEnd('/')}/topsheets/$id/lines/$lineId"
+
+        fun topsheetConfirm(baseUrl: String, id: String): String =
+            "${baseUrl.trimEnd('/')}/topsheets/$id/confirm"
+    }
 }

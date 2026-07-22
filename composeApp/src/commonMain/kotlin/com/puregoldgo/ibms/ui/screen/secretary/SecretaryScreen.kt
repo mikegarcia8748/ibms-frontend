@@ -10,6 +10,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.puregoldgo.ibms.ui.component.ConsoleHeader
 import com.puregoldgo.ibms.ui.component.ConsoleScaffold
 import com.puregoldgo.ibms.ui.component.SegmentedTabRow
+import com.puregoldgo.ibms.ui.screen.secretary.compile.CompileCallback
+import com.puregoldgo.ibms.ui.screen.secretary.compile.CompileTopSheetTab
+import com.puregoldgo.ibms.ui.screen.secretary.compile.CompileUIState
+import com.puregoldgo.ibms.ui.screen.secretary.compile.CompileViewModel
+import com.puregoldgo.ibms.ui.screen.secretary.compile.NoOpCompileCallback
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_subtitle
@@ -34,8 +39,10 @@ import org.koin.compose.viewmodel.koinViewModel
 fun SecretaryScreen(
     onSignedOut: () -> Unit,
     viewModel: SecretaryViewModel = koinViewModel(),
+    compileViewModel: CompileViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val compileState by compileViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
@@ -47,6 +54,23 @@ fun SecretaryScreen(
 
     SecretaryContent(
         uiState = uiState,
+        compileState = compileState,
+        compileCallback = CompileCallback(
+            onPreviousMonth = compileViewModel::onPreviousMonth,
+            onNextMonth = compileViewModel::onNextMonth,
+            onProviderSelect = compileViewModel::onProviderSelect,
+            onQueryChange = compileViewModel::onQueryChange,
+            onLetterSelect = compileViewModel::onLetterSelect,
+            onCompileClick = compileViewModel::onCompileClick,
+            onRetryLoad = compileViewModel::loadContext,
+            onRfpChange = compileViewModel::onRfpChange,
+            onRfpCommit = compileViewModel::onRfpCommit,
+            onRemoveLine = compileViewModel::onRemoveLine,
+            onRetryLines = compileViewModel::onRetryLines,
+            onBackToReview = compileViewModel::onBackToReview,
+            onConfirmClick = compileViewModel::onConfirmClick,
+            onStartNew = compileViewModel::onStartNew,
+        ),
         callback = SecretaryCallback(
             onTabSelect = viewModel::onTabSelect,
             onBranchQueryChange = viewModel::onBranchQueryChange,
@@ -87,6 +111,8 @@ fun SecretaryScreen(
 internal fun SecretaryContent(
     uiState: SecretaryUIState,
     callback: SecretaryCallback,
+    compileState: CompileUIState = CompileUIState(),
+    compileCallback: CompileCallback = NoOpCompileCallback,
 ) {
     ConsoleScaffold(
         userName = uiState.userName,
@@ -128,7 +154,7 @@ internal fun SecretaryContent(
         Spacer(Modifier.height(Dimensions.viewPadding24))
 
         when (uiState.selectedTab) {
-            SecretaryTab.CompileTopSheet -> CompileTopSheetTab()
+            SecretaryTab.CompileTopSheet -> CompileTopSheetTab(compileState, compileCallback, isCompact)
             SecretaryTab.BranchLocations -> BranchLocationsTab(uiState, callback, isCompact)
             SecretaryTab.IspAccounts -> IspAccountsTab(uiState, callback, isCompact)
             SecretaryTab.BillingHistory -> BillingHistoryTab(uiState, callback, isCompact)

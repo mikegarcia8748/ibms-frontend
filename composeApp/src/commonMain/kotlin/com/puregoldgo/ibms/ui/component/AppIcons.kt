@@ -187,6 +187,30 @@ object AppIcons {
             pathData = "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z",
         )
     }
+
+    /** Step to the previous month in the compile period picker. */
+    val ChevronLeft: ImageVector by lazy {
+        materialIcon(
+            name = "ChevronLeft",
+            pathData = "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z",
+        )
+    }
+
+    /** Step to the next month in the compile period picker. */
+    val ChevronRight: ImageVector by lazy {
+        materialIcon(
+            name = "ChevronRight",
+            pathData = "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z",
+        )
+    }
+
+    /** Return from the RFP-entry step to the compilation review. */
+    val ArrowBack: ImageVector by lazy {
+        materialIcon(
+            name = "ArrowBack",
+            pathData = "M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z",
+        )
+    }
 }
 
 /** Builds a standard 24dp Material icon from its path data. */
