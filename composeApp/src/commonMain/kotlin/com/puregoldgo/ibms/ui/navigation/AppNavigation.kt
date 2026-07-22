@@ -9,16 +9,17 @@ import androidx.navigation3.ui.NavDisplay
 import com.puregoldgo.core.network.SessionEvents
 import com.puregoldgo.core.storage.CurrentUserStore
 import com.puregoldgo.core.storage.SessionStore
-import com.puregoldgo.ibms.shared.model.Role
-import com.puregoldgo.ibms.shared.model.wireValue
+import com.puregoldgo.ibms.shared.model.roleFromWire
 import com.puregoldgo.ibms.ui.screen.access.NoAccessScreen
-import com.puregoldgo.ibms.ui.screen.dashboard.DashboardScreen
 import com.puregoldgo.ibms.ui.screen.auth.LoginScreen
 import com.puregoldgo.ibms.ui.screen.auth.SetPasswordScreen
+import com.puregoldgo.ibms.ui.screen.finance.FinanceScreen
+import com.puregoldgo.ibms.ui.screen.manager.ManagerScreen
 import com.puregoldgo.ibms.ui.screen.provider.ProviderFormScreen
 import com.puregoldgo.ibms.ui.screen.provider.ProviderListScreen
 import com.puregoldgo.ibms.ui.screen.secretary.SecretaryScreen
 import com.puregoldgo.ibms.ui.screen.splash.SplashScreen
+import com.puregoldgo.ibms.ui.screen.sysadmin.SysadminScreen
 
 /**
  * Root navigation host — defines the app's navigation graph using Navigation 3.
@@ -40,15 +41,10 @@ fun AppNavigation() {
      * Where "home" is depends on who just signed in.
      *
      * Read at navigation time rather than captured, because the three callers
-     * below all arrive right after `CurrentUserStore` was written. This picks a
-     * landing screen and nothing more — every screen it leads to is still
-     * subject to the server's own role checks.
+     * below all arrive right after `CurrentUserStore` was written. The mapping
+     * itself lives in [homeRouteFor].
      */
-    fun homeRoute(): NavKey = when (CurrentUserStore.role) {
-        Role.SYSADMIN.wireValue -> Route.Dashboard
-        Role.SECRETARY.wireValue -> Route.SecretaryDashboard
-        else -> Route.ProviderList
-    }
+    fun homeRoute(): NavKey = homeRouteFor(roleFromWire(CurrentUserStore.role))
 
     // A restored back stack can point deep into the app, but the access token
     // only ever lived in memory — so after process death those screens would be
@@ -101,13 +97,23 @@ fun AppNavigation() {
                     onSignedOut = { resetTo(Route.Login) },
                 )
             }
-            entry<Route.Dashboard> {
-                DashboardScreen(
+            entry<Route.SysadminDashboard> {
+                SysadminScreen(
                     onSignedOut = { resetTo(Route.Login) },
                 )
             }
             entry<Route.SecretaryDashboard> {
                 SecretaryScreen(
+                    onSignedOut = { resetTo(Route.Login) },
+                )
+            }
+            entry<Route.FinanceDashboard> {
+                FinanceScreen(
+                    onSignedOut = { resetTo(Route.Login) },
+                )
+            }
+            entry<Route.ManagerDashboard> {
+                ManagerScreen(
                     onSignedOut = { resetTo(Route.Login) },
                 )
             }

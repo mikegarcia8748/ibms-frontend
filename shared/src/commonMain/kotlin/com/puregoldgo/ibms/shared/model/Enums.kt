@@ -14,7 +14,29 @@ import kotlinx.serialization.Serializable
 enum class Role {
     @SerialName("sysadmin") SYSADMIN,
     @SerialName("secretary") SECRETARY,
+
+    /**
+     * Retired. Kept only so responses still deserialize.
+     *
+     * The role does the finance job with a slice of the secretary's — it may
+     * create and update accounts — and that split has no owner. It is no longer
+     * offered when provisioning a user (see `assignableRoles`) and existing
+     * holders land on the finance console, so it drains as sysadmins move
+     * people off it.
+     *
+     * It cannot simply be deleted here: `payables` is a value in the backend's
+     * `user_role` Postgres enum, it travels in JWT payloads, and
+     * `AccountController` authorizes `POST /accounts` and `PUT /accounts/{id}`
+     * for it. Dropping the constant would make any response naming a payables
+     * user fail to deserialize outright — their sign-in, and the whole
+     * `GET /users` list behind the sysadmin directory.
+     *
+     * TODO: remove once the backend migration lands — reassign remaining
+     *  holders to `finance`, drop the enum value, re-authorize the two account
+     *  endpoints. This constant and its `role_payables` label go with it.
+     */
     @SerialName("payables") PAYABLES,
+
     @SerialName("finance") FINANCE,
     @SerialName("manager") MANAGER,
 
@@ -29,6 +51,18 @@ enum class Role {
  */
 val Role.wireValue: String
     get() = Role.serializer().descriptor.getElementName(ordinal)
+
+/**
+ * The inverse of [wireValue] — the constant a stored wire value names, or null
+ * when it names none.
+ *
+ * Needed because `CurrentUserStore.role` in `:core` is a plain string, so every
+ * decision made on the signed-in role has to come back through here. Null rather
+ * than a default: a value this app does not recognise is one the backend added
+ * without it, and guessing a role for it would be the one guess that matters.
+ */
+fun roleFromWire(wire: String?): Role? =
+    Role.entries.firstOrNull { it.wireValue == wire }
 
 /**
  * How an enum constant travels as a *query parameter* — `?status=active`.

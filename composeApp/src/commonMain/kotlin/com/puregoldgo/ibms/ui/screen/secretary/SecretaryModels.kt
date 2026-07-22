@@ -6,7 +6,7 @@ import androidx.compose.runtime.Immutable
  * The rows the secretary panel draws.
  *
  * Deliberately *not* the shared domain models, for the same reason the sysadmin
- * panel keeps its own — see the header of `DashboardModels.kt`. This screen
+ * panel keeps its own — see the header of `SysadminModels.kt`. This screen
  * needs things those models cannot express: a branch's closure reason, a
  * topsheet's validated total, and an account status of `PENDING` that has no
  * counterpart in `AccountStatus` at all. Rather than bend the UI around models

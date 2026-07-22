@@ -11,8 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_clear_search_content_description
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.dashboard_search_content_description
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_clear_search_content_description
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_search_content_description
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -36,7 +36,7 @@ fun SearchField(
         leadingIcon = {
             Icon(
                 imageVector = AppIcons.Search,
-                contentDescription = stringResource(Res.string.dashboard_search_content_description),
+                contentDescription = stringResource(Res.string.console_search_content_description),
                 modifier = Modifier.size(Dimensions.viewSize18),
             )
         },
@@ -46,7 +46,7 @@ fun SearchField(
                     Icon(
                         imageVector = AppIcons.Close,
                         contentDescription = stringResource(
-                            Res.string.dashboard_clear_search_content_description,
+                            Res.string.console_clear_search_content_description,
                         ),
                         modifier = Modifier.size(Dimensions.viewSize18),
                     )

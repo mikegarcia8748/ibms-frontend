@@ -60,44 +60,44 @@
     <string name="no_access_inactive">This account has been deactivated. Contact a sysadmin if you think that is a mistake.</string>
     <string name="no_access_sign_out">Sign out</string>
 
-    <!-- Dashboard — app bar -->
-    <string name="dashboard_brand">IBMS</string>
-    <string name="dashboard_brand_suffix">Core Provider</string>
-    <string name="dashboard_logout">Logout</string>
-    <string name="dashboard_logout_content_description">Sign out of IBMS</string>
+    <!-- Console shell — shared by every role console -->
+    <string name="console_brand">IBMS</string>
+    <string name="console_brand_suffix">Core Provider</string>
+    <string name="console_logout">Logout</string>
+    <string name="console_logout_content_description">Sign out of IBMS</string>
 
-    <!-- Dashboard — header -->
-    <string name="dashboard_title">Control Panel</string>
-    <string name="dashboard_subtitle">Manage global system configurations and employee role delegations.</string>
-    <string name="dashboard_bulk_upload">Bulk Upload Master List</string>
+    <!-- Sysadmin — header -->
+    <string name="sysadmin_title">Control Panel</string>
+    <string name="sysadmin_subtitle">Manage global system configurations and employee role delegations.</string>
+    <string name="sysadmin_bulk_upload">Bulk Upload Master List</string>
 
-    <!-- Dashboard — tabs -->
-    <string name="dashboard_tab_directory">Users &amp; Providers</string>
-    <string name="dashboard_tab_stores">Stores / Branches View</string>
-    <string name="dashboard_tab_accounts">ISP Accounts View</string>
+    <!-- Sysadmin — tabs -->
+    <string name="sysadmin_tab_directory">Users &amp; Providers</string>
+    <string name="sysadmin_tab_stores">Stores / Branches View</string>
+    <string name="sysadmin_tab_accounts">ISP Accounts View</string>
 
-    <!-- Dashboard — directory tab -->
-    <string name="dashboard_active_directory">Active Directory</string>
-    <string name="dashboard_active_directory_empty">No directory entries.</string>
-    <string name="dashboard_employee_number">EMP:%1$s</string>
-    <string name="dashboard_add_user">Add User</string>
-    <string name="dashboard_directory_search">Search name, username or employee number</string>
-    <string name="dashboard_directory_no_matches">No one matches that search.</string>
-    <string name="dashboard_user_actions">Manage %1$s</string>
-    <string name="dashboard_user_change_role">Change role…</string>
-    <string name="dashboard_user_reset_password">Reset password</string>
-    <string name="dashboard_user_deactivate">Deactivate</string>
-    <string name="dashboard_user_reactivate">Reactivate</string>
-    <string name="dashboard_user_deactivate_self">Deactivate (not your own account)</string>
-    <string name="dashboard_user_deactivate_last_sysadmin">Deactivate (last sysadmin)</string>
-    <string name="dashboard_user_temporary">TEMPORARY</string>
-    <string name="dashboard_dismiss">Dismiss</string>
-    <string name="dashboard_user_role_label">Role for %1$s</string>
-    <string name="dashboard_isp_providers">ISP Providers</string>
-    <string name="dashboard_payment_day">DAY %1$d</string>
-    <string name="dashboard_specify_provider">+ SPECIFY PROVIDER</string>
+    <!-- Sysadmin — directory tab -->
+    <string name="sysadmin_active_directory">Active Directory</string>
+    <string name="sysadmin_active_directory_empty">No directory entries.</string>
+    <string name="sysadmin_employee_number">EMP:%1$s</string>
+    <string name="sysadmin_add_user">Add User</string>
+    <string name="sysadmin_directory_search">Search name, username or employee number</string>
+    <string name="sysadmin_directory_no_matches">No one matches that search.</string>
+    <string name="sysadmin_user_actions">Manage %1$s</string>
+    <string name="sysadmin_user_change_role">Change role…</string>
+    <string name="sysadmin_user_reset_password">Reset password</string>
+    <string name="sysadmin_user_deactivate">Deactivate</string>
+    <string name="sysadmin_user_reactivate">Reactivate</string>
+    <string name="sysadmin_user_deactivate_self">Deactivate (not your own account)</string>
+    <string name="sysadmin_user_deactivate_last_sysadmin">Deactivate (last sysadmin)</string>
+    <string name="sysadmin_user_temporary">TEMPORARY</string>
+    <string name="sysadmin_dismiss">Dismiss</string>
+    <string name="sysadmin_user_role_label">Role for %1$s</string>
+    <string name="sysadmin_isp_providers">ISP Providers</string>
+    <string name="sysadmin_payment_day">DAY %1$d</string>
+    <string name="sysadmin_specify_provider">+ SPECIFY PROVIDER</string>
 
-    <!-- Dashboard — roles -->
+    <!-- Roles -->
     <string name="role_sysadmin">Sysadmin</string>
     <string name="role_secretary">Secretary</string>
     <string name="role_payables">Payables</string>
@@ -105,110 +105,110 @@
     <string name="role_manager">Manager</string>
     <string name="role_pending">No role yet</string>
 
-    <!-- Dashboard — add user -->
-    <string name="dashboard_add_user_title">Add User</string>
-    <string name="dashboard_add_user_close">Close</string>
-    <string name="dashboard_add_user_first_name">First name</string>
-    <string name="dashboard_add_user_middle_initial">M.I.</string>
-    <string name="dashboard_add_user_last_name">Last name</string>
-    <string name="dashboard_add_user_username">Username</string>
-    <string name="dashboard_add_user_username_hint">3–32 characters: letters, digits, dot, underscore or hyphen</string>
-    <string name="dashboard_add_user_employee_number">Employee number</string>
-    <string name="dashboard_add_user_employee_number_hint">4–20 digits, exactly as payroll records it</string>
-    <string name="dashboard_add_user_role">Role</string>
-    <string name="dashboard_add_user_note">A temporary password is generated on submit. It is shown once, on the next screen — relay it to the user yourself.</string>
-    <string name="dashboard_add_user_cancel">Cancel</string>
-    <string name="dashboard_add_user_submit">Create User</string>
-    <string name="dashboard_add_user_submitting">Creating…</string>
+    <!-- Sysadmin — add user -->
+    <string name="sysadmin_add_user_title">Add User</string>
+    <string name="sysadmin_add_user_close">Close</string>
+    <string name="sysadmin_add_user_first_name">First name</string>
+    <string name="sysadmin_add_user_middle_initial">M.I.</string>
+    <string name="sysadmin_add_user_last_name">Last name</string>
+    <string name="sysadmin_add_user_username">Username</string>
+    <string name="sysadmin_add_user_username_hint">3–32 characters: letters, digits, dot, underscore or hyphen</string>
+    <string name="sysadmin_add_user_employee_number">Employee number</string>
+    <string name="sysadmin_add_user_employee_number_hint">4–20 digits, exactly as payroll records it</string>
+    <string name="sysadmin_add_user_role">Role</string>
+    <string name="sysadmin_add_user_note">A temporary password is generated on submit. It is shown once, on the next screen — relay it to the user yourself.</string>
+    <string name="sysadmin_add_user_cancel">Cancel</string>
+    <string name="sysadmin_add_user_submit">Create User</string>
+    <string name="sysadmin_add_user_submitting">Creating…</string>
 
-    <!-- Dashboard — temporary password -->
-    <string name="dashboard_credential_created_title">%1$s can now sign in</string>
-    <string name="dashboard_credential_reset_title">New temporary password for %1$s</string>
-    <string name="dashboard_credential_username">Username</string>
-    <string name="dashboard_credential_password">Temporary password</string>
-    <string name="dashboard_credential_copy">Copy</string>
-    <string name="dashboard_credential_copied">Copied</string>
-    <string name="dashboard_credential_expires">Expires %1$s</string>
-    <string name="dashboard_credential_warning_title">This is the only time this password is shown.</string>
-    <string name="dashboard_credential_warning_body">It is stored hashed and cannot be looked up again. Relay it securely; the user must change it at first sign-in. If it is lost, issue another from their row menu.</string>
-    <string name="dashboard_credential_done">Done</string>
+    <!-- Sysadmin — temporary password -->
+    <string name="sysadmin_credential_created_title">%1$s can now sign in</string>
+    <string name="sysadmin_credential_reset_title">New temporary password for %1$s</string>
+    <string name="sysadmin_credential_username">Username</string>
+    <string name="sysadmin_credential_password">Temporary password</string>
+    <string name="sysadmin_credential_copy">Copy</string>
+    <string name="sysadmin_credential_copied">Copied</string>
+    <string name="sysadmin_credential_expires">Expires %1$s</string>
+    <string name="sysadmin_credential_warning_title">This is the only time this password is shown.</string>
+    <string name="sysadmin_credential_warning_body">It is stored hashed and cannot be looked up again. Relay it securely; the user must change it at first sign-in. If it is lost, issue another from their row menu.</string>
+    <string name="sysadmin_credential_done">Done</string>
 
-    <!-- Dashboard — reset password -->
-    <string name="dashboard_reset_title">Reset password</string>
-    <string name="dashboard_reset_body">A new temporary password will be generated for %1$s. Their current password stops working immediately and they are signed out everywhere.</string>
-    <string name="dashboard_reset_cancel">Cancel</string>
-    <string name="dashboard_reset_confirm">Issue new password</string>
-    <string name="dashboard_reset_confirming">Issuing…</string>
+    <!-- Sysadmin — reset password -->
+    <string name="sysadmin_reset_title">Reset password</string>
+    <string name="sysadmin_reset_body">A new temporary password will be generated for %1$s. Their current password stops working immediately and they are signed out everywhere.</string>
+    <string name="sysadmin_reset_cancel">Cancel</string>
+    <string name="sysadmin_reset_confirm">Issue new password</string>
+    <string name="sysadmin_reset_confirming">Issuing…</string>
 
-    <!-- Dashboard — change role -->
-    <string name="dashboard_role_title">Change role</string>
-    <string name="dashboard_role_body">%1$s currently has the %2$s role. A new role takes effect the next time they load a screen.</string>
-    <string name="dashboard_role_field">New role</string>
-    <string name="dashboard_role_pending_note">An account with no role can sign in but has nothing to use — it lands on the no-access screen until a role is given.</string>
-    <string name="dashboard_role_cancel">Cancel</string>
-    <string name="dashboard_role_confirm">Save role</string>
-    <string name="dashboard_role_confirming">Saving…</string>
+    <!-- Sysadmin — change role -->
+    <string name="sysadmin_role_title">Change role</string>
+    <string name="sysadmin_role_body">%1$s currently has the %2$s role. A new role takes effect the next time they load a screen.</string>
+    <string name="sysadmin_role_field">New role</string>
+    <string name="sysadmin_role_pending_note">An account with no role can sign in but has nothing to use — it lands on the no-access screen until a role is given.</string>
+    <string name="sysadmin_role_cancel">Cancel</string>
+    <string name="sysadmin_role_confirm">Save role</string>
+    <string name="sysadmin_role_confirming">Saving…</string>
 
-    <!-- Dashboard — activate / deactivate -->
-    <string name="dashboard_status_deactivate_title">Deactivate account</string>
-    <string name="dashboard_status_deactivate_body">%1$s will no longer be able to sign in. Their record and their history stay — this is how a resignation is recorded, not a deletion.</string>
-    <string name="dashboard_status_deactivate_confirm">Deactivate</string>
-    <string name="dashboard_status_deactivate_confirming">Deactivating…</string>
-    <string name="dashboard_status_reactivate_title">Reactivate account</string>
-    <string name="dashboard_status_reactivate_body">%1$s will be able to sign in again with the password they already hold. If they no longer have one, issue a reset from their row menu.</string>
-    <string name="dashboard_status_reactivate_confirm">Reactivate</string>
-    <string name="dashboard_status_reactivate_confirming">Reactivating…</string>
-    <string name="dashboard_status_cancel">Cancel</string>
+    <!-- Sysadmin — activate / deactivate -->
+    <string name="sysadmin_status_deactivate_title">Deactivate account</string>
+    <string name="sysadmin_status_deactivate_body">%1$s will no longer be able to sign in. Their record and their history stay — this is how a resignation is recorded, not a deletion.</string>
+    <string name="sysadmin_status_deactivate_confirm">Deactivate</string>
+    <string name="sysadmin_status_deactivate_confirming">Deactivating…</string>
+    <string name="sysadmin_status_reactivate_title">Reactivate account</string>
+    <string name="sysadmin_status_reactivate_body">%1$s will be able to sign in again with the password they already hold. If they no longer have one, issue a reset from their row menu.</string>
+    <string name="sysadmin_status_reactivate_confirm">Reactivate</string>
+    <string name="sysadmin_status_reactivate_confirming">Reactivating…</string>
+    <string name="sysadmin_status_cancel">Cancel</string>
 
-    <!-- Dashboard — stores tab -->
-    <string name="dashboard_branch_locations">Branch Locations</string>
-    <string name="dashboard_branch_search_hint">Search store, code or city…</string>
-    <string name="dashboard_branch_empty">No branches match your filters.</string>
-    <string name="dashboard_letter_all">All</string>
+    <!-- Sysadmin — stores tab -->
+    <string name="sysadmin_branch_locations">Branch Locations</string>
+    <string name="sysadmin_branch_search_hint">Search store, code or city…</string>
+    <string name="sysadmin_branch_empty">No branches match your filters.</string>
+    <string name="console_letter_all">All</string>
 
-    <!-- Dashboard — accounts tab -->
-    <string name="dashboard_accounts_db">ISP Accounts DB</string>
-    <string name="dashboard_accounts_search_hint">Search accounts…</string>
-    <string name="dashboard_accounts_empty">No accounts match your filters.</string>
-    <string name="dashboard_clean_up">Clean Up</string>
-    <string name="dashboard_monthly_rate">₱%1$s / mo</string>
+    <!-- Sysadmin — accounts tab -->
+    <string name="sysadmin_accounts_db">ISP Accounts DB</string>
+    <string name="sysadmin_accounts_search_hint">Search accounts…</string>
+    <string name="sysadmin_accounts_empty">No accounts match your filters.</string>
+    <string name="sysadmin_clean_up">Clean Up</string>
+    <string name="sysadmin_monthly_rate">₱%1$s / mo</string>
 
-    <!-- Dashboard — record status -->
-    <string name="dashboard_status_active">ACTIVE</string>
-    <string name="dashboard_status_inactive">INACTIVE</string>
+    <!-- Console shell — record status -->
+    <string name="console_status_active">ACTIVE</string>
+    <string name="console_status_inactive">INACTIVE</string>
 
-    <!-- Dashboard — filters -->
-    <string name="dashboard_all_isps">All ISPs</string>
-    <string name="dashboard_search_content_description">Search</string>
-    <string name="dashboard_clear_search_content_description">Clear search</string>
+    <!-- Console shell — filters -->
+    <string name="console_all_isps">All ISPs</string>
+    <string name="console_search_content_description">Search</string>
+    <string name="console_clear_search_content_description">Clear search</string>
+    <string name="console_retry">Try again</string>
 
-    <!-- Dashboard — bulk upload summary -->
-    <string name="dashboard_bulk_upload_title">Master list imported</string>
-    <string name="dashboard_retry">Try again</string>
-    <string name="dashboard_bulk_upload_providers">Providers</string>
-    <string name="dashboard_bulk_upload_provider_line">%1$s: %2$d created, %3$d reused</string>
-    <string name="dashboard_bulk_upload_provider_new">%1$s (new): %2$d created, %3$d reused</string>
-    <string name="dashboard_bulk_upload_stores">Stores: %1$d created, %2$d reused</string>
-    <string name="dashboard_bulk_upload_accounts">Accounts: %1$d created, %2$d reused</string>
-    <string name="dashboard_bulk_upload_rows">%1$d of %2$d rows imported</string>
-    <string name="dashboard_bulk_upload_skipped">Skipped rows</string>
-    <string name="dashboard_bulk_upload_dismiss">Done</string>
+    <!-- Sysadmin — bulk upload summary -->
+    <string name="sysadmin_bulk_upload_title">Master list imported</string>
+    <string name="sysadmin_bulk_upload_providers">Providers</string>
+    <string name="sysadmin_bulk_upload_provider_line">%1$s: %2$d created, %3$d reused</string>
+    <string name="sysadmin_bulk_upload_provider_new">%1$s (new): %2$d created, %3$d reused</string>
+    <string name="sysadmin_bulk_upload_stores">Stores: %1$d created, %2$d reused</string>
+    <string name="sysadmin_bulk_upload_accounts">Accounts: %1$d created, %2$d reused</string>
+    <string name="sysadmin_bulk_upload_rows">%1$d of %2$d rows imported</string>
+    <string name="sysadmin_bulk_upload_skipped">Skipped rows</string>
+    <string name="sysadmin_bulk_upload_dismiss">Done</string>
 
-    <!-- Dashboard — bulk import dialog -->
-    <string name="dashboard_bulk_import_title">Bulk Import Data</string>
-    <string name="dashboard_bulk_import_close">Close</string>
-    <string name="dashboard_bulk_import_drop_title">Upload File</string>
-    <string name="dashboard_bulk_import_drop_hint">Drop your Excel (.xlsx) or CSV file here, or click to browse</string>
-    <string name="dashboard_bulk_import_browse">Browse Files</string>
-    <string name="dashboard_bulk_import_change_file">Choose a different file</string>
-    <string name="dashboard_bulk_import_attention">Attention:</string>
-    <string name="dashboard_bulk_import_attention_body">Please ensure your column headers match exactly with the template. IDs are auto-generated if left blank but it is recommended to provide unique IDs (e.g. branchcode/account numbers).</string>
-    <string name="dashboard_bulk_import_cancel">Cancel</string>
-    <string name="dashboard_bulk_import_start">Start Import</string>
-    <string name="dashboard_bulk_import_uploading">Importing…</string>
-    <string name="dashboard_bulk_import_size_bytes">%1$d B</string>
-    <string name="dashboard_bulk_import_size_kb">%1$s KB</string>
-    <string name="dashboard_bulk_import_size_mb">%1$s MB</string>
+    <!-- Sysadmin — bulk import dialog -->
+    <string name="sysadmin_bulk_import_title">Bulk Import Data</string>
+    <string name="sysadmin_bulk_import_close">Close</string>
+    <string name="sysadmin_bulk_import_drop_title">Upload File</string>
+    <string name="sysadmin_bulk_import_drop_hint">Drop your Excel (.xlsx) or CSV file here, or click to browse</string>
+    <string name="sysadmin_bulk_import_browse">Browse Files</string>
+    <string name="sysadmin_bulk_import_change_file">Choose a different file</string>
+    <string name="sysadmin_bulk_import_attention">Attention:</string>
+    <string name="sysadmin_bulk_import_attention_body">Please ensure your column headers match exactly with the template. IDs are auto-generated if left blank but it is recommended to provide unique IDs (e.g. branchcode/account numbers).</string>
+    <string name="sysadmin_bulk_import_cancel">Cancel</string>
+    <string name="sysadmin_bulk_import_start">Start Import</string>
+    <string name="sysadmin_bulk_import_uploading">Importing…</string>
+    <string name="sysadmin_bulk_import_size_bytes">%1$d B</string>
+    <string name="sysadmin_bulk_import_size_kb">%1$s KB</string>
+    <string name="sysadmin_bulk_import_size_mb">%1$s MB</string>
 
     <!-- Secretary — header and tabs -->
     <string name="secretary_title">Secretary Actions</string>
@@ -299,4 +299,90 @@
     <string name="secretary_dialog_offline_body">This form is the finished layout, but there is no endpoint behind it yet — submitting does nothing. It saves once the backend pass lands.</string>
     <string name="secretary_select_placeholder">Select…</string>
     <string name="secretary_retry">Try again</string>
+
+    <!-- Finance — header and tabs -->
+    <string name="finance_title">Finance Console</string>
+    <string name="finance_subtitle">Approve compiled topsheets, release payment, and keep each ISP on its schedule.</string>
+    <string name="finance_tab_approvals">For Approval</string>
+    <string name="finance_tab_payments">For Payment</string>
+    <string name="finance_tab_schedule">Payment Schedule</string>
+
+    <!-- Finance — topsheet rows -->
+    <string name="finance_period">Period %1$s</string>
+    <string name="finance_compiled">Compiled %1$s</string>
+    <string name="finance_accounts">%1$d accounts</string>
+    <string name="finance_total_label">Validated total</string>
+    <string name="finance_total">₱%1$s</string>
+    <string name="finance_variance">%1$d OFF CONTRACT</string>
+    <string name="finance_balanced">BALANCED</string>
+
+    <!-- Finance — approvals -->
+    <string name="finance_approvals_title">Awaiting Approval</string>
+    <string name="finance_approvals_search_hint">Search invoice, ISP or period…</string>
+    <string name="finance_approvals_empty">Nothing is waiting on an approval.</string>
+    <string name="finance_approvals_variance">%1$d of these do not balance against contract.</string>
+    <string name="finance_approve">Approve</string>
+
+    <!-- Finance — payments -->
+    <string name="finance_payments_title">Approved, Awaiting Payment</string>
+    <string name="finance_payments_search_hint">Search invoice, ISP or period…</string>
+    <string name="finance_payments_empty">Nothing is waiting on a payment.</string>
+    <string name="finance_pay">Mark as paid</string>
+    <string name="finance_export">Export</string>
+
+    <!-- Finance — payment schedule -->
+    <string name="finance_schedule_title">ISP Payment Schedule</string>
+    <string name="finance_schedule_empty">No active ISPs to schedule.</string>
+    <string name="finance_schedule_day">DAY %1$d</string>
+    <string name="finance_schedule_awaiting">%1$d sheet(s) awaiting — ₱%2$s</string>
+    <string name="finance_schedule_clear">Nothing queued</string>
+
+    <!-- Finance — confirmation -->
+    <string name="finance_confirm_approve_title">Approve topsheet</string>
+    <string name="finance_confirm_approve_body">%1$s for %2$s will be approved and move to the payment queue. There is no way back from an approval.</string>
+    <string name="finance_confirm_approve_submit">Approve</string>
+    <string name="finance_confirm_approve_submitting">Approving…</string>
+    <string name="finance_confirm_pay_title">Mark as paid</string>
+    <string name="finance_confirm_pay_body">%1$s for %2$s will be recorded as paid. This is the record the ISP is reconciled against, and it cannot be undone.</string>
+    <string name="finance_confirm_pay_submit">Mark as paid</string>
+    <string name="finance_confirm_pay_submitting">Recording…</string>
+    <string name="finance_confirm_close">Close</string>
+    <string name="finance_dialog_cancel">Cancel</string>
+    <string name="finance_dialog_offline_title">Not connected yet.</string>
+    <string name="finance_dialog_offline_body">This confirmation is the finished layout, but there is no endpoint behind it yet — confirming does nothing. It posts once the backend pass lands.</string>
+
+    <!-- Manager — header and tabs -->
+    <string name="manager_title">Oversight</string>
+    <string name="manager_subtitle">Where the money went this period, and what the team has been doing with it.</string>
+    <string name="manager_tab_overview">Overview</string>
+    <string name="manager_tab_topsheets">Topsheets</string>
+    <string name="manager_tab_activity">Activity</string>
+
+    <!-- Manager — overview -->
+    <string name="manager_overview_title">This Period</string>
+    <string name="manager_overview_empty">Nothing has been compiled for this period yet.</string>
+    <string name="manager_metric_billed">Total billed</string>
+    <string name="manager_metric_awaiting">Awaiting approval</string>
+    <string name="manager_metric_paid">Released</string>
+    <string name="manager_metric_accounts">Accounts billed</string>
+    <string name="manager_metric_peso">₱%1$s</string>
+    <string name="manager_overview_by_isp">By ISP</string>
+    <string name="manager_overview_share">%1$s of the period</string>
+    <string name="manager_isp_accounts">%1$d accounts</string>
+
+    <!-- Manager — topsheets -->
+    <string name="manager_topsheets_title">Topsheets</string>
+    <string name="manager_topsheets_search_hint">Search invoice, ISP or period…</string>
+    <string name="manager_topsheets_empty">No topsheets match your filters.</string>
+    <string name="manager_read_only">Read-only. Compilation is the secretary\'s, approval and payment are finance\'s.</string>
+
+    <!-- Manager — activity -->
+    <string name="manager_activity_title">Recent Activity</string>
+    <string name="manager_activity_empty">No activity recorded yet.</string>
+    <string name="manager_activity_search_hint">Search person or record…</string>
+
+    <!-- Console shell — topsheet status, shared by finance and manager -->
+    <string name="console_status_paid">PAID</string>
+    <string name="console_status_approved">APPROVED</string>
+    <string name="console_status_compiled">COMPILED</string>
 </resources>
