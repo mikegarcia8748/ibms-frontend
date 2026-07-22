@@ -18,6 +18,7 @@ data class LoginUIState(
     val errorMessage: String? = null,
     val failure: AuthFailure? = null,
     val isAuthenticated: Boolean = false,
+    val serverUnavailable: Boolean = false,
 ) {
     val canSubmit: Boolean
         get() = !isLoading && username.isNotBlank() && password.isNotBlank()

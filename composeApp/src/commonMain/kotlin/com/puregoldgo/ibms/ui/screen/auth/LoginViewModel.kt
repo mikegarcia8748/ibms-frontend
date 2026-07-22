@@ -2,6 +2,7 @@ package com.puregoldgo.ibms.ui.screen.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.puregoldgo.core.network.AuthFailure
 import com.puregoldgo.core.network.DomainException
 import com.puregoldgo.core.network.Resource
 import com.puregoldgo.ibms.data.auth.ChallengeHolder
@@ -72,11 +73,24 @@ class LoginViewModel(
 
                     is Resource.Error -> {
                         val authError = resource.error as? DomainException.AuthException
-                        fail(authError?.message ?: resource.error?.message, authError)
+                        if (authError?.failure == AuthFailure.Offline) {
+                            // The server never answered — the password was not
+                            // rejected, so keep it and let a retry re-submit once
+                            // the backend is reachable again.
+                            _uiState.update { it.copy(isLoading = false, serverUnavailable = true) }
+                        } else {
+                            fail(authError?.message ?: resource.error?.message, authError)
+                        }
                     }
                 }
             }
         }
+    }
+
+    /** Dismisses the "server unavailable" takeover and re-submits the sign-in. */
+    fun onRetry() {
+        _uiState.update { it.copy(serverUnavailable = false) }
+        onLogin()
     }
 
     // endregion

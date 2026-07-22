@@ -25,6 +25,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.Serializable
@@ -148,9 +149,16 @@ class KtorAuthRepository(
                 Resource.Success(data)
             }
         }
-    } catch (e: Exception) {
+    } catch (e: CancellationException) {
+        // Coroutine cancellation is not a network failure — let it propagate so
+        // structured concurrency stays intact.
+        throw e
+    } catch (e: Throwable) {
         // The request never got an answer, so there is no status to classify:
-        // offline rather than rejected.
+        // offline rather than rejected. This must catch Throwable, not just
+        // Exception: the Wasm/JS Ktor engine surfaces a dropped fetch as a
+        // `kotlin.Error` ("Fail to fetch"), which a narrower catch would let
+        // escape uncaught — leaving the offline case unhandled.
         failure(status = 0, serverMessage = e.message, unauthorizedAs = null)
     }
 

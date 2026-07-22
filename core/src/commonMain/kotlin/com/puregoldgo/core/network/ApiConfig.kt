@@ -9,5 +9,5 @@ package com.puregoldgo.core.network
  * without a rebuild of this module.
  */
 object ApiConfig {
-    var baseUrl: String = "http://localhost:8080"
+    var baseUrl: String = "http://localhost:8082"
 }

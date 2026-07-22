@@ -2,6 +2,8 @@ package com.puregoldgo.ibms.ui.screen.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.puregoldgo.core.network.AuthFailure
+import com.puregoldgo.core.network.DomainException
 import com.puregoldgo.core.network.Resource
 import com.puregoldgo.core.storage.SessionStore
 import com.puregoldgo.ibms.shared.domain.hasOperationalAccess
@@ -9,7 +11,9 @@ import com.puregoldgo.ibms.shared.domain.usecase.RefreshSessionUseCase
 import com.puregoldgo.ibms.ui.screen.access.NoAccessReason
 import com.puregoldgo.ibms.ui.screen.access.noAccessReason
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -30,7 +34,16 @@ class SplashViewModel(
     private val _uiEvent = MutableSharedFlow<SplashUiEvent>(replay = 1)
     val uiEvent = _uiEvent.asSharedFlow()
 
+    private val _uiState = MutableStateFlow<SplashUiState>(SplashUiState.Resolving)
+    val uiState = _uiState.asStateFlow()
+
     init {
+        resume()
+    }
+
+    /** Re-runs the session resume after a [SplashUiState.Unreachable] outage. */
+    fun retry() {
+        _uiState.value = SplashUiState.Resolving
         resume()
     }
 
@@ -57,6 +70,13 @@ class SplashViewModel(
                         _uiEvent.emit(destination)
                     }
 
+                    is Resource.Error if resource.isOffline() -> {
+                        // The server never answered, so the refresh token is not
+                        // spent — it just could not be presented. Keep the session
+                        // and let the user retry once the backend is back.
+                        _uiState.value = SplashUiState.Unreachable
+                    }
+
                     // A refresh token that no longer works is ordinary: it
                     // expired, a sysadmin reset the password, or the session was
                     // revoked. Sign-in is the answer, not an error screen.
@@ -68,6 +88,10 @@ class SplashViewModel(
             }
         }
     }
+
+    /** True when the failure was a dropped connection rather than a rejection. */
+    private fun Resource.Error<*>.isOffline(): Boolean =
+        (error as? DomainException.AuthException)?.failure == AuthFailure.Offline
 }
 
 /** Where the launch goes once the session question is settled. */
@@ -75,4 +99,10 @@ sealed class SplashUiEvent {
     data object NavigateToHome : SplashUiEvent()
     data class NavigateToNoAccess(val reason: NoAccessReason) : SplashUiEvent()
     data object NavigateToLogin : SplashUiEvent()
+}
+
+/** What the splash draws while it works, versus when the server can't be reached. */
+sealed class SplashUiState {
+    data object Resolving : SplashUiState()
+    data object Unreachable : SplashUiState()
 }
