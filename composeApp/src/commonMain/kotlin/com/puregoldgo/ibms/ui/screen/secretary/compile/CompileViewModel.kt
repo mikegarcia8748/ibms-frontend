@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.puregoldgo.core.network.Resource
 import com.puregoldgo.ibms.shared.domain.BillingPeriod
 import com.puregoldgo.ibms.ui.component.LETTER_ALL
+import com.puregoldgo.ibms.shared.domain.usecase.AssignRfpUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.ConfirmTopSheetUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.CreateTopSheetDraftUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.DeleteTopSheetLineUseCase
@@ -42,6 +43,7 @@ class CompileViewModel(
     private val createDraft: CreateTopSheetDraftUseCase,
     private val getLines: GetTopSheetLinesUseCase,
     private val updateLine: UpdateTopSheetLineUseCase,
+    private val assignRfp: AssignRfpUseCase,
     private val deleteLine: DeleteTopSheetLineUseCase,
     private val confirm: ConfirmTopSheetUseCase,
 ) : ViewModel() {
@@ -276,6 +278,60 @@ class CompileViewModel(
         }
     }
 
+    /** RFP range ends are numeric-only, same as the per-line field. */
+    fun onRfpRangeStartChange(value: String) {
+        _uiState.update { it.copy(rfpRangeStart = value.filter { c -> c.isDigit() }, assignRfpError = null) }
+    }
+
+    fun onRfpRangeEndChange(value: String) {
+        _uiState.update { it.copy(rfpRangeEnd = value.filter { c -> c.isDigit() }, assignRfpError = null) }
+    }
+
+    /**
+     * Bulk-numbers the draft from the entered range: the backend gives one number
+     * per distinct store code and returns the lines re-sorted, which replace the
+     * current list (seeding each edit buffer with its saved number) so `canConfirm`
+     * flips true once the range covers every store.
+     */
+    fun onAssignRfpClick() {
+        val draftId = _uiState.value.draft?.id ?: return
+        val state = _uiState.value
+        if (!state.canAssignRfp) return
+
+        viewModelScope.launch {
+            assignRfp(draftId, state.rfpRangeStart, state.rfpRangeEnd).collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> _uiState.update {
+                        it.copy(isAssigningRfp = true, assignRfpError = null)
+                    }
+
+                    is Resource.Success -> {
+                        val lines = resource.data.orEmpty()
+                            .map { line -> line.toLineRow() }
+                            .sortedBy { line -> line.rfpSortOrder ?: Int.MAX_VALUE }
+                        _uiState.update {
+                            it.copy(
+                                isAssigningRfp = false,
+                                assignRfpError = null,
+                                rfpRangeStart = "",
+                                rfpRangeEnd = "",
+                                lines = lines,
+                            )
+                        }
+                    }
+
+                    is Resource.Failed -> _uiState.update {
+                        it.copy(isAssigningRfp = false, assignRfpError = resource.message ?: DEFAULT_ASSIGN_RFP_ERROR)
+                    }
+
+                    is Resource.Error -> _uiState.update {
+                        it.copy(isAssigningRfp = false, assignRfpError = resource.error?.message ?: DEFAULT_ASSIGN_RFP_ERROR)
+                    }
+                }
+            }
+        }
+    }
+
     /** Removes a line from the draft, then reloads so ordering and totals stay the server's. */
     fun onRemoveLine(lineId: String) {
         val draftId = _uiState.value.draft?.id ?: return
@@ -309,10 +365,34 @@ class CompileViewModel(
         _uiState.value.draft?.id?.let { loadLines(it) }
     }
 
+    fun onLinesQueryChange(query: String) {
+        _uiState.update { it.copy(linesQuery = query) }
+    }
+
+    fun onLinesLetterSelect(letter: Char) {
+        _uiState.update { it.copy(linesLetter = letter) }
+    }
+
+    fun onLinesSortSelect(order: LineSortOrder) {
+        _uiState.update { it.copy(linesSort = order) }
+    }
+
     /** Returns to review, keeping the period/provider. The draft persists server-side. */
     fun onBackToReview() {
         _uiState.update {
-            it.copy(phase = CompilePhase.Review, draft = null, lines = emptyList(), linesError = null, compileError = null)
+            it.copy(
+                phase = CompilePhase.Review,
+                draft = null,
+                lines = emptyList(),
+                linesError = null,
+                compileError = null,
+                rfpRangeStart = "",
+                rfpRangeEnd = "",
+                assignRfpError = null,
+                linesQuery = "",
+                linesLetter = LETTER_ALL,
+                linesSort = LineSortOrder.StoreCode,
+            )
         }
     }
 
@@ -368,6 +448,12 @@ class CompileViewModel(
                 compileError = null,
                 confirmError = null,
                 linesError = null,
+                rfpRangeStart = "",
+                rfpRangeEnd = "",
+                assignRfpError = null,
+                linesQuery = "",
+                linesLetter = LETTER_ALL,
+                linesSort = LineSortOrder.StoreCode,
             )
         }
         loadContext()
@@ -409,5 +495,6 @@ private const val DEFAULT_LOAD_ERROR = "The accounts could not be loaded."
 private const val DEFAULT_COMPILE_ERROR = "The draft could not be created."
 private const val DEFAULT_LINES_ERROR = "The draft lines could not be loaded."
 private const val DEFAULT_LINE_SAVE_ERROR = "The RFP number could not be saved."
+private const val DEFAULT_ASSIGN_RFP_ERROR = "The RFP numbers could not be assigned."
 private const val DEFAULT_LINE_REMOVE_ERROR = "The line could not be removed."
 private const val DEFAULT_CONFIRM_ERROR = "The topsheet could not be confirmed."

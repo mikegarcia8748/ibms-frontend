@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.puregoldgo.ibms.ui.component.AlphabetRail
 import com.puregoldgo.ibms.ui.component.AppIcons
+import com.puregoldgo.ibms.ui.component.FilterOption
 import com.puregoldgo.ibms.ui.component.MonthPicker
 import com.puregoldgo.ibms.ui.component.LabeledDropdown
 import com.puregoldgo.ibms.ui.component.SearchField
@@ -55,6 +56,11 @@ import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_c
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_all_providers
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_amount
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_amount_to_bill
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_assign_button
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_assign_end_hint
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_assign_start_hint
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_assign_storecodes
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_assign_title
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_back
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_batch
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_billing_day
@@ -64,14 +70,22 @@ import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_c
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_done_summary
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_done_title
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_empty
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_line_mrc
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_line_prorated
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_lines_no_match
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_lines_search_hint
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_review_title
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_rfp_empty
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_rfp_hint
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_rfp_pending
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_rfp_subtitle
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_rfp_title
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_search_hint
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_select_isp
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_sort_alphabetical
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_sort_label
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_sort_mrc
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_sort_storecode
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_showing
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_showing_pick
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_start_new
@@ -99,7 +113,7 @@ internal fun CompileTopSheetTab(
 ) {
     when (state.phase) {
         CompilePhase.Review -> ReviewScreen(state, callback, isCompact)
-        CompilePhase.RfpEntry -> RfpEntryScreen(state, callback)
+        CompilePhase.RfpEntry -> RfpEntryScreen(state, callback, isCompact)
         CompilePhase.Compiled -> CompiledScreen(state, callback)
     }
 }
@@ -385,6 +399,7 @@ private fun CompileAccountRow.metaLine(): String {
 private fun RfpEntryScreen(
     state: CompileUIState,
     callback: CompileCallback,
+    isCompact: Boolean,
 ) {
     SectionCard(
         title = stringResource(Res.string.secretary_compile_rfp_title),
@@ -406,6 +421,15 @@ private fun RfpEntryScreen(
         )
         Spacer(Modifier.height(Dimensions.viewPadding16))
 
+        // The bulk range assigner and the search/sort controls sit above the per-line
+        // list; both are only meaningful once the draft's lines have loaded.
+        if (state.lines.isNotEmpty() && !state.isLoadingLines && state.linesError == null) {
+            RfpRangeAssigner(state, callback)
+            Spacer(Modifier.height(Dimensions.viewPadding16))
+            RfpListControls(state, callback, isCompact)
+            Spacer(Modifier.height(Dimensions.viewPadding12))
+        }
+
         when {
             state.isLoadingLines -> SectionLoadingState()
 
@@ -418,13 +442,26 @@ private fun RfpEntryScreen(
             state.lines.isEmpty() ->
                 SectionEmptyState(stringResource(Res.string.secretary_compile_rfp_empty))
 
-            else -> LazyColumn(
-                modifier = Modifier.heightIn(max = Dimensions.viewHeight480),
-                verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8),
-            ) {
-                items(state.lines, key = { it.id }) { line ->
-                    RfpLineCard(line, callback)
-                }
+            // The A–Z rail files beside the list when there is width, above it otherwise.
+            isCompact -> {
+                AlphabetRail(
+                    letters = state.lineLetters,
+                    selected = state.linesLetter,
+                    onSelect = callback.onLinesLetterSelect,
+                    isCompact = true,
+                )
+                Spacer(Modifier.height(Dimensions.viewPadding12))
+                RfpLinesList(state, callback, Modifier.fillMaxWidth())
+            }
+
+            else -> Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding16)) {
+                AlphabetRail(
+                    letters = state.lineLetters,
+                    selected = state.linesLetter,
+                    onSelect = callback.onLinesLetterSelect,
+                    isCompact = false,
+                )
+                RfpLinesList(state, callback, Modifier.weight(1f))
             }
         }
 
@@ -471,6 +508,167 @@ private fun RfpEntryScreen(
     }
 }
 
+/** Search (store, code, account) and the sort selector for the drafted-account list. */
+@Composable
+private fun RfpListControls(
+    state: CompileUIState,
+    callback: CompileCallback,
+    isCompact: Boolean,
+) {
+    val search = @Composable { modifier: Modifier ->
+        SearchField(
+            value = state.linesQuery,
+            onValueChange = callback.onLinesQueryChange,
+            placeholder = stringResource(Res.string.secretary_compile_lines_search_hint),
+            modifier = modifier,
+        )
+    }
+    val sort = @Composable { modifier: Modifier ->
+        LabeledDropdown(
+            options = lineSortOptions(),
+            selectedId = state.linesSort.name,
+            onSelect = { id -> id?.let { callback.onLinesSortSelect(LineSortOrder.valueOf(it)) } },
+            placeholder = stringResource(Res.string.secretary_compile_sort_label),
+            label = stringResource(Res.string.secretary_compile_sort_label),
+            modifier = modifier,
+        )
+    }
+
+    if (isCompact) {
+        Column(verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8)) {
+            search(Modifier.fillMaxWidth())
+            sort(Modifier.fillMaxWidth())
+        }
+    } else {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding12),
+        ) {
+            search(Modifier.weight(1f))
+            sort(Modifier.width(Dimensions.viewWidth180))
+        }
+    }
+}
+
+/** The filtered/sorted drafted-account rows, or a muted note when filters match nothing. */
+@Composable
+private fun RfpLinesList(
+    state: CompileUIState,
+    callback: CompileCallback,
+    modifier: Modifier = Modifier,
+) {
+    if (state.visibleLines.isEmpty()) {
+        SectionEmptyState(
+            message = stringResource(Res.string.secretary_compile_lines_no_match),
+            modifier = modifier,
+        )
+    } else {
+        LazyColumn(
+            modifier = modifier.heightIn(max = Dimensions.viewHeight480),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8),
+        ) {
+            items(state.visibleLines, key = { it.id }) { line ->
+                RfpLineCard(line, callback)
+            }
+        }
+    }
+}
+
+@Composable
+private fun lineSortOptions(): List<FilterOption> = LineSortOrder.entries.map { order ->
+    FilterOption(
+        id = order.name,
+        label = stringResource(
+            when (order) {
+                LineSortOrder.StoreCode -> Res.string.secretary_compile_sort_storecode
+                LineSortOrder.Alphabetical -> Res.string.secretary_compile_sort_alphabetical
+                LineSortOrder.MonthlyRecurringCharge -> Res.string.secretary_compile_sort_mrc
+            },
+        ),
+    )
+}
+
+/**
+ * Bulk RFP numbering: enter a start/end range and the backend assigns one number
+ * per distinct store code across the draft, replacing the per-line list with the
+ * re-sorted result. The store-code count is shown as a hint so the secretary can
+ * size the range; the exact range check is enforced server-side.
+ */
+@Composable
+private fun RfpRangeAssigner(
+    state: CompileUIState,
+    callback: CompileCallback,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(Dimensions.viewRadius12))
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .padding(Dimensions.viewPadding16),
+    ) {
+        Text(
+            text = stringResource(Res.string.secretary_compile_assign_title),
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Spacer(Modifier.height(Dimensions.viewPadding4))
+        Text(
+            text = stringResource(Res.string.secretary_compile_assign_storecodes, state.distinctStoreCodeCount),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(Dimensions.viewPadding12))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding12),
+        ) {
+            OutlinedTextField(
+                value = state.rfpRangeStart,
+                onValueChange = callback.onRfpRangeStartChange,
+                modifier = Modifier.weight(1f),
+                placeholder = { Text(stringResource(Res.string.secretary_compile_assign_start_hint)) },
+                singleLine = true,
+                enabled = !state.isAssigningRfp,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                shape = RoundedCornerShape(Dimensions.viewRadius8),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+            )
+            OutlinedTextField(
+                value = state.rfpRangeEnd,
+                onValueChange = callback.onRfpRangeEndChange,
+                modifier = Modifier.weight(1f),
+                placeholder = { Text(stringResource(Res.string.secretary_compile_assign_end_hint)) },
+                singleLine = true,
+                enabled = !state.isAssigningRfp,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { callback.onAssignRfpClick() }),
+                shape = RoundedCornerShape(Dimensions.viewRadius8),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+            )
+            Button(
+                onClick = callback.onAssignRfpClick,
+                enabled = state.canAssignRfp,
+                shape = RoundedCornerShape(Dimensions.viewRadius8),
+            ) {
+                if (state.isAssigningRfp) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(Dimensions.viewSize18),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = Dimensions.viewStroke2,
+                    )
+                    Spacer(Modifier.width(Dimensions.viewPadding8))
+                }
+                Text(stringResource(Res.string.secretary_compile_assign_button))
+            }
+        }
+        state.assignRfpError?.let { error ->
+            Spacer(Modifier.height(Dimensions.viewPadding8))
+            ErrorText(error)
+        }
+    }
+}
+
 @Composable
 private fun RfpLineCard(
     line: CompileLineRow,
@@ -501,13 +699,23 @@ private fun RfpLineCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = stringResource(Res.string.secretary_compile_line_prorated, line.proratedAmount.groupPeso()),
+                    text = if (line.isProrated) {
+                        stringResource(Res.string.secretary_compile_line_prorated, line.proratedAmount.groupPeso())
+                    } else {
+                        stringResource(Res.string.secretary_compile_line_mrc, line.fullAmount.groupPeso())
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
-            RfpField(line, callback)
+            // The editable RFP field only appears once the sequence has been assigned;
+            // before that, a muted placeholder keeps the row aligned.
+            if (line.hasSavedRfp) {
+                RfpField(line, callback)
+            } else {
+                RfpPendingField()
+            }
 
             IconButton(
                 onClick = { callback.onRemoveLine(line.id) },
@@ -555,6 +763,21 @@ private fun RfpField(
         shape = RoundedCornerShape(Dimensions.viewRadius8),
         textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
     )
+}
+
+/** Placeholder in the RFP slot before a line has been numbered — no field to edit yet. */
+@Composable
+private fun RfpPendingField() {
+    Box(
+        modifier = Modifier.width(Dimensions.viewWidth160),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = stringResource(Res.string.secretary_compile_rfp_pending),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }
 
 @Composable

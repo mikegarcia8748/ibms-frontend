@@ -30,10 +30,12 @@ class FakeTopSheetRepository : TopSheetRepository {
     var createError: String? = null
     var confirmResult: TopSheetSummary? = null
     var confirmError: String? = null
+    var assignRfpError: String? = null
     val lines: MutableList<TopSheetLine> = mutableListOf()
 
     val patchedRfp: MutableList<Pair<String, String?>> = mutableListOf()
     val removedLines: MutableList<String> = mutableListOf()
+    val assignedRanges: MutableList<Pair<String, String>> = mutableListOf()
 
     override fun preview(providerId: String, billingPeriod: String): Flow<Resource<BaseResponse<CompilePreview>>> = flow {
         emit(Resource.Loading)
@@ -69,6 +71,26 @@ class FakeTopSheetRepository : TopSheetRepository {
         )
         lines[index] = updated
         return Resource.Success(BaseResponse(data = updated))
+    }
+
+    override suspend fun assignRfp(
+        topsheetId: String,
+        startRfpNumber: String,
+        endRfpNumber: String,
+    ): Resource<BaseResponse<List<TopSheetLine>>> {
+        assignRfpError?.let { return Resource.Failed(message = it) }
+        assignedRanges += startRfpNumber to endRfpNumber
+        // Number each distinct store code from the range start, keeping the wider
+        // input's width — mirrors what the backend returns for the test to map.
+        val width = maxOf(startRfpNumber.length, endRfpNumber.length)
+        val start = startRfpNumber.toLong()
+        val numberByCode = lines.map { it.branchCode }.distinct()
+            .mapIndexed { i, code -> code to (start + i).toString().padStart(width, '0') }
+            .toMap()
+        val assigned = lines.map { it.copy(rfpNumber = numberByCode[it.branchCode]) }
+        lines.clear()
+        lines.addAll(assigned)
+        return Resource.Success(BaseResponse(data = lines.toList()))
     }
 
     override suspend fun deleteLine(topsheetId: String, lineId: String): Resource<Unit> {

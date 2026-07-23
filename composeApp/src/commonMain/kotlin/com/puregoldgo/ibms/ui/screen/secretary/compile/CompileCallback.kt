@@ -17,10 +17,18 @@ data class CompileCallback(
     // RFP entry.
     val onRfpChange: (lineId: String, value: String) -> Unit,
     val onRfpCommit: (lineId: String) -> Unit,
+    val onRfpRangeStartChange: (String) -> Unit,
+    val onRfpRangeEndChange: (String) -> Unit,
+    val onAssignRfpClick: () -> Unit,
     val onRemoveLine: (lineId: String) -> Unit,
     val onRetryLines: () -> Unit,
     val onBackToReview: () -> Unit,
     val onConfirmClick: () -> Unit,
+
+    // Drafted-account list filters (RFP entry).
+    val onLinesQueryChange: (String) -> Unit,
+    val onLinesLetterSelect: (Char) -> Unit,
+    val onLinesSortSelect: (LineSortOrder) -> Unit,
 
     // Result.
     val onStartNew: () -> Unit,
@@ -37,9 +45,15 @@ val NoOpCompileCallback = CompileCallback(
     onRetryLoad = {},
     onRfpChange = { _, _ -> },
     onRfpCommit = {},
+    onRfpRangeStartChange = {},
+    onRfpRangeEndChange = {},
+    onAssignRfpClick = {},
     onRemoveLine = {},
     onRetryLines = {},
     onBackToReview = {},
     onConfirmClick = {},
+    onLinesQueryChange = {},
+    onLinesLetterSelect = {},
+    onLinesSortSelect = {},
     onStartNew = {},
 )

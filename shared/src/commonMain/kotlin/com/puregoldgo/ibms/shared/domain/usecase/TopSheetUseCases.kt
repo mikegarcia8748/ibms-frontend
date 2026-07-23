@@ -67,6 +67,20 @@ class UpdateTopSheetLineUseCase(
     }
 }
 
+/** `POST /topsheets/{id}/assign-rfp` — bulk-assign an RFP range across a draft's lines. */
+class AssignRfpUseCase(
+    private val repository: TopSheetRepository,
+) {
+    operator fun invoke(
+        topsheetId: String,
+        startRfpNumber: String,
+        endRfpNumber: String,
+    ): Flow<Resource<List<TopSheetLine>>> = flow {
+        emit(Resource.Loading)
+        emit(repository.assignRfp(topsheetId, startRfpNumber, endRfpNumber).unwrapOnce())
+    }
+}
+
 /** `DELETE /topsheets/{id}/lines/{lineId}` — removes a line from a DRAFT. */
 class DeleteTopSheetLineUseCase(
     private val repository: TopSheetRepository,

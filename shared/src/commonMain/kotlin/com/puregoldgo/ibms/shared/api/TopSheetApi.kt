@@ -37,6 +37,20 @@ data class UpdateTopSheetLineRequest(
 )
 
 /**
+ * Body for `POST /topsheets/{id}/assign-rfp`.
+ *
+ * Bulk-assigns a contiguous RFP range across a draft's lines: each distinct store
+ * code claims the next number in `[startRfpNumber, endRfpNumber]`. Both are numeric
+ * strings (`^\d+$`) whose leading zeros are significant, so they cross the wire as
+ * strings — never Ints, which would drop the padding the RFP system expects.
+ */
+@Serializable
+data class AssignRfpRequest(
+    val startRfpNumber: String,
+    val endRfpNumber: String,
+)
+
+/**
  * The header returned by `POST /topsheets/draft` and `POST /topsheets/{id}/confirm`.
  *
  * [invoiceNumber] is null during DRAFT and minted at confirm. [batchNumber] is

@@ -9,6 +9,8 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -127,5 +129,15 @@ private fun HttpClientConfig<*>.installCommon() {
     }
     install(HttpTimeout) {
         requestTimeoutMillis = REQUEST_TIMEOUT_MS
+    }
+    // Trace every request/response in dev builds; production carries no logging
+    // plugin at all. LogLevel.ALL includes bodies and the Authorization header,
+    // which is acceptable because this branch never runs in production.
+    if (!ApiConfig.isProduction) {
+        initNetworkLogging()
+        install(Logging) {
+            logger = NapierKtorLogger()
+            level = LogLevel.ALL
+        }
     }
 }

@@ -70,6 +70,7 @@ kotlin {
             api(libs.ktor.client.core)
             api(libs.ktor.client.contentNegotiation)
             api(libs.ktor.client.auth)
+            api(libs.ktor.client.logging)
             api(libs.ktor.serialization.json)
             api(libs.kotlinx.serialization.json)
             api(libs.kotlinx.coroutines.core)

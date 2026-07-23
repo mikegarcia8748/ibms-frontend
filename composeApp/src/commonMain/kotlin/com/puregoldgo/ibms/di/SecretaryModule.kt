@@ -2,6 +2,7 @@ package com.puregoldgo.ibms.di
 
 import com.puregoldgo.ibms.data.repository.KtorTopSheetRepository
 import com.puregoldgo.ibms.shared.domain.TopSheetRepository
+import com.puregoldgo.ibms.shared.domain.usecase.AssignRfpUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.ConfirmTopSheetUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.CreateTopSheetDraftUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.DeleteTopSheetLineUseCase
@@ -35,6 +36,7 @@ val secretaryModule = module {
     factoryOf(::CreateTopSheetDraftUseCase)
     factoryOf(::GetTopSheetLinesUseCase)
     factoryOf(::UpdateTopSheetLineUseCase)
+    factoryOf(::AssignRfpUseCase)
     factoryOf(::DeleteTopSheetLineUseCase)
     factoryOf(::ConfirmTopSheetUseCase)
     // endregion
