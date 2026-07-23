@@ -118,6 +118,9 @@ fun createAuthHttpClient(): HttpClient = HttpClient(createPlatformEngine()) {
 }
 
 private fun HttpClientConfig<*>.installCommon() {
+    // Feeds NetworkActivity so the global top progress bar sees every request —
+    // installed here rather than per-client so login and refresh count too.
+    install(NetworkActivityPlugin)
     install(ContentNegotiation) {
         json(
             Json {
