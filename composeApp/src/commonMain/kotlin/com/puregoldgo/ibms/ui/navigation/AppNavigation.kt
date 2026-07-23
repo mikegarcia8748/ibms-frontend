@@ -18,6 +18,7 @@ import com.puregoldgo.ibms.ui.screen.manager.ManagerScreen
 import com.puregoldgo.ibms.ui.screen.provider.ProviderFormScreen
 import com.puregoldgo.ibms.ui.screen.provider.ProviderListScreen
 import com.puregoldgo.ibms.ui.screen.secretary.SecretaryScreen
+import com.puregoldgo.ibms.ui.screen.secretary.TopSheetDetailScreen
 import com.puregoldgo.ibms.ui.screen.splash.SplashScreen
 import com.puregoldgo.ibms.ui.screen.sysadmin.SysadminScreen
 
@@ -105,6 +106,9 @@ fun AppNavigation() {
             entry<Route.SecretaryDashboard> {
                 SecretaryScreen(
                     onSignedOut = { resetTo(Route.Login) },
+                    onNavigateToTopSheetDetail = { topSheetId ->
+                        backStack.add(Route.TopSheetDetail(topSheetId))
+                    },
                 )
             }
             entry<Route.FinanceDashboard> {
@@ -127,6 +131,11 @@ fun AppNavigation() {
             entry<Route.ProviderForm> { key ->
                 ProviderFormScreen(
                     existingProvider = null,
+                    onNavigateBack = { backStack.removeLastOrNull() },
+                )
+            }
+            entry<Route.TopSheetDetail> { key ->
+                TopSheetDetailScreen(
                     onNavigateBack = { backStack.removeLastOrNull() },
                 )
             }

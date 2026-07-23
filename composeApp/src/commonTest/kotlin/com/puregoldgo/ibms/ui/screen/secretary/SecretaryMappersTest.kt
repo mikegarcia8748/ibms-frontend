@@ -351,21 +351,19 @@ class SecretaryMappersTest {
         assertEquals("000123", row.rfpNumber)
     }
 
-    // ── SecretaryUIState.visibleTopSheetLines ─────────────────────────────────
+    // ── TopSheetDetailUIState.visibleLines ─────────────────────────────────
 
     private fun stateWithLines(
         lines: List<TopSheetLineRow>,
         query: String = "",
         sort: TopSheetLineSortKey = TopSheetLineSortKey.RfpNumber,
         ascending: Boolean = true,
-    ) = SecretaryUIState(
-        topSheetDetail = TopSheetDetail(
-            header = buildTopSheetRows(listOf(summary(id = "ts1"))).single(),
-            lines = lines,
-        ),
-        topSheetLineQuery = query,
-        topSheetLineSort = sort,
-        topSheetLineSortAsc = ascending,
+    ) = TopSheetDetailUIState(
+        header = buildTopSheetRows(listOf(summary(id = "ts1"))).single(),
+        lines = lines,
+        lineQuery = query,
+        lineSort = sort,
+        lineSortAsc = ascending,
     )
 
     private val sampleLines = buildTopSheetLineRows(
@@ -377,37 +375,37 @@ class SecretaryMappersTest {
     )
 
     @Test
-    fun `visibleTopSheetLines filters by store code or name or account number`() {
-        assertEquals(listOf("a1"), stateWithLines(sampleLines, query = "8039").visibleTopSheetLines.map { it.accountId })
-        assertEquals(listOf("a2"), stateWithLines(sampleLines, query = "baco").visibleTopSheetLines.map { it.accountId })
-        assertEquals(listOf("a3"), stateWithLines(sampleLines, query = "333").visibleTopSheetLines.map { it.accountId })
+    fun `visibleLines filters by store code or name or account number`() {
+        assertEquals(listOf("a1"), stateWithLines(sampleLines, query = "8039").visibleLines.map { it.accountId })
+        assertEquals(listOf("a2"), stateWithLines(sampleLines, query = "baco").visibleLines.map { it.accountId })
+        assertEquals(listOf("a3"), stateWithLines(sampleLines, query = "333").visibleLines.map { it.accountId })
     }
 
     @Test
-    fun `visibleTopSheetLines sorts by store code both directions`() {
+    fun `visibleLines sorts by store code both directions`() {
         assertEquals(
             listOf("a2", "a3", "a1"),
-            stateWithLines(sampleLines, sort = TopSheetLineSortKey.StoreCode, ascending = true).visibleTopSheetLines.map { it.accountId },
+            stateWithLines(sampleLines, sort = TopSheetLineSortKey.StoreCode, ascending = true).visibleLines.map { it.accountId },
         )
         assertEquals(
             listOf("a1", "a3", "a2"),
-            stateWithLines(sampleLines, sort = TopSheetLineSortKey.StoreCode, ascending = false).visibleTopSheetLines.map { it.accountId },
+            stateWithLines(sampleLines, sort = TopSheetLineSortKey.StoreCode, ascending = false).visibleLines.map { it.accountId },
         )
     }
 
     @Test
-    fun `visibleTopSheetLines sorts by prorated amount`() {
+    fun `visibleLines sorts by prorated amount`() {
         assertEquals(
             listOf("a2", "a3", "a1"),
-            stateWithLines(sampleLines, sort = TopSheetLineSortKey.Amount, ascending = true).visibleTopSheetLines.map { it.accountId },
+            stateWithLines(sampleLines, sort = TopSheetLineSortKey.Amount, ascending = true).visibleLines.map { it.accountId },
         )
     }
 
     @Test
-    fun `visibleTopSheetLines sorts by rfp number`() {
+    fun `visibleLines sorts by rfp number`() {
         assertEquals(
             listOf("a2", "a3", "a1"),
-            stateWithLines(sampleLines, sort = TopSheetLineSortKey.RfpNumber, ascending = true).visibleTopSheetLines.map { it.accountId },
+            stateWithLines(sampleLines, sort = TopSheetLineSortKey.RfpNumber, ascending = true).visibleLines.map { it.accountId },
         )
     }
 }

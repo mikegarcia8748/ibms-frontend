@@ -38,6 +38,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun SecretaryScreen(
     onSignedOut: () -> Unit,
+    onNavigateToTopSheetDetail: (String) -> Unit,
     viewModel: SecretaryViewModel = koinViewModel(),
     compileViewModel: CompileViewModel = koinViewModel(),
 ) {
@@ -48,6 +49,7 @@ fun SecretaryScreen(
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is SecretaryUiEvent.NavigateToLogin -> onSignedOut()
+                is SecretaryUiEvent.NavigateToTopSheetDetail -> onNavigateToTopSheetDetail(event.topSheetId)
             }
         }
     }
@@ -89,10 +91,6 @@ fun SecretaryScreen(
             onExportAccounts = viewModel::onExportAccounts,
             onInvoiceQueryChange = viewModel::onInvoiceQueryChange,
             onTopSheetClick = viewModel::onTopSheetClick,
-            onTopSheetDetailDismiss = viewModel::onTopSheetDetailDismiss,
-            onTopSheetLineQueryChange = viewModel::onTopSheetLineQueryChange,
-            onTopSheetLineSortSelect = viewModel::onTopSheetLineSortSelect,
-            onTopSheetLineSortDirectionToggle = viewModel::onTopSheetLineSortDirectionToggle,
             onAddBranchClick = viewModel::onAddBranchClick,
             onNewBranchCodeChange = viewModel::onNewBranchCodeChange,
             onNewBranchNameChange = viewModel::onNewBranchNameChange,
@@ -198,19 +196,11 @@ internal fun SecretaryContent(
         }
         // Ordered before the store/account modals so those overlay on top: an
         // account row inside this dialog opens AccountDetailsDialog above it.
-        uiState.topSheetDetail?.let { detail ->
-            TopSheetDetailsDialog(
-                detail = detail,
-                uiState = uiState,
-                callback = callback,
-                isCompact = isCompact,
-            )
-        }
         uiState.storeDetail?.let { detail ->
             StoreDetailsDialog(detail = detail, callback = callback)
         }
         uiState.accountDetail?.let { detail ->
-            AccountDetailsDialog(detail = detail, callback = callback)
+            AccountDetailsDialog(detail = detail, onDismiss = callback.onAccountDetailDismiss)
         }
     }
 }

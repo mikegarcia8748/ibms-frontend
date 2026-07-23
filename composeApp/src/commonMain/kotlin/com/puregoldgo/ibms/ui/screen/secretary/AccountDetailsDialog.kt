@@ -55,7 +55,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun AccountDetailsDialog(
     detail: AccountDetail,
-    callback: SecretaryCallback,
+    onDismiss: () -> Unit,
 ) {
     val na = stringResource(Res.string.secretary_detail_not_available)
 
@@ -66,11 +66,11 @@ internal fun AccountDetailsDialog(
         detail.circuitId?.let { "CID: $it" },
     ).joinToString(" \u2022 ")
 
-    AppDialog(onDismissRequest = callback.onAccountDetailDismiss) {
+    AppDialog(onDismissRequest = onDismiss) {
         AppDialogHeader(
             title = stringResource(Res.string.secretary_account_detail_title),
             icon = AppIcons.Wifi,
-            onClose = callback.onAccountDetailDismiss,
+            onClose = onDismiss,
             closeDescription = stringResource(Res.string.secretary_detail_close),
             subtitle = stringResource(
                 Res.string.secretary_account_detail_subtitle,

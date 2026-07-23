@@ -6,18 +6,24 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,8 +31,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import com.puregoldgo.ibms.ui.component.AppDialog
-import com.puregoldgo.ibms.ui.component.AppDialogHeader
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.puregoldgo.ibms.ui.component.AppIcons
 import com.puregoldgo.ibms.ui.component.ChipTone
 import com.puregoldgo.ibms.ui.component.FilterOption
@@ -63,37 +68,98 @@ import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_t
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_topsheet_sort_rfp
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_topsheet_sort_storecode
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * A read-only detail dialog showing a compiled topsheet's accounts.
+ * Full-screen topsheet detail — the account lines for a compiled topsheet,
+ * searchable and sortable, with room for the whole list.
  *
- * Reachable from any row in the billing-history tab. The header is drawn from the
- * list row (so it appears instantly), while the account lines are fetched behind a
- * spinner. Each line is searchable and sortable, and tapping one opens
- * [AccountDetailsDialog] — the account seen in full.
+ * Replaces the former `TopSheetDetailsDialog`, which was capped at 560dp wide
+ * and 480dp tall — too cramped for a topsheet with many lines.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun TopSheetDetailsDialog(
-    detail: TopSheetDetail,
-    uiState: SecretaryUIState,
-    callback: SecretaryCallback,
-    isCompact: Boolean,
+fun TopSheetDetailScreen(
+    onNavigateBack: () -> Unit,
+    viewModel: TopSheetDetailViewModel = koinViewModel(),
 ) {
-    val header = detail.header
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    AppDialog(onDismissRequest = callback.onTopSheetDetailDismiss) {
-        AppDialogHeader(
-            title = stringResource(Res.string.secretary_topsheet_detail_title),
-            icon = AppIcons.Description,
-            onClose = callback.onTopSheetDetailDismiss,
-            closeDescription = stringResource(Res.string.secretary_detail_close),
-            subtitle = stringResource(Res.string.secretary_topsheet_detail_subtitle, header.reference),
-        )
+    TopSheetDetailContent(
+        uiState = uiState,
+        callback = TopSheetDetailCallback(
+            onBackClick = onNavigateBack,
+            onLineQueryChange = viewModel::onLineQueryChange,
+            onLineSortSelect = viewModel::onLineSortSelect,
+            onLineSortDirectionToggle = viewModel::onLineSortDirectionToggle,
+            onAccountClick = viewModel::onAccountClick,
+            onAccountDetailDismiss = viewModel::onAccountDetailDismiss,
+            onRetryLines = viewModel::loadLines,
+        ),
+    )
+}
 
-        Column(modifier = Modifier.padding(Dimensions.viewPadding24)) {
-            TopSheetSummaryHeader(header)
+/**
+ * Pure UI content — no ViewModel dependency.
+ *
+ * `internal` so preview functions can draw it.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun TopSheetDetailContent(
+    uiState: TopSheetDetailUIState,
+    callback: TopSheetDetailCallback,
+) {
+    val header = uiState.header
 
-            Spacer(Modifier.height(Dimensions.viewPadding16))
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.inverseSurface,
+                    titleContentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                ),
+                navigationIcon = {
+                    IconButton(onClick = callback.onBackClick) {
+                        Icon(
+                            imageVector = AppIcons.ArrowBack,
+                            contentDescription = stringResource(Res.string.secretary_detail_close),
+                        )
+                    }
+                },
+                title = {
+                    Text(
+                        text = stringResource(Res.string.secretary_topsheet_detail_title),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                },
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(Dimensions.viewPadding24),
+        ) {
+            if (header != null) {
+                Text(
+                    text = stringResource(
+                        Res.string.secretary_topsheet_detail_subtitle,
+                        header.reference,
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                Spacer(Modifier.height(Dimensions.viewPadding16))
+
+                TopSheetSummaryHeader(header)
+
+                Spacer(Modifier.height(Dimensions.viewPadding24))
+            }
 
             DetailCard(modifier = Modifier.fillMaxWidth()) {
                 DetailSectionHeader(
@@ -103,43 +169,49 @@ internal fun TopSheetDetailsDialog(
                 Spacer(Modifier.height(Dimensions.viewPadding12))
 
                 // The search and sort controls are only meaningful once lines exist.
-                if (detail.lines.isNotEmpty() && !detail.isLoadingLines && detail.linesError == null) {
-                    TopSheetLineControls(uiState, callback, isCompact)
+                if (uiState.lines.isNotEmpty() && !uiState.isLoadingLines && uiState.linesError == null) {
+                    TopSheetLineControls(uiState, callback)
                     Spacer(Modifier.height(Dimensions.viewPadding12))
                 }
 
                 when {
-                    detail.isLoadingLines -> SectionLoadingState()
+                    uiState.isLoadingLines -> SectionLoadingState()
 
-                    detail.linesError != null -> SectionErrorState(
-                        message = detail.linesError,
-                        onRetry = { callback.onTopSheetClick(header.id) },
+                    uiState.linesError != null -> SectionErrorState(
+                        message = uiState.linesError,
+                        onRetry = callback.onRetryLines,
                         retryLabel = stringResource(Res.string.secretary_retry),
                     )
 
-                    detail.lines.isEmpty() ->
+                    uiState.lines.isEmpty() ->
                         SectionEmptyState(stringResource(Res.string.secretary_topsheet_detail_empty))
 
-                    uiState.visibleTopSheetLines.isEmpty() ->
+                    uiState.visibleLines.isEmpty() ->
                         SectionEmptyState(stringResource(Res.string.secretary_topsheet_detail_no_match))
 
                     else -> LazyColumn(
-                        modifier = Modifier.heightIn(max = Dimensions.viewHeight480),
                         verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8),
                     ) {
-                        items(uiState.visibleTopSheetLines, key = { it.accountId }) { line ->
+                        items(uiState.visibleLines, key = { it.accountId }) { line ->
                             TopSheetLineCard(line, callback)
                         }
                     }
                 }
             }
         }
+
+        // Account detail modal — overlay on top of the screen.
+        uiState.accountDetail?.let { detail ->
+            AccountDetailsDialog(detail = detail, onDismiss = callback.onAccountDetailDismiss)
+        }
     }
 }
 
+// region Composables relocated from the former TopSheetDetailsDialog
+
 /** The topsheet's identity + totals, drawn from the already-loaded list row. */
 @Composable
-private fun TopSheetSummaryHeader(header: TopSheetRow) {
+internal fun TopSheetSummaryHeader(header: TopSheetRow) {
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -188,51 +260,31 @@ private fun TopSheetSummaryHeader(header: TopSheetRow) {
 /** Combined search, the sort-key selector, and the ascending/descending toggle. */
 @Composable
 private fun TopSheetLineControls(
-    uiState: SecretaryUIState,
-    callback: SecretaryCallback,
-    isCompact: Boolean,
+    uiState: TopSheetDetailUIState,
+    callback: TopSheetDetailCallback,
 ) {
-    val search = @Composable { modifier: Modifier ->
+    Column (verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8)) {
         SearchField(
-            value = uiState.topSheetLineQuery,
-            onValueChange = callback.onTopSheetLineQueryChange,
+            modifier = Modifier
+                .fillMaxWidth(),
+            value = uiState.lineQuery,
+            onValueChange = callback.onLineQueryChange,
             placeholder = stringResource(Res.string.secretary_topsheet_detail_search_hint),
-            modifier = modifier,
         )
-    }
-    val sort = @Composable { modifier: Modifier ->
-        LabeledDropdown(
-            options = topSheetLineSortOptions(),
-            selectedId = uiState.topSheetLineSort.name,
-            onSelect = { id -> id?.let { callback.onTopSheetLineSortSelect(TopSheetLineSortKey.valueOf(it)) } },
-            placeholder = stringResource(Res.string.secretary_topsheet_sort_label),
-            label = stringResource(Res.string.secretary_topsheet_sort_label),
-            modifier = modifier,
-        )
-    }
-    val direction = @Composable {
-        SortDirectionButton(uiState.topSheetLineSortAsc, callback.onTopSheetLineSortDirectionToggle)
-    }
-
-    if (isCompact) {
-        Column(verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8)) {
-            search(Modifier.fillMaxWidth())
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8),
-            ) {
-                sort(Modifier.weight(1f))
-                direction()
-            }
-        }
-    } else {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding12),
+            horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8),
         ) {
-            search(Modifier.weight(1f))
-            sort(Modifier.width(Dimensions.viewWidth180))
-            direction()
+            LabeledDropdown(
+                modifier = Modifier
+                    .weight(1f),
+                options = topSheetLineSortOptions(),
+                selectedId = uiState.lineSort.name,
+                onSelect = { id -> id?.let { callback.onLineSortSelect(TopSheetLineSortKey.valueOf(it)) } },
+                placeholder = stringResource(Res.string.secretary_topsheet_sort_label),
+                label = stringResource(Res.string.secretary_topsheet_sort_label),
+            )
+            SortDirectionButton(uiState.lineSortAsc, callback.onLineSortDirectionToggle)
         }
     }
 }
@@ -250,7 +302,7 @@ private fun SortDirectionButton(ascending: Boolean, onToggle: () -> Unit) {
         modifier = Modifier.semantics { contentDescription = description },
     ) {
         Text(
-            text = if (ascending) "↑" else "↓",
+            text = if (ascending) "Descending" else "Ascending",
             style = MaterialTheme.typography.titleMedium,
         )
     }
@@ -276,7 +328,7 @@ private fun topSheetLineSortOptions(): List<FilterOption> =
  * — the same circuit, seen in full.
  */
 @Composable
-private fun TopSheetLineCard(line: TopSheetLineRow, callback: SecretaryCallback) {
+private fun TopSheetLineCard(line: TopSheetLineRow, callback: TopSheetDetailCallback) {
     val na = stringResource(Res.string.secretary_detail_not_available)
 
     Column(
@@ -373,3 +425,5 @@ private fun MetaText(text: String) {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 }
+
+// endregion

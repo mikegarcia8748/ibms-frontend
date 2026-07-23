@@ -26,10 +26,10 @@ data class AccountLink(
 )
 
 /**
- * A single account line within a topsheet, as drawn in [TopSheetDetailsDialog].
+ * A single account line within a topsheet, as drawn in [TopSheetDetailScreen].
  *
  * Carries [accountId] so tapping the row can open the account detail modal, and
- * the raw centavo amounts / RFP number so the dialog can sort without re-parsing
+ * the raw centavo amounts / RFP number so the screen can sort without re-parsing
  * the grouped display strings.
  */
 @Immutable
@@ -52,21 +52,6 @@ data class TopSheetLineRow(
 
 /** The columns the topsheet-detail list can be ordered by. */
 enum class TopSheetLineSortKey { StoreCode, Amount, RfpNumber }
-
-/**
- * A compiled topsheet's full record: its header (reused from the list row) plus
- * the account lines fetched on demand from `GET /topsheets/{id}/lines`.
- *
- * [lines] is empty while [isLoadingLines] is true; [linesError] holds the message
- * when the fetch fails. The dialog searches and sorts [lines] for display.
- */
-@Immutable
-data class TopSheetDetail(
-    val header: TopSheetRow,
-    val lines: List<TopSheetLineRow> = emptyList(),
-    val isLoadingLines: Boolean = false,
-    val linesError: String? = null,
-)
 
 @Immutable
 data class AccountDetail(

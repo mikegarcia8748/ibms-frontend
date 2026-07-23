@@ -58,6 +58,10 @@ sealed interface Route : NavKey {
 
     @Serializable
     data class ProviderForm(val providerId: String? = null) : Route
+
+    /** Full-screen topsheet detail — account lines for a compiled topsheet. */
+    @Serializable
+    data class TopSheetDetail(val topSheetId: String) : Route
 }
 
 /**
@@ -78,6 +82,7 @@ val navSavedStateConfig = SavedStateConfiguration {
             subclass(Route.ManagerDashboard::class, Route.ManagerDashboard.serializer())
             subclass(Route.ProviderList::class, Route.ProviderList.serializer())
             subclass(Route.ProviderForm::class, Route.ProviderForm.serializer())
+            subclass(Route.TopSheetDetail::class, Route.TopSheetDetail.serializer())
         }
     }
 }

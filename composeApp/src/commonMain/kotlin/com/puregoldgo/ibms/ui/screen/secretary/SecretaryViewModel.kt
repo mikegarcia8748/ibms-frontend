@@ -8,7 +8,6 @@ import com.puregoldgo.ibms.shared.domain.AuthRepository
 import com.puregoldgo.ibms.shared.domain.usecase.GetAccountsUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetProvidersUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetStoresUseCase
-import com.puregoldgo.ibms.shared.domain.usecase.GetTopSheetLinesUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetTopSheetsUseCase
 import com.puregoldgo.ibms.shared.model.Account
 import com.puregoldgo.ibms.shared.model.Provider
@@ -27,15 +26,14 @@ import kotlinx.coroutines.launch
  *
  * Loads providers, stores, accounts and the compiled topsheets concurrently from
  * the API. Store and account detail modals are built on-click from the cached
- * domain lists (no round-trip); the topsheet detail modal fetches its account
- * lines lazily from `GET /topsheets/{id}/lines` when a row is opened.
+ * domain lists (no round-trip). Tapping a topsheet row navigates to the
+ * full-screen [TopSheetDetailScreen] via a one-shot event.
  */
 class SecretaryViewModel(
     private val getProviders: GetProvidersUseCase,
     private val getStores: GetStoresUseCase,
     private val getAccounts: GetAccountsUseCase,
     private val getTopSheets: GetTopSheetsUseCase,
-    private val getTopSheetLines: GetTopSheetLinesUseCase,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
@@ -161,74 +159,17 @@ class SecretaryViewModel(
         _uiState.update { it.copy(invoiceQuery = query) }
     }
 
-    // region Topsheet details
+    // region Topsheet navigation
 
     /**
-     * Opens the topsheet detail modal. The header is drawn from the already-loaded
-     * row, so it shows instantly; the account lines are fetched from
-     * `GET /topsheets/{id}/lines` behind a spinner inside the dialog.
+     * Sets the row in [TopSheetRowHolder] and emits a navigation event so the
+     * full-screen detail can show the account lines with room to breathe.
      */
     fun onTopSheetClick(topSheetId: String) {
         val row = _uiState.value.topSheets.find { it.id == topSheetId } ?: return
-        _uiState.update {
-            it.copy(
-                topSheetDetail = TopSheetDetail(header = row, isLoadingLines = true),
-                // A fresh open starts from the default order, not the last one's.
-                topSheetLineQuery = "",
-                topSheetLineSort = TopSheetLineSortKey.RfpNumber,
-                topSheetLineSortAsc = true,
-            )
-        }
-        loadTopSheetLines(topSheetId)
-    }
-
-    private fun loadTopSheetLines(topSheetId: String) {
+        TopSheetRowHolder.current = row
         viewModelScope.launch {
-            getTopSheetLines(topSheetId).collect { resource ->
-                when (resource) {
-                    is Resource.Loading -> updateTopSheetDetail {
-                        it.copy(isLoadingLines = true, linesError = null)
-                    }
-
-                    is Resource.Success -> {
-                        val lines = buildTopSheetLineRows(resource.data.orEmpty())
-                        updateTopSheetDetail {
-                            it.copy(isLoadingLines = false, linesError = null, lines = lines)
-                        }
-                    }
-
-                    is Resource.Failed -> updateTopSheetDetail {
-                        it.copy(isLoadingLines = false, linesError = resource.message ?: DEFAULT_LINES_ERROR)
-                    }
-
-                    is Resource.Error -> updateTopSheetDetail {
-                        it.copy(isLoadingLines = false, linesError = resource.error?.message ?: DEFAULT_LINES_ERROR)
-                    }
-                }
-            }
-        }
-    }
-
-    fun onTopSheetDetailDismiss() {
-        _uiState.update { it.copy(topSheetDetail = null, topSheetLineQuery = "") }
-    }
-
-    fun onTopSheetLineQueryChange(query: String) {
-        _uiState.update { it.copy(topSheetLineQuery = query) }
-    }
-
-    fun onTopSheetLineSortSelect(sort: TopSheetLineSortKey) {
-        _uiState.update { it.copy(topSheetLineSort = sort) }
-    }
-
-    fun onTopSheetLineSortDirectionToggle() {
-        _uiState.update { it.copy(topSheetLineSortAsc = !it.topSheetLineSortAsc) }
-    }
-
-    /** Applies [transform] to the open detail, ignoring a late emission after dismiss. */
-    private fun updateTopSheetDetail(transform: (TopSheetDetail) -> TopSheetDetail) {
-        _uiState.update { state ->
-            state.topSheetDetail?.let { state.copy(topSheetDetail = transform(it)) } ?: state
+            _uiEvent.emit(SecretaryUiEvent.NavigateToTopSheetDetail(topSheetId))
         }
     }
 
@@ -364,4 +305,3 @@ class SecretaryViewModel(
 }
 
 private const val DEFAULT_LOAD_ERROR = "The registry could not be loaded."
-private const val DEFAULT_LINES_ERROR = "The TopSheet's accounts could not be loaded."
