@@ -12,6 +12,9 @@ import com.puregoldgo.ibms.ui.screen.secretary.AccountRecordStatus
 /** Which of the compile panel's three screens is showing. */
 enum class CompilePhase { Review, RfpEntry, Compiled }
 
+/** How the drafted-account (RFP-entry) list is ordered for display. */
+enum class LineSortOrder { StoreCode, Alphabetical, MonthlyRecurringCharge }
+
 /**
  * One account in the "Accounts for Review" list.
  *
@@ -65,6 +68,14 @@ data class CompileLineRow(
 
     val hasSavedRfp: Boolean
         get() = !savedRfpNumber.isNullOrBlank()
+
+    /** Files under the store it serves; digits and symbols fall under `#`. */
+    val indexLetter: Char
+        get() = storeName.firstOrNull()?.uppercaseChar()?.takeIf { it in 'A'..'Z' } ?: '#'
+
+    /** Prorated when the billed amount differs from the full monthly rate (MRC). */
+    val isProrated: Boolean
+        get() = proratedAmount.toCents() != fullAmount.toCents()
 }
 
 // ─── Mappers ──────────────────────────────────────────────────────────────────
@@ -152,7 +163,7 @@ internal fun sumMoney(amounts: List<String>): String =
     formatCents(amounts.sumOf { it.toCents() })
 
 /** `"1998.5"` / `"1998"` / `"1,998.00"` → centavos. Unparseable parts count as zero. */
-private fun String.toCents(): Long {
+internal fun String.toCents(): Long {
     val cleaned = replace(",", "").trim()
     if (cleaned.isEmpty()) return 0L
     val negative = cleaned.startsWith("-")

@@ -48,6 +48,9 @@ sealed class ApiEndpoint(val path: String) {
         fun topsheetLine(baseUrl: String, id: String, lineId: String): String =
             "${baseUrl.trimEnd('/')}/topsheets/$id/lines/$lineId"
 
+        fun topsheetAssignRfp(baseUrl: String, id: String): String =
+            "${baseUrl.trimEnd('/')}/topsheets/$id/assign-rfp"
+
         fun topsheetConfirm(baseUrl: String, id: String): String =
             "${baseUrl.trimEnd('/')}/topsheets/$id/confirm"
     }

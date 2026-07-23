@@ -251,11 +251,24 @@
     <string name="secretary_compile_rfp_subtitle">Enter the RFP number for each line, then confirm to mint the invoice.</string>
     <string name="secretary_compile_batch">Batch %1$s</string>
     <string name="secretary_compile_rfp_hint">RFP #</string>
+    <string name="secretary_compile_assign_title">Assign a range</string>
+    <string name="secretary_compile_assign_start_hint">Start RFP #</string>
+    <string name="secretary_compile_assign_end_hint">End RFP #</string>
+    <string name="secretary_compile_assign_button">Assign</string>
+    <string name="secretary_compile_assign_storecodes">%1$d store code(s) to number</string>
     <string name="secretary_compile_rfp_empty">This draft has no lines.</string>
+    <string name="secretary_compile_lines_no_match">No lines match your filters.</string>
     <string name="secretary_compile_remove_line">Remove line</string>
     <string name="secretary_compile_back">Back to review</string>
     <string name="secretary_compile_confirm">Confirm Compilation</string>
     <string name="secretary_compile_line_prorated">Prorated: ₱%1$s</string>
+    <string name="secretary_compile_line_mrc">MRC: ₱%1$s</string>
+    <string name="secretary_compile_rfp_pending">—</string>
+    <string name="secretary_compile_lines_search_hint">Search store, code or account…</string>
+    <string name="secretary_compile_sort_label">Sort by</string>
+    <string name="secretary_compile_sort_storecode">Store code</string>
+    <string name="secretary_compile_sort_alphabetical">Store name</string>
+    <string name="secretary_compile_sort_mrc">Monthly charge</string>
 
     <!-- Secretary — compile topsheet, result -->
     <string name="secretary_compile_done_title">TopSheet Compiled</string>

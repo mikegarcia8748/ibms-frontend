@@ -41,6 +41,17 @@ data class CompileUIState(
     val isConfirming: Boolean = false,
     val confirmError: String? = null,
 
+    // Drafted-account list filters (RFP entry) — display-only, never narrow [lines].
+    val linesQuery: String = "",
+    val linesLetter: Char = LETTER_ALL,
+    val linesSort: LineSortOrder = LineSortOrder.StoreCode,
+
+    // Bulk RFP assignment (start/end range → one number per distinct store code).
+    val rfpRangeStart: String = "",
+    val rfpRangeEnd: String = "",
+    val isAssigningRfp: Boolean = false,
+    val assignRfpError: String? = null,
+
     // Result.
     val compiled: TopSheetSummary? = null,
 ) {
@@ -82,4 +93,53 @@ data class CompileUIState(
             lines.all { it.hasSavedRfp } &&
             !isConfirming &&
             !isLoadingLines
+
+    /** The letters the drafted-account rail offers — only those that file a line. */
+    val lineLetters: List<Char>
+        get() = lines.map { it.indexLetter }.distinct().sorted()
+
+    /**
+     * The drafted-account list as displayed: letter and free-text filters narrow it and
+     * [linesSort] orders it. Search matches the store code, store name, or account number.
+     * Purely for display — [lines] stays the source of truth for assignment and confirm.
+     */
+    val visibleLines: List<CompileLineRow>
+        get() = lines
+            .filter { linesLetter == LETTER_ALL || it.indexLetter == linesLetter }
+            .filter { line ->
+                linesQuery.isBlank() || linesQuery.trim().let { q ->
+                    line.storeName.contains(q, ignoreCase = true) ||
+                        line.branchCode?.contains(q, ignoreCase = true) == true ||
+                        line.accountNumber?.contains(q, ignoreCase = true) == true
+                }
+            }
+            .let { filtered ->
+                when (linesSort) {
+                    LineSortOrder.StoreCode ->
+                        filtered.sortedWith(compareBy(nullsLast()) { it.branchCode })
+                    LineSortOrder.Alphabetical ->
+                        filtered.sortedBy { it.storeName.lowercase() }
+                    LineSortOrder.MonthlyRecurringCharge ->
+                        filtered.sortedBy { it.fullAmount.toCents() }
+                }
+            }
+
+    /** Distinct store codes among the current lines — each claims one RFP number. */
+    val distinctStoreCodeCount: Int
+        get() = lines.map { it.branchCode }.distinct().size
+
+    /**
+     * Bulk-assign is offered once both ends are numeric and `end >= start`. The
+     * exact range-size-vs-store-codes rule is the backend's to enforce (it owns the
+     * store grouping); a mismatch comes back as [assignRfpError].
+     */
+    val canAssignRfp: Boolean
+        get() = lines.isNotEmpty() &&
+            !isAssigningRfp &&
+            !isLoadingLines &&
+            rfpRangeStart.isNotBlank() &&
+            rfpRangeEnd.isNotBlank() &&
+            rfpRangeStart.all { it.isDigit() } &&
+            rfpRangeEnd.all { it.isDigit() } &&
+            (rfpRangeEnd.toLongOrNull() ?: -1L) >= (rfpRangeStart.toLongOrNull() ?: 0L)
 }

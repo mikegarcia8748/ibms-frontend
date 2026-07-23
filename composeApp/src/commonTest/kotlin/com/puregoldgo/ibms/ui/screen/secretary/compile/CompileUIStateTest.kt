@@ -18,15 +18,23 @@ class CompileUIStateTest {
         status = AccountRecordStatus.Active,
     )
 
-    private fun line(id: String, savedRfp: String?) = CompileLineRow(
+    private fun line(
+        id: String,
+        savedRfp: String?,
+        branch: String? = null,
+        store: String = "Store $id",
+        account: String = id,
+        prorated: String = "1000.00",
+        full: String = "1000.00",
+    ) = CompileLineRow(
         id = id,
         accountId = id,
-        storeName = "Store $id",
-        branchCode = null,
+        storeName = store,
+        branchCode = branch,
         circuitId = null,
-        accountNumber = id,
-        proratedAmount = "1000.00",
-        fullAmount = "1000.00",
+        accountNumber = account,
+        proratedAmount = prorated,
+        fullAmount = full,
         rfpSortOrder = 1,
         savedRfpNumber = savedRfp,
         rfpInput = savedRfp.orEmpty(),
@@ -88,6 +96,28 @@ class CompileUIStateTest {
     }
 
     @Test
+    fun tc06_assign_rfp_is_gated_on_numeric_range_with_end_ge_start() {
+        val lines = listOf(line("l1", null, branch = "118"), line("l2", null, branch = "119"))
+        val base = CompileUIState(lines = lines)
+        assertEquals(2, base.distinctStoreCodeCount)
+
+        // No range, or only one end filled → disabled.
+        assertFalse(base.canAssignRfp)
+        assertFalse(base.copy(rfpRangeStart = "0100021").canAssignRfp)
+
+        // Valid numeric range with end >= start → enabled.
+        val ready = base.copy(rfpRangeStart = "0100021", rfpRangeEnd = "0100022")
+        assertTrue(ready.canAssignRfp)
+
+        // end < start → disabled.
+        assertFalse(base.copy(rfpRangeStart = "0100022", rfpRangeEnd = "0100021").canAssignRfp)
+
+        // No lines, or a request in flight → disabled.
+        assertFalse(ready.copy(lines = emptyList()).canAssignRfp)
+        assertFalse(ready.copy(isAssigningRfp = true).canAssignRfp)
+    }
+
+    @Test
     fun tc05_next_month_greys_out_at_the_current_month() {
         val current = com.puregoldgo.ibms.shared.domain.BillingPeriod.current()
         val atCurrent = CompileUIState(billingPeriod = current)
@@ -95,5 +125,65 @@ class CompileUIStateTest {
 
         val previous = com.puregoldgo.ibms.shared.domain.BillingPeriod.previous(current)
         assertTrue(CompileUIState(billingPeriod = previous).canGoNextMonth)
+    }
+
+    @Test
+    fun tc07_drafted_search_matches_store_name_code_and_account_number() {
+        val lines = listOf(
+            line("l1", null, branch = "118", store = "ALAPAN", account = "ACC-111"),
+            line("l2", null, branch = "229", store = "BALIBAGO", account = "ACC-222"),
+        )
+        val base = CompileUIState(lines = lines)
+
+        assertEquals(listOf("l2"), base.copy(linesQuery = "bali").visibleLines.map { it.id })  // store name
+        assertEquals(listOf("l1"), base.copy(linesQuery = "118").visibleLines.map { it.id })   // store code
+        assertEquals(listOf("l2"), base.copy(linesQuery = "acc-222").visibleLines.map { it.id }) // account number
+        assertEquals(2, base.copy(linesQuery = "  ").visibleLines.size)                         // blank = no filter
+    }
+
+    @Test
+    fun tc08_drafted_letter_filter_narrows_to_one_initial() {
+        val lines = listOf(
+            line("l1", null, branch = "1", store = "ALAPAN"),
+            line("l2", null, branch = "2", store = "ANGAT"),
+            line("l3", null, branch = "3", store = "BALIBAGO"),
+        )
+        val state = CompileUIState(lines = lines, linesLetter = 'A')
+
+        assertEquals(listOf("ALAPAN", "ANGAT"), state.visibleLines.map { it.storeName })
+        assertEquals(listOf('A', 'B'), state.lineLetters)
+    }
+
+    @Test
+    fun tc09_drafted_sort_orders_by_store_code_name_and_mrc_numerically() {
+        val lines = listOf(
+            // storeCode desc-ish, names out of order, MRC where lexical != numeric.
+            line("l1", null, branch = "229", store = "ZAMORA", full = "900.00"),
+            line("l2", null, branch = "118", store = "ALAPAN", full = "1000.00"),
+        )
+        val base = CompileUIState(lines = lines)
+
+        // Store code (the default): ascending → 118 before 229.
+        assertEquals(listOf("l2", "l1"), base.visibleLines.map { it.id })
+
+        // Alphabetical by store name: ALAPAN before ZAMORA.
+        assertEquals(
+            listOf("l2", "l1"),
+            base.copy(linesSort = LineSortOrder.Alphabetical).visibleLines.map { it.id },
+        )
+
+        // MRC numeric: 900.00 (l1) before 1000.00 (l2) — lexical would reverse this.
+        assertEquals(
+            listOf("l1", "l2"),
+            base.copy(linesSort = LineSortOrder.MonthlyRecurringCharge).visibleLines.map { it.id },
+        )
+    }
+
+    @Test
+    fun tc10_a_line_is_prorated_only_when_billed_differs_from_the_full_rate() {
+        assertTrue(line("l1", null, prorated = "500.00", full = "1000.00").isProrated)
+        assertFalse(line("l2", null, prorated = "1000.00", full = "1000.00").isProrated)
+        // Same value, different string form — numeric compare must not call this prorated.
+        assertFalse(line("l3", null, prorated = "1000.0", full = "1000.00").isProrated)
     }
 }

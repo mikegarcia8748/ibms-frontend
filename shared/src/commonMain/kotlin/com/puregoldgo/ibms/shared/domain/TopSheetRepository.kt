@@ -42,6 +42,17 @@ interface TopSheetRepository {
     ): Resource<BaseResponse<TopSheetLine>>
 
     /**
+     * `POST /topsheets/{id}/assign-rfp` — bulk-assign a contiguous RFP range across
+     * a DRAFT's lines. Each distinct store code claims the next number in the range;
+     * returns the lines re-sorted by store code (same shape as [listLines]).
+     */
+    suspend fun assignRfp(
+        topsheetId: String,
+        startRfpNumber: String,
+        endRfpNumber: String,
+    ): Resource<BaseResponse<List<TopSheetLine>>>
+
+    /**
      * `DELETE /topsheets/{id}/lines/{lineId}` — removes a line from a DRAFT.
      *
      * Answers 204 with no body, so there is no envelope to deserialize:

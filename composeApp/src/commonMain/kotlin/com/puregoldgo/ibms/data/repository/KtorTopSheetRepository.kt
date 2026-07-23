@@ -7,6 +7,7 @@ import com.puregoldgo.core.network.Resource
 import com.puregoldgo.core.network.dto.BaseResponse
 import com.puregoldgo.core.network.getMessageValue
 import com.puregoldgo.core.network.sendRequest
+import com.puregoldgo.ibms.shared.api.AssignRfpRequest
 import com.puregoldgo.ibms.shared.api.CompilePreview
 import com.puregoldgo.ibms.shared.api.CompileRequest
 import com.puregoldgo.ibms.shared.api.TopSheetLine
@@ -97,6 +98,21 @@ class KtorTopSheetRepository(
             url(ApiEndpoint.topsheetLine(ApiConfig.baseUrl, topsheetId, lineId))
             contentType(ContentType.Application.Json)
             setBody(UpdateTopSheetLineRequest(rfpNumber = rfpNumber, proratedAmount = proratedAmount))
+        }
+    }
+
+    override suspend fun assignRfp(
+        topsheetId: String,
+        startRfpNumber: String,
+        endRfpNumber: String,
+    ): Resource<BaseResponse<List<TopSheetLine>>> = guard {
+        client.sendRequest<BaseResponse<List<TopSheetLine>>>(tag) {
+            method = HttpMethod.Post
+            url(ApiEndpoint.topsheetAssignRfp(ApiConfig.baseUrl, topsheetId))
+            contentType(ContentType.Application.Json)
+            // Not idempotency-keyed: assign is a re-runnable draft edit (like the
+            // PATCH), not a money-minting step — re-sending simply re-numbers.
+            setBody(AssignRfpRequest(startRfpNumber, endRfpNumber))
         }
     }
 

@@ -4,6 +4,7 @@ import com.puregoldgo.ibms.shared.api.CompilePreview
 import com.puregoldgo.ibms.shared.api.CompilePreviewLine
 import com.puregoldgo.ibms.shared.api.TopSheetLine
 import com.puregoldgo.ibms.shared.api.TopSheetSummary
+import com.puregoldgo.ibms.shared.domain.usecase.AssignRfpUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.ConfirmTopSheetUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.CreateTopSheetDraftUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.DeleteTopSheetLineUseCase
@@ -88,6 +89,7 @@ class CompileViewModelTest {
         createDraft = CreateTopSheetDraftUseCase(topsheets),
         getLines = GetTopSheetLinesUseCase(topsheets),
         updateLine = UpdateTopSheetLineUseCase(topsheets),
+        assignRfp = AssignRfpUseCase(topsheets),
         deleteLine = DeleteTopSheetLineUseCase(topsheets),
         confirm = ConfirmTopSheetUseCase(topsheets),
     )
@@ -217,6 +219,114 @@ class CompileViewModelTest {
         assertEquals("a draft already exists for this provider/period", vm.uiState.value.compileError)
     }
 
+    @Test
+    fun tc07_assign_rfp_range_numbers_every_line_and_enables_confirm() = runTest(dispatcher) {
+        topsheets.previewResult = previewWith("a1", "a2")
+        topsheets.draftResult = summary("t1", "draft", null, "B1")
+        topsheets.lines += line("l1", rfp = null, order = 1, branch = "118")
+        topsheets.lines += line("l2", rfp = null, order = 2, branch = "119")
+
+        val vm = viewModel()
+        testScheduler.advanceUntilIdle()
+        vm.onProviderSelect("p-globe")
+        testScheduler.advanceUntilIdle()
+        vm.onCompileClick()
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(2, vm.uiState.value.distinctStoreCodeCount)
+        assertTrue(!vm.uiState.value.canConfirm) // no RFP numbers yet
+
+        vm.onRfpRangeStartChange("0100021")
+        vm.onRfpRangeEndChange("0100022")
+        assertTrue(vm.uiState.value.canAssignRfp)
+
+        vm.onAssignRfpClick()
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(listOf("0100021" to "0100022"), topsheets.assignedRanges)
+        assertTrue(vm.uiState.value.lines.all { it.hasSavedRfp })
+        assertEquals("", vm.uiState.value.rfpRangeStart) // inputs cleared on success
+        assertEquals("", vm.uiState.value.rfpRangeEnd)
+        assertTrue(vm.uiState.value.canConfirm)
+    }
+
+    @Test
+    fun tc08_a_failed_assign_surfaces_the_servers_message() = runTest(dispatcher) {
+        topsheets.previewResult = previewWith("a1", "a2")
+        topsheets.draftResult = summary("t1", "draft", null, "B1")
+        topsheets.lines += line("l1", rfp = null, order = 1, branch = "118")
+        topsheets.lines += line("l2", rfp = null, order = 2, branch = "119")
+        topsheets.assignRfpError = "RFP range covers 1 number(s) but there are 2 store code(s) to number"
+
+        val vm = viewModel()
+        testScheduler.advanceUntilIdle()
+        vm.onProviderSelect("p-globe")
+        testScheduler.advanceUntilIdle()
+        vm.onCompileClick()
+        testScheduler.advanceUntilIdle()
+
+        vm.onRfpRangeStartChange("0100021")
+        vm.onRfpRangeEndChange("0100021")
+        vm.onAssignRfpClick()
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(
+            "RFP range covers 1 number(s) but there are 2 store code(s) to number",
+            vm.uiState.value.assignRfpError,
+        )
+        assertTrue(vm.uiState.value.lines.none { it.hasSavedRfp })
+    }
+
+    @Test
+    fun tc09_drafted_list_filter_handlers_update_state() = runTest(dispatcher) {
+        topsheets.previewResult = previewWith("a1", "a2")
+        topsheets.draftResult = summary("t1", "draft", null, "B1")
+        topsheets.lines += line("l1", rfp = null, order = 1, branch = "118")
+        topsheets.lines += line("l2", rfp = null, order = 2, branch = "119")
+
+        val vm = viewModel()
+        testScheduler.advanceUntilIdle()
+        vm.onProviderSelect("p-globe")
+        testScheduler.advanceUntilIdle()
+        vm.onCompileClick()
+        testScheduler.advanceUntilIdle()
+
+        vm.onLinesQueryChange("118")
+        vm.onLinesLetterSelect('A')
+        vm.onLinesSortSelect(LineSortOrder.MonthlyRecurringCharge)
+
+        val state = vm.uiState.value
+        assertEquals("118", state.linesQuery)
+        assertEquals('A', state.linesLetter)
+        assertEquals(LineSortOrder.MonthlyRecurringCharge, state.linesSort)
+    }
+
+    @Test
+    fun tc10_back_to_review_resets_the_drafted_list_filters() = runTest(dispatcher) {
+        topsheets.previewResult = previewWith("a1")
+        topsheets.draftResult = summary("t1", "draft", null, "B1")
+        topsheets.lines += line("l1", rfp = null, order = 1, branch = "118")
+
+        val vm = viewModel()
+        testScheduler.advanceUntilIdle()
+        vm.onProviderSelect("p-globe")
+        testScheduler.advanceUntilIdle()
+        vm.onCompileClick()
+        testScheduler.advanceUntilIdle()
+
+        vm.onLinesQueryChange("bali")
+        vm.onLinesLetterSelect('B')
+        vm.onLinesSortSelect(LineSortOrder.Alphabetical)
+
+        vm.onBackToReview()
+
+        val state = vm.uiState.value
+        assertEquals(CompilePhase.Review, state.phase)
+        assertEquals("", state.linesQuery)
+        assertEquals(com.puregoldgo.ibms.ui.component.LETTER_ALL, state.linesLetter)
+        assertEquals(LineSortOrder.StoreCode, state.linesSort)
+    }
+
     private fun previewWith(vararg ids: String) = CompilePreview(
         providerId = "p-globe",
         billingPeriod = "2026-07",
@@ -240,13 +350,14 @@ class CompileViewModelTest {
         compilationDate = "2026-07-22T08:00:00Z",
     )
 
-    private fun line(id: String, rfp: String?, order: Int) = TopSheetLine(
+    private fun line(id: String, rfp: String?, order: Int, branch: String? = null) = TopSheetLine(
         id = id,
         topsheetId = "t1",
         accountId = id,
         billingPeriod = "2026-07",
         proratedAmount = "1500.00",
         fullAmount = "1500.00",
+        branchCode = branch,
         rfpNumber = rfp,
         rfpSortOrder = order,
     )
