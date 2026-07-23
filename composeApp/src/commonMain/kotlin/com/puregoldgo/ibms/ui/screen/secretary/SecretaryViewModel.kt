@@ -2,32 +2,36 @@ package com.puregoldgo.ibms.ui.screen.secretary
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.puregoldgo.core.network.Resource
 import com.puregoldgo.core.storage.CurrentUserStore
 import com.puregoldgo.ibms.shared.domain.AuthRepository
+import com.puregoldgo.ibms.shared.domain.usecase.GetAccountsUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.GetProvidersUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.GetStoresUseCase
+import com.puregoldgo.ibms.shared.model.Account
+import com.puregoldgo.ibms.shared.model.Provider
+import com.puregoldgo.ibms.shared.model.Store
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
  * MVI ViewModel for the secretary console.
  *
- * **Renders sample data.** The screen is a UI pass: no repositories, no HTTP.
- * Filtering already lives in [SecretaryUIState] rather than in the composables,
- * so the rules are testable now and the previews can show a filtered list
- * without running a ViewModel — and swapping [SecretarySampleData] for the API
- * moves nothing in the composables.
- *
- * TODO: the wiring pass replaces [loadPanel] with concurrent calls to
- *  `GET /stores`, `GET /accounts`, `GET /providers` and `GET /topsheets`,
- *  awaited together the way `SysadminViewModel.loadPanel` does — the rows are
- *  cross-joined, so a panel with only some lists in would draw rows that are
- *  quietly wrong. The two submits then call `POST /stores` and `POST /accounts`,
- *  and export calls `GET /exports/topsheet/{id}.xlsx`.
+ * Loads providers, stores and accounts concurrently from the API; topsheets
+ * remain sample-fed until a `GET /topsheets` list endpoint exists. Detail
+ * modals for branches and accounts are built on-click from the cached domain
+ * lists, avoiding a separate network round-trip.
  */
 class SecretaryViewModel(
+    private val getProviders: GetProvidersUseCase,
+    private val getStores: GetStoresUseCase,
+    private val getAccounts: GetAccountsUseCase,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
@@ -50,23 +54,55 @@ class SecretaryViewModel(
 
     // endregion
 
+    private var cachedStores: List<Store> = emptyList()
+    private var cachedAccounts: List<Account> = emptyList()
+    private var cachedProviders: List<Provider> = emptyList()
+
     init {
         loadPanel()
     }
 
     // region Public API
 
-    /** Seeds the console. Synchronous today; a network call once wired. */
+    /**
+     * Fetches providers, stores and accounts concurrently. Topsheets remain
+     * sample-fed — there is no `GET /topsheets` list endpoint yet.
+     */
     fun loadPanel() {
-        _uiState.update {
-            it.copy(
-                isLoading = false,
-                loadError = null,
-                providers = SecretarySampleData.providers,
-                branches = SecretarySampleData.branches,
-                accounts = SecretarySampleData.accounts,
-                topSheets = SecretarySampleData.topSheets,
-            )
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, loadError = null) }
+
+            val providersDeferred = async { getProviders().last() }
+            val storesDeferred = async { getStores().last() }
+            val accountsDeferred = async { getAccounts().last() }
+
+            val providersResult = providersDeferred.await()
+            val storesResult = storesDeferred.await()
+            val accountsResult = accountsDeferred.await()
+
+            val providers = providersResult.data
+            val stores = storesResult.data
+            val accounts = accountsResult.data
+
+            if (providers == null || stores == null || accounts == null) {
+                failLoad(firstErrorMessage(providersResult, storesResult, accountsResult))
+                return@launch
+            }
+
+            cachedProviders = providers
+            cachedStores = stores
+            cachedAccounts = accounts
+
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    loadError = null,
+                    providers = buildProviderRows(providers),
+                    branches = buildBranchRows(stores, accounts),
+                    accounts = buildAccountRows(accounts, stores),
+                    topSheets = SecretarySampleData.topSheets, // TODO: no GET /topsheets endpoint
+                )
+            }
         }
     }
 
@@ -189,6 +225,32 @@ class SecretaryViewModel(
         }
     }
 
+    // region Detail modals
+
+    fun onBranchClick(storeId: String) {
+        val store = cachedStores.find { it.id == storeId } ?: return
+        val detail = buildStoreDetail(store, cachedAccounts, cachedProviders)
+        _uiState.update { it.copy(storeDetail = detail) }
+    }
+
+    fun onStoreDetailDismiss() {
+        _uiState.update { it.copy(storeDetail = null) }
+    }
+
+    fun onAccountClick(accountId: String) {
+        val account = cachedAccounts.find { it.id == accountId } ?: return
+        val store = cachedStores.find { it.id == account.storeId }
+        val provider = cachedProviders.find { it.id == account.providerId }
+        val detail = buildAccountDetail(account, store, provider)
+        _uiState.update { it.copy(accountDetail = detail) }
+    }
+
+    fun onAccountDetailDismiss() {
+        _uiState.update { it.copy(accountDetail = null) }
+    }
+
+    // endregion
+
     // region Internals
 
     private fun updateBranchForm(transform: (NewBranchForm) -> NewBranchForm) {
@@ -203,5 +265,23 @@ class SecretaryViewModel(
         }
     }
 
+    private fun failLoad(message: String?) {
+        _uiState.update {
+            it.copy(isLoading = false, loadError = message ?: DEFAULT_LOAD_ERROR)
+        }
+    }
+
+    /** The message from the first of [results] that did not succeed. */
+    private fun firstErrorMessage(vararg results: Resource<*>): String? =
+        results.firstNotNullOfOrNull { result ->
+            when (result) {
+                is Resource.Failed -> result.message
+                is Resource.Error -> result.error?.message
+                else -> null
+            }
+        }
+
     // endregion
 }
+
+private const val DEFAULT_LOAD_ERROR = "The registry could not be loaded."

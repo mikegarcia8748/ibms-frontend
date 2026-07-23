@@ -51,6 +51,10 @@ data class SecretaryUIState(
     // The two creation dialogs. Mutually exclusive at the call site.
     val addBranch: NewBranchForm? = null,
     val addAccount: NewAccountForm? = null,
+
+    // Detail modals. Independent of add-dialogs — these overlay.
+    val storeDetail: StoreDetail? = null,
+    val accountDetail: AccountDetail? = null,
 ) {
     /** Only active ISPs are offered as a filter — a dead one matches nothing. */
     val activeProviders: List<SecretaryProviderRow>

@@ -42,4 +42,10 @@ data class SecretaryCallback(
 
     val onRetryLoad: () -> Unit,
     val onLogoutClick: () -> Unit,
+
+    // Detail modals.
+    val onBranchClick: (String) -> Unit,
+    val onStoreDetailDismiss: () -> Unit,
+    val onAccountClick: (String) -> Unit,
+    val onAccountDetailDismiss: () -> Unit,
 )

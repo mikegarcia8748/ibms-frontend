@@ -104,6 +104,10 @@ fun SecretaryScreen(
             onAddAccountDismiss = viewModel::onAddAccountDismiss,
             onRetryLoad = viewModel::loadPanel,
             onLogoutClick = viewModel::onLogout,
+            onBranchClick = viewModel::onBranchClick,
+            onStoreDetailDismiss = viewModel::onStoreDetailDismiss,
+            onAccountClick = viewModel::onAccountClick,
+            onAccountDetailDismiss = viewModel::onAccountDetailDismiss,
         ),
     )
 }
@@ -186,6 +190,12 @@ internal fun SecretaryContent(
                 providers = uiState.activeProviders,
                 callback = callback,
             )
+        }
+        uiState.storeDetail?.let { detail ->
+            StoreDetailsDialog(detail = detail, callback = callback)
+        }
+        uiState.accountDetail?.let { detail ->
+            AccountDetailsDialog(detail = detail, callback = callback)
         }
     }
 }

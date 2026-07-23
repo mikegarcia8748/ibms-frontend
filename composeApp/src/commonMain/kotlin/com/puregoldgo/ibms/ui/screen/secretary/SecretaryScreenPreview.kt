@@ -274,4 +274,8 @@ private fun previewCallback() = SecretaryCallback(
     onAddAccountDismiss = {},
     onRetryLoad = {},
     onLogoutClick = {},
+    onBranchClick = {},
+    onStoreDetailDismiss = {},
+    onAccountClick = {},
+    onAccountDetailDismiss = {},
 )
