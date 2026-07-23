@@ -88,6 +88,11 @@ fun SecretaryScreen(
             onAccountStatusSelect = viewModel::onAccountStatusSelect,
             onExportAccounts = viewModel::onExportAccounts,
             onInvoiceQueryChange = viewModel::onInvoiceQueryChange,
+            onTopSheetClick = viewModel::onTopSheetClick,
+            onTopSheetDetailDismiss = viewModel::onTopSheetDetailDismiss,
+            onTopSheetLineQueryChange = viewModel::onTopSheetLineQueryChange,
+            onTopSheetLineSortSelect = viewModel::onTopSheetLineSortSelect,
+            onTopSheetLineSortDirectionToggle = viewModel::onTopSheetLineSortDirectionToggle,
             onAddBranchClick = viewModel::onAddBranchClick,
             onNewBranchCodeChange = viewModel::onNewBranchCodeChange,
             onNewBranchNameChange = viewModel::onNewBranchNameChange,
@@ -189,6 +194,16 @@ internal fun SecretaryContent(
                 branches = uiState.visibleBranches,
                 providers = uiState.activeProviders,
                 callback = callback,
+            )
+        }
+        // Ordered before the store/account modals so those overlay on top: an
+        // account row inside this dialog opens AccountDetailsDialog above it.
+        uiState.topSheetDetail?.let { detail ->
+            TopSheetDetailsDialog(
+                detail = detail,
+                uiState = uiState,
+                callback = callback,
+                isCompact = isCompact,
             )
         }
         uiState.storeDetail?.let { detail ->

@@ -52,6 +52,15 @@ data class SecretaryUIState(
     val addBranch: NewBranchForm? = null,
     val addAccount: NewAccountForm? = null,
 
+    // Topsheet details modal — the drill-down from a billing-history row. Its
+    // account lines are fetched on open; the search/sort below drive its list.
+    val topSheetDetail: TopSheetDetail? = null,
+    val topSheetLineQuery: String = "",
+    // Default to the backend's display order (store code descending, ascending
+    // rfpSortOrder) so RFP numbers line up until the operator sorts otherwise.
+    val topSheetLineSort: TopSheetLineSortKey = TopSheetLineSortKey.RfpNumber,
+    val topSheetLineSortAsc: Boolean = true,
+
     // Detail modals. Independent of add-dialogs — these overlay.
     val storeDetail: StoreDetail? = null,
     val accountDetail: AccountDetail? = null,
@@ -120,11 +129,46 @@ data class SecretaryUIState(
 
     // endregion
 
-    /** Topsheets are few and already dated; only the invoice number is searched. */
+    /**
+     * Topsheets filtered by the billing-history search. Matches the reference an
+     * operator would type — invoice or batch number — and the provider, so DRAFT
+     * rows (which have no invoice yet) stay findable too.
+     */
     val visibleTopSheets: List<TopSheetRow>
         get() = topSheets.filter { sheet ->
-            invoiceQuery.isBlank() ||
-                sheet.invoiceNumber.contains(invoiceQuery.trim(), ignoreCase = true)
+            invoiceQuery.isBlank() || invoiceQuery.trim().let { q ->
+                sheet.invoiceNumber?.contains(q, ignoreCase = true) == true ||
+                    sheet.batchNumber?.contains(q, ignoreCase = true) == true ||
+                    sheet.providerName.contains(q, ignoreCase = true)
+            }
+        }
+
+    /**
+     * The open topsheet's account lines as displayed: filtered by the combined
+     * search (store code / store name / account number) and ordered by the chosen
+     * key and direction. Amount sorts by the prorated (billed) value.
+     */
+    val visibleTopSheetLines: List<TopSheetLineRow>
+        get() {
+            val detail = topSheetDetail ?: return emptyList()
+            val query = topSheetLineQuery.trim()
+            val filtered = detail.lines.filter { line ->
+                query.isBlank() ||
+                    line.storeCode?.contains(query, ignoreCase = true) == true ||
+                    line.storeName?.contains(query, ignoreCase = true) == true ||
+                    line.accountNumber?.contains(query, ignoreCase = true) == true
+            }
+            val ordered = when (topSheetLineSort) {
+                TopSheetLineSortKey.StoreCode ->
+                    filtered.sortedWith(compareBy(nullsLast()) { it.storeCode })
+                TopSheetLineSortKey.Amount ->
+                    filtered.sortedBy { it.proratedCents }
+                // Numeric order of the assigned RFP; unassigned lines fall last,
+                // keeping the backend's rfpSortOrder for ties (stable sort).
+                TopSheetLineSortKey.RfpNumber ->
+                    filtered.sortedWith(compareBy(nullsLast()) { it.rfpNumber?.toLongOrNull() })
+            }
+            return if (topSheetLineSortAsc) ordered else ordered.asReversed()
         }
 
     // region Archive

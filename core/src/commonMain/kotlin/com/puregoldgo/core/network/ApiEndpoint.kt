@@ -29,6 +29,7 @@ sealed class ApiEndpoint(val path: String) {
     data object AccountsBulkImport : ApiEndpoint("/accounts/bulk-import")
 
     // ─── Topsheets ─────────────────────────────────────────────────────────────
+    data object Topsheets : ApiEndpoint("/topsheets")
     data object TopsheetsPreview : ApiEndpoint("/topsheets/preview")
     data object TopsheetsDraft : ApiEndpoint("/topsheets/draft")
 

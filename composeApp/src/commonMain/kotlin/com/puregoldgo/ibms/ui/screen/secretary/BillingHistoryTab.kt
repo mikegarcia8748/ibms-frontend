@@ -1,6 +1,7 @@
 package com.puregoldgo.ibms.ui.screen.secretary
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -87,7 +88,7 @@ internal fun BillingHistoryTab(
                 verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8),
             ) {
                 items(uiState.visibleTopSheets, key = { it.id }) { sheet ->
-                    TopSheetCard(sheet, isCompact)
+                    TopSheetCard(sheet, isCompact, onClick = { callback.onTopSheetClick(sheet.id) })
                 }
             }
         }
@@ -95,12 +96,13 @@ internal fun BillingHistoryTab(
 }
 
 @Composable
-private fun TopSheetCard(sheet: TopSheetRow, isCompact: Boolean) {
+private fun TopSheetCard(sheet: TopSheetRow, isCompact: Boolean, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(Dimensions.viewRadius12))
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .clickable(onClick = onClick)
             .padding(Dimensions.viewPadding16),
     ) {
         @Composable
@@ -111,7 +113,7 @@ private fun TopSheetCard(sheet: TopSheetRow, isCompact: Boolean) {
                     horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8),
                 ) {
                     Text(
-                        text = sheet.invoiceNumber,
+                        text = sheet.reference,
                         // Monospaced: invoice numbers get read aloud and
                         // compared character by character against the vendor's.
                         style = MaterialTheme.typography.bodyLarge

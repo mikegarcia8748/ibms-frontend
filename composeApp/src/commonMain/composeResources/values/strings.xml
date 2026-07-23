@@ -295,6 +295,7 @@
     <string name="secretary_status_terminated">TERMINATED</string>
     <string name="secretary_status_closed">CLOSED</string>
     <string name="secretary_status_inactive">INACTIVE</string>
+    <string name="secretary_status_draft">DRAFT</string>
     <string name="secretary_status_compiled">COMPILED</string>
     <string name="secretary_status_approved">APPROVED</string>
     <string name="secretary_status_paid">PAID</string>
@@ -308,6 +309,24 @@
     <string name="secretary_billing_accounts">Accounts: %1$d</string>
     <string name="secretary_billing_total_label">Total Validated</string>
     <string name="secretary_billing_total">₱%1$s</string>
+
+    <!-- Secretary — topsheet details modal -->
+    <string name="secretary_topsheet_detail_title">TopSheet Details</string>
+    <string name="secretary_topsheet_detail_subtitle">Ref: %1$s</string>
+    <string name="secretary_topsheet_detail_search_hint">Search store, code or account…</string>
+    <string name="secretary_topsheet_detail_empty">This TopSheet has no account lines.</string>
+    <string name="secretary_topsheet_detail_no_match">No accounts match your search.</string>
+    <string name="secretary_topsheet_accounts_title">Accounts</string>
+    <string name="secretary_topsheet_sort_label">Sort by</string>
+    <string name="secretary_topsheet_sort_storecode">Store code</string>
+    <string name="secretary_topsheet_sort_amount">Amount</string>
+    <string name="secretary_topsheet_sort_rfp">RFP number</string>
+    <string name="secretary_topsheet_sort_ascending">Ascending — tap to sort descending</string>
+    <string name="secretary_topsheet_sort_descending">Descending — tap to sort ascending</string>
+    <string name="secretary_topsheet_line_rfp">RFP %1$s</string>
+    <string name="secretary_topsheet_line_rfp_none">No RFP</string>
+    <string name="secretary_topsheet_line_mrc">MRC</string>
+    <string name="secretary_topsheet_line_prorated">Prorated</string>
 
     <!-- Secretary — archive -->
     <string name="secretary_archive_accounts">Inactive Accounts</string>

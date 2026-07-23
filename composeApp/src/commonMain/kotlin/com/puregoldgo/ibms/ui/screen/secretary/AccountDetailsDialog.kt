@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.puregoldgo.ibms.ui.component.AppDialog
 import com.puregoldgo.ibms.ui.component.AppDialogHeader
 import com.puregoldgo.ibms.ui.component.AppIcons
+import com.puregoldgo.ibms.ui.format.formatDate
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_account_detail_subtitle
@@ -232,19 +233,19 @@ internal fun AccountDetailsDialog(
                 ) {
                     LabelAboveValue(
                         label = stringResource(Res.string.secretary_detail_inst_date),
-                        value = detail.installationDate ?: na,
+                        value = detail.installationDate?.let(::formatDate) ?: na,
                     )
                     LabelAboveValue(
                         label = stringResource(Res.string.secretary_detail_created_at),
-                        value = detail.createdAt ?: na,
+                        value = detail.createdAt?.let(::formatDate) ?: na,
                     )
                     LabelAboveValue(
                         label = stringResource(Res.string.secretary_detail_start_date),
-                        value = detail.contractStartDate ?: na,
+                        value = detail.contractStartDate?.let(::formatDate) ?: na,
                     )
                     LabelAboveValue(
                         label = stringResource(Res.string.secretary_detail_end_date),
-                        value = detail.contractEndDate ?: na,
+                        value = detail.contractEndDate?.let(::formatDate) ?: na,
                     )
                 }
             }

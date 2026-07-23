@@ -1,5 +1,7 @@
 package com.puregoldgo.ibms.ui.screen.secretary
 
+import com.puregoldgo.ibms.shared.api.TopSheetLine
+import com.puregoldgo.ibms.shared.api.TopSheetSummary
 import com.puregoldgo.ibms.shared.model.Account
 import com.puregoldgo.ibms.shared.model.AccountStatus
 import com.puregoldgo.ibms.shared.model.Provider
@@ -7,8 +9,10 @@ import com.puregoldgo.ibms.shared.model.ProviderStatus
 import com.puregoldgo.ibms.shared.model.Store
 import com.puregoldgo.ibms.shared.model.StoreStatus
 import com.puregoldgo.ibms.shared.model.StoreType
+import com.puregoldgo.ibms.shared.model.TopsheetStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SecretaryMappersTest {
@@ -234,5 +238,176 @@ class SecretaryMappersTest {
         assertEquals("50.50", "50.5".groupPeso())
         assertEquals("0.00", "0".groupPeso())
         assertEquals("-1,500.00", "-1500.00".groupPeso())
+    }
+
+    // ── buildTopSheetRows ────────────────────────────────────────────────────
+
+    private fun summary(
+        id: String,
+        invoiceNumber: String? = "GLOB-202607-0007",
+        batchNumber: String? = null,
+        providerName: String? = "Globe",
+        accountCount: Int = 3,
+        totalAmount: String = "760172.68",
+        status: TopsheetStatus = TopsheetStatus.COMPILED,
+    ) = TopSheetSummary(
+        id = id,
+        invoiceNumber = invoiceNumber,
+        batchNumber = batchNumber,
+        billingPeriod = "2026-07",
+        providerName = providerName,
+        accountCount = accountCount,
+        totalAmount = totalAmount,
+        status = status,
+        compilerId = "u1",
+        compilationDate = "2026-07-19T00:00:00Z",
+    )
+
+    @Test
+    fun `buildTopSheetRows maps status and groups total and formats date`() {
+        val rows = buildTopSheetRows(listOf(summary(id = "ts1")))
+
+        val row = rows.single()
+        assertEquals("GLOB-202607-0007", row.invoiceNumber)
+        assertEquals("Globe", row.providerName)
+        assertEquals("760,172.68", row.totalValidated)
+        assertEquals("Jul 19, 2026", row.generatedOn)
+        assertEquals(TopSheetRecordStatus.Compiled, row.status)
+        assertEquals("GLOB-202607-0007", row.reference)
+    }
+
+    @Test
+    fun `buildTopSheetRows keeps drafts with no invoice and uses batch as reference`() {
+        val rows = buildTopSheetRows(
+            listOf(
+                summary(id = "ts-draft", invoiceNumber = null, batchNumber = "BATCH-42", status = TopsheetStatus.DRAFT),
+            ),
+        )
+
+        val row = rows.single()
+        assertNull(row.invoiceNumber)
+        assertEquals(TopSheetRecordStatus.Draft, row.status)
+        assertEquals("BATCH-42", row.reference)
+    }
+
+    @Test
+    fun `buildTopSheetRows maps each status`() {
+        val rows = buildTopSheetRows(
+            listOf(
+                summary(id = "a", status = TopsheetStatus.DRAFT),
+                summary(id = "b", status = TopsheetStatus.COMPILED),
+                summary(id = "c", status = TopsheetStatus.APPROVED),
+                summary(id = "d", status = TopsheetStatus.PAID),
+            ),
+        )
+
+        assertEquals(
+            listOf(
+                TopSheetRecordStatus.Draft,
+                TopSheetRecordStatus.Compiled,
+                TopSheetRecordStatus.Approved,
+                TopSheetRecordStatus.Paid,
+            ),
+            rows.map { it.status },
+        )
+    }
+
+    // ── buildTopSheetLineRows ─────────────────────────────────────────────────
+
+    private fun line(
+        accountId: String,
+        branchCode: String? = "8039",
+        storeName: String? = "ALAPAN 1A",
+        accountNumber: String? = "877911149",
+        fullAmount: String = "2000.00",
+        proratedAmount: String = "1500.00",
+        rfpNumber: String? = "000123",
+        rfpSortOrder: Int? = 1,
+    ) = TopSheetLine(
+        id = "l-$accountId",
+        topsheetId = "ts1",
+        accountId = accountId,
+        billingPeriod = "2026-07",
+        proratedAmount = proratedAmount,
+        fullAmount = fullAmount,
+        branchCode = branchCode,
+        storeName = storeName,
+        accountNumber = accountNumber,
+        rfpNumber = rfpNumber,
+        rfpSortOrder = rfpSortOrder,
+    )
+
+    @Test
+    fun `buildTopSheetLineRows maps fields and groups amounts and parses prorated cents`() {
+        val row = buildTopSheetLineRows(listOf(line(accountId = "a1"))).single()
+
+        assertEquals("a1", row.accountId)
+        assertEquals("8039", row.storeCode)
+        assertEquals("ALAPAN 1A", row.storeName)
+        assertEquals("877911149", row.accountNumber)
+        assertEquals("2,000.00", row.fullMrc)
+        assertEquals("1,500.00", row.prorated)
+        assertEquals(150000L, row.proratedCents)
+        assertEquals("000123", row.rfpNumber)
+    }
+
+    // ── SecretaryUIState.visibleTopSheetLines ─────────────────────────────────
+
+    private fun stateWithLines(
+        lines: List<TopSheetLineRow>,
+        query: String = "",
+        sort: TopSheetLineSortKey = TopSheetLineSortKey.RfpNumber,
+        ascending: Boolean = true,
+    ) = SecretaryUIState(
+        topSheetDetail = TopSheetDetail(
+            header = buildTopSheetRows(listOf(summary(id = "ts1"))).single(),
+            lines = lines,
+        ),
+        topSheetLineQuery = query,
+        topSheetLineSort = sort,
+        topSheetLineSortAsc = ascending,
+    )
+
+    private val sampleLines = buildTopSheetLineRows(
+        listOf(
+            line(accountId = "a1", branchCode = "8039", storeName = "ALAPAN", accountNumber = "111", proratedAmount = "3000.00", rfpNumber = "3"),
+            line(accountId = "a2", branchCode = "1002", storeName = "BACOOR", accountNumber = "222", proratedAmount = "1000.00", rfpNumber = "1"),
+            line(accountId = "a3", branchCode = "5005", storeName = "CAVITE", accountNumber = "333", proratedAmount = "2000.00", rfpNumber = "2"),
+        ),
+    )
+
+    @Test
+    fun `visibleTopSheetLines filters by store code or name or account number`() {
+        assertEquals(listOf("a1"), stateWithLines(sampleLines, query = "8039").visibleTopSheetLines.map { it.accountId })
+        assertEquals(listOf("a2"), stateWithLines(sampleLines, query = "baco").visibleTopSheetLines.map { it.accountId })
+        assertEquals(listOf("a3"), stateWithLines(sampleLines, query = "333").visibleTopSheetLines.map { it.accountId })
+    }
+
+    @Test
+    fun `visibleTopSheetLines sorts by store code both directions`() {
+        assertEquals(
+            listOf("a2", "a3", "a1"),
+            stateWithLines(sampleLines, sort = TopSheetLineSortKey.StoreCode, ascending = true).visibleTopSheetLines.map { it.accountId },
+        )
+        assertEquals(
+            listOf("a1", "a3", "a2"),
+            stateWithLines(sampleLines, sort = TopSheetLineSortKey.StoreCode, ascending = false).visibleTopSheetLines.map { it.accountId },
+        )
+    }
+
+    @Test
+    fun `visibleTopSheetLines sorts by prorated amount`() {
+        assertEquals(
+            listOf("a2", "a3", "a1"),
+            stateWithLines(sampleLines, sort = TopSheetLineSortKey.Amount, ascending = true).visibleTopSheetLines.map { it.accountId },
+        )
+    }
+
+    @Test
+    fun `visibleTopSheetLines sorts by rfp number`() {
+        assertEquals(
+            listOf("a2", "a3", "a1"),
+            stateWithLines(sampleLines, sort = TopSheetLineSortKey.RfpNumber, ascending = true).visibleTopSheetLines.map { it.accountId },
+        )
     }
 }

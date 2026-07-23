@@ -21,6 +21,11 @@ data class SecretaryCallback(
 
     // Billing history.
     val onInvoiceQueryChange: (String) -> Unit,
+    val onTopSheetClick: (String) -> Unit,
+    val onTopSheetDetailDismiss: () -> Unit,
+    val onTopSheetLineQueryChange: (String) -> Unit,
+    val onTopSheetLineSortSelect: (TopSheetLineSortKey) -> Unit,
+    val onTopSheetLineSortDirectionToggle: () -> Unit,
 
     // Add branch.
     val onAddBranchClick: () -> Unit,

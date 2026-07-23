@@ -1,11 +1,16 @@
 package com.puregoldgo.ibms.ui.screen.secretary
 
+import com.puregoldgo.ibms.shared.api.TopSheetLine
+import com.puregoldgo.ibms.shared.api.TopSheetSummary
 import com.puregoldgo.ibms.shared.model.Account
 import com.puregoldgo.ibms.shared.model.AccountStatus
 import com.puregoldgo.ibms.shared.model.Provider
 import com.puregoldgo.ibms.shared.model.ProviderStatus
 import com.puregoldgo.ibms.shared.model.Store
 import com.puregoldgo.ibms.shared.model.StoreStatus
+import com.puregoldgo.ibms.shared.model.TopsheetStatus
+import com.puregoldgo.ibms.ui.format.formatDate
+import com.puregoldgo.ibms.ui.screen.secretary.compile.toCents
 
 // ─── Row builders ────────────────────────────────────────────────────────────
 
@@ -57,6 +62,38 @@ internal fun buildAccountRows(
         )
     }
 }
+
+internal fun buildTopSheetRows(summaries: List<TopSheetSummary>): List<TopSheetRow> =
+    summaries.map { summary ->
+        TopSheetRow(
+            id = summary.id,
+            invoiceNumber = summary.invoiceNumber,
+            batchNumber = summary.batchNumber,
+            providerName = summary.providerName ?: EM_DASH,
+            period = summary.billingPeriod,
+            generatedOn = formatDate(summary.compilationDate),
+            accountCount = summary.accountCount,
+            totalValidated = summary.totalAmount.groupPeso(),
+            status = summary.status.toTopSheetRecordStatus(),
+        )
+    }
+
+/** Maps the lines of `GET /topsheets/{id}/lines` into the rows the detail dialog draws. */
+internal fun buildTopSheetLineRows(lines: List<TopSheetLine>): List<TopSheetLineRow> =
+    lines.map { line ->
+        TopSheetLineRow(
+            accountId = line.accountId,
+            rfpNumber = line.rfpNumber,
+            storeCode = line.branchCode,
+            storeName = line.storeName,
+            accountNumber = line.accountNumber,
+            circuitId = line.circuitId,
+            fullMrc = line.fullAmount.groupPeso(),
+            prorated = line.proratedAmount.groupPeso(),
+            proratedCents = line.proratedAmount.toCents(),
+            rfpSortOrder = line.rfpSortOrder,
+        )
+    }
 
 // ─── Detail builders ─────────────────────────────────────────────────────────
 
@@ -118,6 +155,13 @@ private fun StoreStatus.toBranchRecordStatus(): BranchRecordStatus = when (this)
     StoreStatus.ACTIVE -> BranchRecordStatus.Active
     StoreStatus.CLOSED -> BranchRecordStatus.Closed
     StoreStatus.INACTIVE -> BranchRecordStatus.Inactive
+}
+
+private fun TopsheetStatus.toTopSheetRecordStatus(): TopSheetRecordStatus = when (this) {
+    TopsheetStatus.DRAFT -> TopSheetRecordStatus.Draft
+    TopsheetStatus.COMPILED -> TopSheetRecordStatus.Compiled
+    TopsheetStatus.APPROVED -> TopSheetRecordStatus.Approved
+    TopsheetStatus.PAID -> TopSheetRecordStatus.Paid
 }
 
 private fun AccountStatus.toAccountRecordStatus(): AccountRecordStatus = when (this) {

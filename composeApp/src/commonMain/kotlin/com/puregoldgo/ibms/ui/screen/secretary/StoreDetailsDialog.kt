@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.puregoldgo.ibms.ui.component.AppDialog
 import com.puregoldgo.ibms.ui.component.AppDialogHeader
 import com.puregoldgo.ibms.ui.component.AppIcons
+import com.puregoldgo.ibms.ui.format.formatDate
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_detail_barangay
@@ -137,12 +138,12 @@ internal fun StoreDetailsDialog(
                     Spacer(Modifier.height(Dimensions.viewPadding12))
                     LabelAboveValue(
                         label = stringResource(Res.string.secretary_detail_registered_on),
-                        value = detail.registeredOn ?: na,
+                        value = detail.registeredOn?.let(::formatDate) ?: na,
                     )
                     Spacer(Modifier.height(Dimensions.viewPadding8))
                     LabelAboveValue(
                         label = stringResource(Res.string.secretary_detail_last_updated),
-                        value = detail.lastUpdated ?: na,
+                        value = detail.lastUpdated?.let(::formatDate) ?: na,
                     )
                 }
             }
