@@ -54,6 +54,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun SecretaryScreen(
     onSignedOut: () -> Unit,
+    onNavigateToTopSheetDetail: (String) -> Unit,
     viewModel: SecretaryViewModel = koinViewModel(),
     compileViewModel: CompileViewModel = koinViewModel(),
 ) {
@@ -66,6 +67,7 @@ fun SecretaryScreen(
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is SecretaryUiEvent.NavigateToLogin -> onSignedOut()
+                is SecretaryUiEvent.NavigateToTopSheetDetail -> onNavigateToTopSheetDetail(event.topSheetId)
                 is SecretaryUiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(event.message)
                 is SecretaryUiEvent.ShowStoreHasAccountConfirmation -> {
                     storeAccountConfirmation = event.storeName
@@ -99,6 +101,9 @@ fun SecretaryScreen(
             onLinesLetterSelect = compileViewModel::onLinesLetterSelect,
             onLinesSortSelect = compileViewModel::onLinesSortSelect,
             onStartNew = compileViewModel::onStartNew,
+            onResumeDraftClick = compileViewModel::onResumeDraftClick,
+            onResumeDraft = compileViewModel::onResumeDraft,
+            onResumeDraftDismiss = compileViewModel::onResumeDraftDismiss,
         ),
         callback = SecretaryCallback(
             onTabSelect = viewModel::onTabSelect,
@@ -111,6 +116,7 @@ fun SecretaryScreen(
             onAccountStatusSelect = viewModel::onAccountStatusSelect,
             onExportAccounts = viewModel::onExportAccounts,
             onInvoiceQueryChange = viewModel::onInvoiceQueryChange,
+            onTopSheetClick = viewModel::onTopSheetClick,
             onAddBranchClick = viewModel::onAddBranchClick,
             onNewBranchCodeChange = viewModel::onNewBranchCodeChange,
             onNewBranchNameChange = viewModel::onNewBranchNameChange,
@@ -134,6 +140,14 @@ fun SecretaryScreen(
             onAddAccountDismiss = viewModel::onAddAccountDismiss,
             onRetryLoad = viewModel::loadPanel,
             onLogoutClick = viewModel::onLogout,
+            onBranchClick = viewModel::onBranchClick,
+            onStoreDetailDismiss = viewModel::onStoreDetailDismiss,
+            onAccountClick = viewModel::onAccountClick,
+            onAccountDetailDismiss = viewModel::onAccountDetailDismiss,
+            onDeactivateAccountClick = viewModel::onDeactivateAccountClick,
+            onDeactivateAccountDismiss = viewModel::onDeactivateAccountDismiss,
+            onDeactivateAccountFilePicked = viewModel::onDeactivateAccountFilePicked,
+            onDeactivateAccountConfirm = viewModel::onDeactivateAccountConfirm,
         ),
     )
 
@@ -230,6 +244,21 @@ internal fun SecretaryContent(
                 isCompact = isCompact,
                 callback = callback,
             )
+        }
+        // Ordered before the store/account modals so those overlay on top: an
+        // account row inside this dialog opens AccountDetailsDialog above it.
+        uiState.storeDetail?.let { detail ->
+            StoreDetailsDialog(detail = detail, callback = callback)
+        }
+        uiState.accountDetail?.let { detail ->
+            AccountDetailsDialog(
+                detail = detail,
+                onDismiss = callback.onAccountDetailDismiss,
+                onDeactivateClick = callback.onDeactivateAccountClick,
+            )
+        }
+        uiState.deactivateAccount?.let { form ->
+            DeactivateAccountDialog(form = form, callback = callback)
         }
     }
 }

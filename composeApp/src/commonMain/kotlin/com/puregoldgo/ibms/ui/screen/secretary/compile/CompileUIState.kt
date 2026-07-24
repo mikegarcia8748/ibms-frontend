@@ -54,6 +54,14 @@ data class CompileUIState(
 
     // Result.
     val compiled: TopSheetSummary? = null,
+
+    // Resume draft — the list of DRAFT topsheets a secretary can pick back up
+    // after leaving the screen, plus the dialog's load state. The draft persists
+    // server-side; this is the way back into the RFP-entry/confirm flow.
+    val drafts: List<TopSheetSummary> = emptyList(),
+    val showResumeDialog: Boolean = false,
+    val isLoadingDrafts: Boolean = false,
+    val draftsError: String? = null,
 ) {
     /** Total accounts in the current context — the count before the list filters narrow it. */
     val totalCount: Int

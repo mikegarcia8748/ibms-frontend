@@ -10,9 +10,11 @@ import com.puregoldgo.ibms.shared.domain.usecase.CreateAccountUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.CreateTopSheetDraftUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.DeleteTopSheetLineUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetTopSheetLinesUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.GetTopSheetsUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.PreviewTopSheetUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.UpdateTopSheetLineUseCase
 import com.puregoldgo.ibms.ui.screen.secretary.SecretaryViewModel
+import com.puregoldgo.ibms.ui.screen.secretary.TopSheetDetailViewModel
 import com.puregoldgo.ibms.ui.screen.secretary.compile.CompileViewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
@@ -39,6 +41,7 @@ val secretaryModule = module {
     factoryOf(::CreateAccountUseCase)
     factoryOf(::PreviewTopSheetUseCase)
     factoryOf(::CreateTopSheetDraftUseCase)
+    factoryOf(::GetTopSheetsUseCase)
     factoryOf(::GetTopSheetLinesUseCase)
     factoryOf(::UpdateTopSheetLineUseCase)
     factoryOf(::AssignRfpUseCase)
@@ -49,5 +52,6 @@ val secretaryModule = module {
     // region ViewModels
     factoryOf(::SecretaryViewModel)
     factoryOf(::CompileViewModel)
+    factoryOf(::TopSheetDetailViewModel)
     // endregion
 }

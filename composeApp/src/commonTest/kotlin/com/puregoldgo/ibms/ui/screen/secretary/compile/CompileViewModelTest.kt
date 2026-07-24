@@ -12,6 +12,7 @@ import com.puregoldgo.ibms.shared.domain.usecase.GetAccountsUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetProvidersUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetStoresUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetTopSheetLinesUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.GetTopSheetsUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.PreviewTopSheetUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.UpdateTopSheetLineUseCase
 import com.puregoldgo.ibms.shared.model.Account
@@ -92,6 +93,7 @@ class CompileViewModelTest {
         assignRfp = AssignRfpUseCase(topsheets),
         deleteLine = DeleteTopSheetLineUseCase(topsheets),
         confirm = ConfirmTopSheetUseCase(topsheets),
+        getDrafts = GetTopSheetsUseCase(topsheets),
     )
 
     @Test
@@ -325,6 +327,41 @@ class CompileViewModelTest {
         assertEquals("", state.linesQuery)
         assertEquals(com.puregoldgo.ibms.ui.component.LETTER_ALL, state.linesLetter)
         assertEquals(LineSortOrder.StoreCode, state.linesSort)
+    }
+
+    @Test
+    fun tc11_resume_draft_lists_only_drafts_and_loads_the_chosen_one_into_rfp_entry() = runTest(dispatcher) {
+        topsheets.previewResult = previewWith("a1", "a2")
+        topsheets.topSheets = listOf(
+            summary("t1", "draft", null, "GLOB-202607-B001"),
+            summary("t2", "compiled", "GLOB-202607-0012", "GLOB-202607-B001"),
+        )
+        topsheets.lines += line("l1", rfp = null, order = 1, branch = "118")
+        topsheets.lines += line("l2", rfp = "010001", order = 2, branch = "119")
+
+        val vm = viewModel()
+        testScheduler.advanceUntilIdle()
+
+        vm.onResumeDraftClick()
+        testScheduler.advanceUntilIdle()
+
+        val listing = vm.uiState.value
+        assertTrue(listing.showResumeDialog)
+        assertTrue(!listing.isLoadingDrafts)
+        assertNull(listing.draftsError)
+        assertEquals(1, listing.drafts.size) // the COMPILED sheet is filtered out
+        assertEquals("t1", listing.drafts.single().id)
+
+        vm.onResumeDraft("t1")
+        testScheduler.advanceUntilIdle()
+
+        val resumed = vm.uiState.value
+        assertEquals(CompilePhase.RfpEntry, resumed.phase)
+        assertEquals("t1", resumed.draft?.id)
+        assertTrue(!resumed.showResumeDialog)
+        assertEquals("p-globe", resumed.selectedProviderId)
+        assertEquals("2026-07", resumed.billingPeriod)
+        assertEquals(2, resumed.lines.size)
     }
 
     private fun previewWith(vararg ids: String) = CompilePreview(

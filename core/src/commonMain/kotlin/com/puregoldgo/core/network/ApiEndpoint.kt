@@ -32,6 +32,7 @@ sealed class ApiEndpoint(val path: String) {
     data object AttachmentsPresignUpload : ApiEndpoint("/attachments/presign/upload")
 
     // ─── Topsheets ─────────────────────────────────────────────────────────────
+    data object Topsheets : ApiEndpoint("/topsheets")
     data object TopsheetsPreview : ApiEndpoint("/topsheets/preview")
     data object TopsheetsDraft : ApiEndpoint("/topsheets/draft")
 

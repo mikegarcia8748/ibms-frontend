@@ -10,10 +10,20 @@ import com.puregoldgo.ibms.shared.domain.AuthRepository
 import com.puregoldgo.ibms.shared.domain.usecase.CreateAccountUseCase
 import com.puregoldgo.ibms.shared.model.CreateAccountRequest
 import com.puregoldgo.ibms.shared.validation.Validation
+import com.puregoldgo.ibms.shared.domain.usecase.GetAccountsUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.GetProvidersUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.GetStoresUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.GetTopSheetsUseCase
+import com.puregoldgo.ibms.platform.file.PickedFile
+import com.puregoldgo.ibms.shared.model.Account
+import com.puregoldgo.ibms.shared.model.Provider
+import com.puregoldgo.ibms.shared.model.Store
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -25,8 +35,16 @@ import kotlinx.coroutines.launch
  * Filtering already lives in [SecretaryUIState] rather than in the composables,
  * so the rules are testable now and the previews can show a filtered list
  * without running a ViewModel.
+ * Loads providers, stores, accounts and the compiled topsheets concurrently from
+ * the API. Store and account detail modals are built on-click from the cached
+ * domain lists (no round-trip). Tapping a topsheet row navigates to the
+ * full-screen [TopSheetDetailScreen] via a one-shot event.
  */
 class SecretaryViewModel(
+    private val getProviders: GetProvidersUseCase,
+    private val getStores: GetStoresUseCase,
+    private val getAccounts: GetAccountsUseCase,
+    private val getTopSheets: GetTopSheetsUseCase,
     private val createAccount: CreateAccountUseCase,
     private val accountRepository: AccountRepository,
     private val authRepository: AuthRepository,
@@ -51,23 +69,57 @@ class SecretaryViewModel(
 
     // endregion
 
+    private var cachedStores: List<Store> = emptyList()
+    private var cachedAccounts: List<Account> = emptyList()
+    private var cachedProviders: List<Provider> = emptyList()
+
     init {
         loadPanel()
     }
 
     // region Public API
 
-    /** Seeds the console. Synchronous today; a network call once wired. */
+    /** Fetches providers, stores, accounts and the compiled topsheets concurrently. */
     fun loadPanel() {
-        _uiState.update {
-            it.copy(
-                isLoading = false,
-                loadError = null,
-                providers = SecretarySampleData.providers,
-                branches = SecretarySampleData.branches,
-                accounts = SecretarySampleData.accounts,
-                topSheets = SecretarySampleData.topSheets,
-            )
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, loadError = null) }
+
+            val providersDeferred = async { getProviders().last() }
+            val storesDeferred = async { getStores().last() }
+            val accountsDeferred = async { getAccounts().last() }
+            val topSheetsDeferred = async { getTopSheets().last() }
+
+            val providersResult = providersDeferred.await()
+            val storesResult = storesDeferred.await()
+            val accountsResult = accountsDeferred.await()
+            val topSheetsResult = topSheetsDeferred.await()
+
+            val providers = providersResult.data
+            val stores = storesResult.data
+            val accounts = accountsResult.data
+            val topSheets = topSheetsResult.data
+
+            if (providers == null || stores == null || accounts == null || topSheets == null) {
+                failLoad(
+                    firstErrorMessage(providersResult, storesResult, accountsResult, topSheetsResult),
+                )
+                return@launch
+            }
+
+            cachedProviders = providers
+            cachedStores = stores
+            cachedAccounts = accounts
+
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    loadError = null,
+                    providers = buildProviderRows(providers),
+                    branches = buildBranchRows(stores, accounts),
+                    accounts = buildAccountRows(accounts, stores),
+                    topSheets = buildTopSheetRows(topSheets),
+                )
+            }
         }
     }
 
@@ -119,6 +171,22 @@ class SecretaryViewModel(
     fun onInvoiceQueryChange(query: String) {
         _uiState.update { it.copy(invoiceQuery = query) }
     }
+
+    // region Topsheet navigation
+
+    /**
+     * Sets the row in [TopSheetRowHolder] and emits a navigation event so the
+     * full-screen detail can show the account lines with room to breathe.
+     */
+    fun onTopSheetClick(topSheetId: String) {
+        val row = _uiState.value.topSheets.find { it.id == topSheetId } ?: return
+        TopSheetRowHolder.current = row
+        viewModelScope.launch {
+            _uiEvent.emit(SecretaryUiEvent.NavigateToTopSheetDetail(topSheetId))
+        }
+    }
+
+    // endregion
 
     // region Add branch
 
@@ -269,6 +337,70 @@ class SecretaryViewModel(
         }
     }
 
+    // region Detail modals
+
+    fun onBranchClick(storeId: String) {
+        val store = cachedStores.find { it.id == storeId } ?: return
+        val detail = buildStoreDetail(store, cachedAccounts, cachedProviders)
+        _uiState.update { it.copy(storeDetail = detail) }
+    }
+
+    fun onStoreDetailDismiss() {
+        _uiState.update { it.copy(storeDetail = null) }
+    }
+
+    fun onAccountClick(accountId: String) {
+        val account = cachedAccounts.find { it.id == accountId } ?: return
+        val store = cachedStores.find { it.id == account.storeId }
+        val provider = cachedProviders.find { it.id == account.providerId }
+        val detail = buildAccountDetail(account, store, provider)
+        _uiState.update { it.copy(accountDetail = detail) }
+    }
+
+    fun onAccountDetailDismiss() {
+        _uiState.update { it.copy(accountDetail = null) }
+    }
+
+    // endregion
+
+    // region Deactivate account
+
+    /** Opens the deactivation dialog seeded from the currently shown account detail. */
+    fun onDeactivateAccountClick() {
+        val detail = _uiState.value.accountDetail ?: return
+        _uiState.update {
+            it.copy(
+                deactivateAccount = DeactivateAccountForm(
+                    accountId = detail.accountId,
+                    accountNumber = detail.accountNumber,
+                    circuitId = detail.circuitId,
+                    branchLabel = "${detail.branchCode} (${detail.storeName})",
+                ),
+            )
+        }
+    }
+
+    fun onDeactivateAccountFilePicked(file: PickedFile) {
+        updateDeactivateForm { it.copy(proofFile = file, errorMessage = null) }
+    }
+
+    /** TODO: `POST /accounts/{id}/deactivate` once the backend contract is ready. */
+    fun onDeactivateAccountConfirm() {
+        updateDeactivateForm { it.copy(isSubmitting = true, errorMessage = null) }
+    }
+
+    fun onDeactivateAccountDismiss() {
+        _uiState.update { it.copy(deactivateAccount = null) }
+    }
+
+    private fun updateDeactivateForm(transform: (DeactivateAccountForm) -> DeactivateAccountForm) {
+        _uiState.update { state ->
+            state.deactivateAccount?.let { state.copy(deactivateAccount = transform(it)) } ?: state
+        }
+    }
+
+    // endregion
+
     // region Internals
 
     private fun updateBranchForm(transform: (NewBranchForm) -> NewBranchForm) {
@@ -341,5 +473,23 @@ class SecretaryViewModel(
         }
     }
 
+    private fun failLoad(message: String?) {
+        _uiState.update {
+            it.copy(isLoading = false, loadError = message ?: DEFAULT_LOAD_ERROR)
+        }
+    }
+
+    /** The message from the first of [results] that did not succeed. */
+    private fun firstErrorMessage(vararg results: Resource<*>): String? =
+        results.firstNotNullOfOrNull { result ->
+            when (result) {
+                is Resource.Failed -> result.message
+                is Resource.Error -> result.error?.message
+                else -> null
+            }
+        }
+
     // endregion
 }
+
+private const val DEFAULT_LOAD_ERROR = "The registry could not be loaded."

@@ -1,6 +1,7 @@
 package com.puregoldgo.ibms.ui.screen.secretary
 
 import androidx.compose.runtime.Immutable
+import com.puregoldgo.ibms.platform.file.PickedFile
 
 /**
  * The rows the secretary panel draws.
@@ -28,8 +29,12 @@ enum class AccountRecordStatus { Active, Pending, ForDeactivation, Terminated }
 /** Where a branch stands. [Closed] is permanent; [Inactive] is not. */
 enum class BranchRecordStatus { Active, Closed, Inactive }
 
-/** A compiled topsheet's progress through approval and payment. */
-enum class TopSheetRecordStatus { Compiled, Approved, Paid }
+/**
+ * A topsheet's progress. [Draft] is a topsheet still being compiled — it has no
+ * invoice number yet and is edited from the Compile flow, but it appears in
+ * Billing History so nothing in flight is invisible.
+ */
+enum class TopSheetRecordStatus { Draft, Compiled, Approved, Paid }
 
 @Immutable
 data class SecretaryProviderRow(
@@ -94,7 +99,10 @@ data class SecretaryAccountRow(
 @Immutable
 data class TopSheetRow(
     val id: String,
-    val invoiceNumber: String,
+    /** Null while still a draft — the invoice is minted only at confirm. */
+    val invoiceNumber: String?,
+    /** The compilation batch id, assigned at draft creation. Shown when there is no invoice yet. */
+    val batchNumber: String? = null,
     val providerName: String,
     /** Billing period as `YYYY-MM`, the form `POST /topsheets/compile` takes. */
     val period: String,
@@ -104,7 +112,13 @@ data class TopSheetRow(
     /** Peso total, already grouped, e.g. `"760,172.68"`. */
     val totalValidated: String,
     val status: TopSheetRecordStatus,
-)
+) {
+    /** What identifies the sheet on screen: its invoice, else its batch, else a draft label. */
+    val reference: String
+        get() = invoiceNumber ?: batchNumber ?: DRAFT_REFERENCE
+}
+
+private const val DRAFT_REFERENCE = "DRAFT"
 
 /** The add-branch form. Mirrors what `POST /stores` will take. */
 @Immutable
@@ -129,4 +143,22 @@ data class NewAccountForm(
     val proofAttachmentIds: List<String> = emptyList(),
     val proofUploadError: String? = null,
     val isSubmitting: Boolean = false,
+)
+
+/**
+ * The deactivate-account confirmation form.
+ *
+ * Holds the account to terminate and the proof PDF the secretary selected.
+ * The file is kept in memory only this pass; the actual upload and
+ * deactivation request are TODO.
+ */
+@Immutable
+data class DeactivateAccountForm(
+    val accountId: String,
+    val accountNumber: String,
+    val circuitId: String?,
+    val branchLabel: String,
+    val proofFile: PickedFile? = null,
+    val isSubmitting: Boolean = false,
+    val errorMessage: String? = null,
 )
