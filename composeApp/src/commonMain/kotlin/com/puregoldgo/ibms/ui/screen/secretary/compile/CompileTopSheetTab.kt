@@ -90,6 +90,7 @@ import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_c
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_showing_pick
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_start_new
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_remove_line
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_resume_drafts
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_title
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_total_accounts
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_compile_total_amount
@@ -115,6 +116,12 @@ internal fun CompileTopSheetTab(
         CompilePhase.Review -> ReviewScreen(state, callback, isCompact)
         CompilePhase.RfpEntry -> RfpEntryScreen(state, callback, isCompact)
         CompilePhase.Compiled -> CompiledScreen(state, callback)
+    }
+
+    // Overlays the review screen — a separate Dialog window, so it needs no
+    // Box parent. Opened only from the review controls, so phase is Review then.
+    if (state.showResumeDialog) {
+        ResumeDraftDialog(state, callback)
     }
 }
 
@@ -251,6 +258,8 @@ private fun ReviewControls(
             }
             Spacer(Modifier.height(Dimensions.viewPadding12))
             CompileButton(state, callback, Modifier.fillMaxWidth())
+            Spacer(Modifier.height(Dimensions.viewPadding12))
+            ResumeDraftButton(callback, Modifier.fillMaxWidth())
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MonthPicker(
@@ -270,6 +279,8 @@ private fun ReviewControls(
                 )
                 Spacer(Modifier.width(Dimensions.viewPadding24))
                 CompileButton(state, callback)
+                Spacer(Modifier.width(Dimensions.viewPadding12))
+                ResumeDraftButton(callback)
             }
         }
 
@@ -318,6 +329,27 @@ private fun CompileButton(
         }
         Spacer(Modifier.width(Dimensions.viewPadding8))
         Text(stringResource(Res.string.secretary_compile_button))
+    }
+}
+
+/** Secondary action on the review screen: reopen a DRAFT left unfinished. */
+@Composable
+private fun ResumeDraftButton(
+    callback: CompileCallback,
+    modifier: Modifier = Modifier,
+) {
+    OutlinedButton(
+        onClick = callback.onResumeDraftClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(Dimensions.viewRadius8),
+    ) {
+        Icon(
+            imageVector = AppIcons.Description,
+            contentDescription = null,
+            modifier = Modifier.size(Dimensions.viewSize18),
+        )
+        Spacer(Modifier.width(Dimensions.viewPadding8))
+        Text(stringResource(Res.string.secretary_compile_resume_drafts))
     }
 }
 

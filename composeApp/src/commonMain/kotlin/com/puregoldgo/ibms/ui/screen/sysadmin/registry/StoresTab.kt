@@ -66,6 +66,7 @@ internal fun StoresTab(
             title = stringResource(Res.string.sysadmin_branch_locations),
             icon = AppIcons.Domain,
             modifier = modifier,
+            headerBusy = uiState.isRefreshing,
             trailing = if (isCompact) {
                 null
             } else {

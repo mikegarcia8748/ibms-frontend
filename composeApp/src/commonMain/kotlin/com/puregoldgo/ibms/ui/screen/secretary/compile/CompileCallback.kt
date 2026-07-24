@@ -32,6 +32,11 @@ data class CompileCallback(
 
     // Result.
     val onStartNew: () -> Unit,
+
+    // Resume draft — reopen a DRAFT topsheet left unfinished.
+    val onResumeDraftClick: () -> Unit,
+    val onResumeDraft: (topSheetId: String) -> Unit,
+    val onResumeDraftDismiss: () -> Unit,
 )
 
 /** A do-nothing callback, for previews and as the content composable's default. */
@@ -56,4 +61,7 @@ val NoOpCompileCallback = CompileCallback(
     onLinesLetterSelect = {},
     onLinesSortSelect = {},
     onStartNew = {},
+    onResumeDraftClick = {},
+    onResumeDraft = {},
+    onResumeDraftDismiss = {},
 )

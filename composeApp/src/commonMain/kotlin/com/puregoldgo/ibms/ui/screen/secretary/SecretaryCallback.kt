@@ -1,10 +1,15 @@
 package com.puregoldgo.ibms.ui.screen.secretary
 
+import com.puregoldgo.ibms.platform.file.PickedFile
+
 /**
  * Everything the secretary console can do, bundled so the content composables
  * stay free of the ViewModel and remain previewable.
+ *
+ * Deliberately a plain class rather than a data class: storing lambdas in a
+ * data class invites unwanted equals/hashCode behaviour on recompositions.
  */
-data class SecretaryCallback(
+class SecretaryCallback(
     val onTabSelect: (SecretaryTab) -> Unit,
 
     // Branch locations.
@@ -21,6 +26,7 @@ data class SecretaryCallback(
 
     // Billing history.
     val onInvoiceQueryChange: (String) -> Unit,
+    val onTopSheetClick: (String) -> Unit,
 
     // Add branch.
     val onAddBranchClick: () -> Unit,
@@ -42,4 +48,16 @@ data class SecretaryCallback(
 
     val onRetryLoad: () -> Unit,
     val onLogoutClick: () -> Unit,
+
+    // Detail modals.
+    val onBranchClick: (String) -> Unit,
+    val onStoreDetailDismiss: () -> Unit,
+    val onAccountClick: (String) -> Unit,
+    val onAccountDetailDismiss: () -> Unit,
+
+    // Deactivate account.
+    val onDeactivateAccountClick: () -> Unit,
+    val onDeactivateAccountDismiss: () -> Unit,
+    val onDeactivateAccountFilePicked: (PickedFile) -> Unit,
+    val onDeactivateAccountConfirm: () -> Unit,
 )

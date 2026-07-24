@@ -70,6 +70,7 @@ internal fun AccountsTab(
 
     SectionCard(
         title = stringResource(Res.string.sysadmin_accounts_db),
+        headerBusy = uiState.isRefreshing,
         trailing = if (isCompact) {
             null
         } else {

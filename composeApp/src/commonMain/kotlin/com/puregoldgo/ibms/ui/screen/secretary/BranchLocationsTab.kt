@@ -1,6 +1,7 @@
 package com.puregoldgo.ibms.ui.screen.secretary
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -118,7 +119,7 @@ internal fun BranchLocationsTab(
                     verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8),
                 ) {
                     items(uiState.visibleBranches, key = { it.id }) { branch ->
-                        BranchCard(branch)
+                        BranchCard(branch) { callback.onBranchClick(branch.id) }
                     }
                 }
             }
@@ -149,11 +150,12 @@ internal fun BranchLocationsTab(
 }
 
 @Composable
-private fun BranchCard(branch: SecretaryBranchRow) {
+private fun BranchCard(branch: SecretaryBranchRow, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(Dimensions.viewRadius12))
+            .clickable { onClick() }
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .padding(Dimensions.viewPadding16),
     ) {

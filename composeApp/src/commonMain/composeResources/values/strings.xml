@@ -166,13 +166,13 @@
     <string name="sysadmin_status_cancel">Cancel</string>
 
     <!-- Sysadmin — stores tab -->
-    <string name="sysadmin_branch_locations">Branch Locations</string>
+    <string name="sysadmin_branch_locations">Branch/Stores</string>
     <string name="sysadmin_branch_search_hint">Search store, code or city…</string>
     <string name="sysadmin_branch_empty">No branches match your filters.</string>
     <string name="console_letter_all">All</string>
 
     <!-- Sysadmin — accounts tab -->
-    <string name="sysadmin_accounts_db">ISP Accounts DB</string>
+    <string name="sysadmin_accounts_db">ISP Accounts</string>
     <string name="sysadmin_accounts_search_hint">Search accounts…</string>
     <string name="sysadmin_accounts_empty">No accounts match your filters.</string>
     <string name="sysadmin_clean_up">Clean Up</string>
@@ -216,7 +216,7 @@
     <string name="sysadmin_bulk_import_size_mb">%1$s MB</string>
 
     <!-- Secretary — header and tabs -->
-    <string name="secretary_title">Secretary Actions</string>
+    <string name="secretary_title">Dashboard</string>
     <string name="secretary_subtitle">Manage infrastructure endpoints and organize monthly vendor schedules.</string>
     <string name="secretary_tab_compile">Compile TopSheet</string>
     <string name="secretary_tab_branches">Branch Locations</string>
@@ -276,13 +276,20 @@
     <string name="secretary_compile_done_summary">%1$d accounts • ₱%2$s</string>
     <string name="secretary_compile_start_new">Compile another</string>
 
+    <!-- Secretary — compile topsheet, resume draft -->
+    <string name="secretary_compile_resume_drafts">Resume Draft</string>
+    <string name="secretary_compile_resume_title">Drafted TopSheets</string>
+    <string name="secretary_compile_resume_subtitle">Pick a draft to continue assigning RFP numbers and confirm.</string>
+    <string name="secretary_compile_resume_empty">No drafted topsheets to resume.</string>
+    <string name="secretary_compile_resume_close">Close</string>
+
     <!-- Secretary — branch locations -->
     <string name="secretary_branches_title">Branch Locations</string>
     <string name="secretary_branches_search_hint">Search store, code or city…</string>
     <string name="secretary_branches_empty">No branches match your filters.</string>
 
     <!-- Secretary — ISP accounts -->
-    <string name="secretary_accounts_title">ISP Accounts Database</string>
+    <string name="secretary_accounts_title">ISP Accounts</string>
     <string name="secretary_accounts_search_hint">Search store, account or circuit ID…</string>
     <string name="secretary_accounts_empty">No accounts match your filters.</string>
     <string name="secretary_accounts_monthly_rate">₱%1$s / mo</string>
@@ -295,6 +302,7 @@
     <string name="secretary_status_terminated">TERMINATED</string>
     <string name="secretary_status_closed">CLOSED</string>
     <string name="secretary_status_inactive">INACTIVE</string>
+    <string name="secretary_status_draft">DRAFT</string>
     <string name="secretary_status_compiled">COMPILED</string>
     <string name="secretary_status_approved">APPROVED</string>
     <string name="secretary_status_paid">PAID</string>
@@ -308,6 +316,24 @@
     <string name="secretary_billing_accounts">Accounts: %1$d</string>
     <string name="secretary_billing_total_label">Total Validated</string>
     <string name="secretary_billing_total">₱%1$s</string>
+
+    <!-- Secretary — topsheet details modal -->
+    <string name="secretary_topsheet_detail_title">TopSheet Details</string>
+    <string name="secretary_topsheet_detail_subtitle">Ref: %1$s</string>
+    <string name="secretary_topsheet_detail_search_hint">Search store, code or account…</string>
+    <string name="secretary_topsheet_detail_empty">This TopSheet has no account lines.</string>
+    <string name="secretary_topsheet_detail_no_match">No accounts match your search.</string>
+    <string name="secretary_topsheet_accounts_title">Accounts</string>
+    <string name="secretary_topsheet_sort_label">Sort by</string>
+    <string name="secretary_topsheet_sort_storecode">Store code</string>
+    <string name="secretary_topsheet_sort_amount">Amount</string>
+    <string name="secretary_topsheet_sort_rfp">RFP number</string>
+    <string name="secretary_topsheet_sort_ascending">Ascending — tap to sort descending</string>
+    <string name="secretary_topsheet_sort_descending">Descending — tap to sort ascending</string>
+    <string name="secretary_topsheet_line_rfp">RFP %1$s</string>
+    <string name="secretary_topsheet_line_rfp_none">No RFP</string>
+    <string name="secretary_topsheet_line_mrc">MRC</string>
+    <string name="secretary_topsheet_line_prorated">Prorated</string>
 
     <!-- Secretary — archive -->
     <string name="secretary_archive_accounts">Inactive Accounts</string>
@@ -341,12 +367,69 @@
     <string name="secretary_add_account_rate">Monthly rate (₱)</string>
     <string name="secretary_add_account_submit">Add Account</string>
 
+    <!-- Secretary — deactivate account dialog -->
+    <string name="secretary_deactivate_title">Deactivate Account</string>
+    <string name="secretary_deactivate_subtitle">Initiate termination process</string>
+    <string name="secretary_deactivate_close">Close</string>
+    <string name="secretary_deactivate_warning">Are you sure you want to request termination for this account? This will mark it for deactivation.</string>
+    <string name="secretary_deactivate_account_label">Account:</string>
+    <string name="secretary_deactivate_circuit_id_label">Circuit ID:</string>
+    <string name="secretary_deactivate_branch_label">Branch:</string>
+    <string name="secretary_deactivate_proof_label">PROOF OF DEACTIVATION (PDF) *</string>
+    <string name="secretary_deactivate_drop_title">Click or drag PDF here</string>
+    <string name="secretary_deactivate_drop_subtitle">Max size 5MB</string>
+    <string name="secretary_deactivate_change_file">Choose a different file</string>
+    <string name="secretary_deactivate_cancel">Cancel</string>
+    <string name="secretary_deactivate_confirm">Confirm Deactivation</string>
+    <string name="secretary_deactivate_request">Request deactivation</string>
+    <string name="secretary_deactivate_oversize">PDF must be 5MB or smaller.</string>
+    <string name="secretary_deactivate_wrong_type">Only PDF files are accepted.</string>
+
     <!-- Secretary — dialogs, shared -->
     <string name="secretary_dialog_cancel">Cancel</string>
     <string name="secretary_dialog_offline_title">Not connected yet.</string>
     <string name="secretary_dialog_offline_body">This form is the finished layout, but there is no endpoint behind it yet — submitting does nothing. It saves once the backend pass lands.</string>
     <string name="secretary_select_placeholder">Select…</string>
     <string name="secretary_retry">Try again</string>
+
+    <!-- Secretary detail modals -->
+    <string name="secretary_store_detail_title">Branch Details</string>
+    <string name="secretary_store_detail_subtitle">store-%1$s</string>
+    <string name="secretary_account_detail_title">Account Details</string>
+    <string name="secretary_account_detail_subtitle">%1$s-%2$s</string>
+    <string name="secretary_detail_close">Close</string>
+    <string name="secretary_detail_linked_account_number">LINKED ACCOUNT NUMBER</string>
+    <string name="secretary_detail_location_data">Location Data</string>
+    <string name="secretary_detail_key_dates">Key Dates &amp; Status</string>
+    <string name="secretary_detail_linked_accounts">Linked Accounts</string>
+    <string name="secretary_detail_linked_store">Linked Store</string>
+    <string name="secretary_detail_technical_info">Technical Info</string>
+    <string name="secretary_detail_billing_details">Billing Details</string>
+    <string name="secretary_detail_timeline">Timeline</string>
+    <string name="secretary_detail_region">Region</string>
+    <string name="secretary_detail_province">Province</string>
+    <string name="secretary_detail_region_province">Region / Province</string>
+    <string name="secretary_detail_city">City</string>
+    <string name="secretary_detail_city_municipality">City / Municipality</string>
+    <string name="secretary_detail_barangay">Barangay</string>
+    <string name="secretary_detail_postal">Postal Code</string>
+    <string name="secretary_detail_registered_on">Registered On</string>
+    <string name="secretary_detail_last_updated">Last Updated</string>
+    <string name="secretary_detail_account_number">Account Number</string>
+    <string name="secretary_detail_circuit_id">Circuit ID</string>
+    <string name="secretary_detail_speed">Speed</string>
+    <string name="secretary_detail_bandwidth">Bandwidth</string>
+    <string name="secretary_detail_terms">Terms</string>
+    <string name="secretary_detail_contract_duration">Contract Duration</string>
+    <string name="secretary_detail_monthly_rate">Monthly Rate</string>
+    <string name="secretary_detail_installation_date">Installation Date</string>
+    <string name="secretary_detail_inst_date">Inst. Date</string>
+    <string name="secretary_detail_created_at">Created</string>
+    <string name="secretary_detail_start_date">Start Date</string>
+    <string name="secretary_detail_end_date">End Date</string>
+    <string name="secretary_detail_contract_start">Contract Start</string>
+    <string name="secretary_detail_contract_end">Contract End</string>
+    <string name="secretary_detail_not_available">N/A</string>
 
     <!-- Finance — header and tabs -->
     <string name="finance_title">Finance Console</string>

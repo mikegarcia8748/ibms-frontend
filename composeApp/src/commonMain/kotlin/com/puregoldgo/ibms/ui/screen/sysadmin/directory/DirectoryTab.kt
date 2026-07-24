@@ -129,6 +129,7 @@ private fun DirectoryCard(
     SectionCard(
         title = stringResource(Res.string.sysadmin_active_directory),
         icon = AppIcons.Group,
+        headerBusy = uiState.isRefreshing,
         trailing = {
             TextButton(
                 onClick = callback.onAddUserClick,

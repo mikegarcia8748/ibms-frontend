@@ -14,8 +14,12 @@ import com.puregoldgo.ibms.shared.api.TopSheetLine
 import com.puregoldgo.ibms.shared.api.TopSheetSummary
 import com.puregoldgo.ibms.shared.api.UpdateTopSheetLineRequest
 import com.puregoldgo.ibms.shared.domain.TopSheetRepository
+import com.puregoldgo.ibms.shared.model.CursorPage
+import com.puregoldgo.ibms.shared.model.TopsheetStatus
+import com.puregoldgo.ibms.shared.model.queryValue
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
+import io.ktor.client.request.parameter
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
@@ -41,6 +45,31 @@ class KtorTopSheetRepository(
     private val client: HttpClient,
 ) : TopSheetRepository {
     private val tag = "KtorTopSheetRepository"
+
+    override fun listTopSheets(
+        providerId: String?,
+        billingPeriod: String?,
+        status: TopsheetStatus?,
+        cursor: String?,
+        limit: Int?,
+    ): Flow<Resource<BaseResponse<CursorPage<TopSheetSummary>>>> = flow {
+        emit(Resource.Loading)
+        emit(
+            guard {
+                client.sendRequest<BaseResponse<CursorPage<TopSheetSummary>>>(tag) {
+                    method = HttpMethod.Get
+                    url(ApiEndpoint.Topsheets.url(ApiConfig.baseUrl))
+                    // `parameter` drops nulls, so an unset filter is an absent query
+                    // key rather than `?status=null`.
+                    parameter("providerId", providerId)
+                    parameter("billingPeriod", billingPeriod?.takeIf { it.isNotBlank() })
+                    parameter("status", status?.queryValue)
+                    parameter("cursor", cursor)
+                    parameter("limit", limit)
+                }
+            },
+        )
+    }
 
     override fun preview(
         providerId: String,
