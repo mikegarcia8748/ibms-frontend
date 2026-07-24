@@ -5,6 +5,7 @@ import com.puregoldgo.core.network.ApiEndpoint
 import com.puregoldgo.core.network.Resource
 import com.puregoldgo.core.network.dto.BaseResponse
 import com.puregoldgo.core.network.sendRequest
+import com.puregoldgo.ibms.shared.api.CreateStoreRequest
 import com.puregoldgo.ibms.shared.domain.StoreRepository
 import com.puregoldgo.ibms.shared.model.CursorPage
 import com.puregoldgo.ibms.shared.model.Store
@@ -12,8 +13,11 @@ import com.puregoldgo.ibms.shared.model.StoreStatus
 import com.puregoldgo.ibms.shared.model.queryValue
 import io.ktor.client.HttpClient
 import io.ktor.client.request.parameter
+import io.ktor.client.request.setBody
 import io.ktor.client.request.url
+import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
+import io.ktor.http.contentType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -47,4 +51,12 @@ class KtorStoreRepository(
             },
         )
     }
+
+    override suspend fun createStore(request: CreateStoreRequest): Resource<BaseResponse<Store>> =
+        client.sendRequest<BaseResponse<Store>>(tag) {
+            method = HttpMethod.Post
+            url(ApiEndpoint.Stores.url(ApiConfig.baseUrl))
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
 }

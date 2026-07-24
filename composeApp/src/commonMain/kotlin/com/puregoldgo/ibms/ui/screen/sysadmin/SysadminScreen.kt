@@ -7,16 +7,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.puregoldgo.ibms.ui.component.AppIcons
 import com.puregoldgo.ibms.ui.component.ConsoleHeader
 import com.puregoldgo.ibms.ui.component.ConsoleScaffold
 import com.puregoldgo.ibms.ui.component.SegmentedTabRow
+import com.puregoldgo.ibms.ui.screen.store.RegisterBranchCallback
+import com.puregoldgo.ibms.ui.screen.store.RegisterBranchDialog
 import com.puregoldgo.ibms.ui.screen.sysadmin.directory.AddUserDialog
 import com.puregoldgo.ibms.ui.screen.sysadmin.directory.ChangeRoleDialog
 import com.puregoldgo.ibms.ui.screen.sysadmin.directory.DirectoryCallback
@@ -28,6 +32,7 @@ import com.puregoldgo.ibms.ui.screen.sysadmin.directory.UserStatusDialog
 import com.puregoldgo.ibms.ui.screen.sysadmin.registry.AccountsTab
 import com.puregoldgo.ibms.ui.screen.sysadmin.registry.BulkImportDialog
 import com.puregoldgo.ibms.ui.screen.sysadmin.registry.RegistryCallback
+import com.puregoldgo.ibms.ui.screen.sysadmin.registry.RegistryUiEvent
 import com.puregoldgo.ibms.ui.screen.sysadmin.registry.RegistryUIState
 import com.puregoldgo.ibms.ui.screen.sysadmin.registry.RegistryViewModel
 import com.puregoldgo.ibms.ui.screen.sysadmin.registry.StoresTab
@@ -61,11 +66,20 @@ fun SysadminScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val directoryState by directoryViewModel.uiState.collectAsStateWithLifecycle()
     val registryState by registryViewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is SysadminUiEvent.NavigateToLogin -> onSignedOut()
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        registryViewModel.uiEvent.collect { event ->
+            when (event) {
+                is RegistryUiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(event.message)
             }
         }
     }
@@ -105,6 +119,17 @@ fun SysadminScreen(
             onBranchQueryChange = registryViewModel::onBranchQueryChange,
             onBranchLetterSelect = registryViewModel::onBranchLetterSelect,
             onBranchProviderSelect = registryViewModel::onBranchProviderSelect,
+            onRegisterBranchClick = registryViewModel::onRegisterBranchClick,
+            onRegisterBranchStoreTypeChange = registryViewModel::onRegisterBranchStoreTypeChange,
+            onRegisterBranchCodeChange = registryViewModel::onRegisterBranchCodeChange,
+            onRegisterBranchNameChange = registryViewModel::onRegisterBranchNameChange,
+            onRegisterBranchRegionChange = registryViewModel::onRegisterBranchRegionChange,
+            onRegisterBranchProvinceChange = registryViewModel::onRegisterBranchProvinceChange,
+            onRegisterBranchCityChange = registryViewModel::onRegisterBranchCityChange,
+            onRegisterBranchBarangayChange = registryViewModel::onRegisterBranchBarangayChange,
+            onRegisterBranchPostalCodeChange = registryViewModel::onRegisterBranchPostalCodeChange,
+            onRegisterBranchSubmit = registryViewModel::onRegisterBranchSubmit,
+            onRegisterBranchDismiss = registryViewModel::onRegisterBranchDismiss,
             onAccountQueryChange = registryViewModel::onAccountQueryChange,
             onAccountProviderSelect = registryViewModel::onAccountProviderSelect,
             onBulkUploadClick = registryViewModel::onBulkUploadClick,
@@ -113,6 +138,7 @@ fun SysadminScreen(
             onBulkUploadDismiss = registryViewModel::onBulkUploadDismiss,
             onRetryLoad = { registryViewModel.loadPanel() },
         ),
+        snackbarHostState = snackbarHostState,
     )
 }
 
@@ -134,11 +160,13 @@ internal fun SysadminContent(
     directoryCallback: DirectoryCallback,
     registryState: RegistryUIState,
     registryCallback: RegistryCallback,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     ConsoleScaffold(
         userName = uiState.userName,
         userRole = uiState.userRole,
         onLogoutClick = callback.onLogoutClick,
+        snackbarHostState = snackbarHostState,
     ) { layout ->
         val isCompact = layout.isCompact
 
@@ -169,8 +197,27 @@ internal fun SysadminContent(
 
         when (uiState.selectedTab) {
             SysadminTab.Directory -> DirectoryTab(directoryState, directoryCallback, isCompact)
-            SysadminTab.Stores -> StoresTab(registryState, registryCallback, isCompact)
+            SysadminTab.Stores -> StoresTab(registryState, registryCallback, isCompact, uiState.userRole)
             SysadminTab.Accounts -> AccountsTab(registryState, registryCallback, isCompact)
+        }
+
+        registryState.registerBranchForm?.let { form ->
+            RegisterBranchDialog(
+                form = form,
+                callback = RegisterBranchCallback(
+                    onStoreTypeChange = registryCallback.onRegisterBranchStoreTypeChange,
+                    onBranchCodeChange = registryCallback.onRegisterBranchCodeChange,
+                    onBranchNameChange = registryCallback.onRegisterBranchNameChange,
+                    onRegionChange = registryCallback.onRegisterBranchRegionChange,
+                    onProvinceChange = registryCallback.onRegisterBranchProvinceChange,
+                    onCityChange = registryCallback.onRegisterBranchCityChange,
+                    onBarangayChange = registryCallback.onRegisterBranchBarangayChange,
+                    onPostalCodeChange = registryCallback.onRegisterBranchPostalCodeChange,
+                    onSubmit = registryCallback.onRegisterBranchSubmit,
+                    onDismiss = registryCallback.onRegisterBranchDismiss,
+                ),
+                isCompact = isCompact,
+            )
         }
 
         if (registryState.isBulkImportOpen) {

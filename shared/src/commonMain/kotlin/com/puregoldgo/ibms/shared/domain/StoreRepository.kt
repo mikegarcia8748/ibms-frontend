@@ -2,6 +2,7 @@ package com.puregoldgo.ibms.shared.domain
 
 import com.puregoldgo.core.network.Resource
 import com.puregoldgo.core.network.dto.BaseResponse
+import com.puregoldgo.ibms.shared.api.CreateStoreRequest
 import com.puregoldgo.ibms.shared.model.CursorPage
 import com.puregoldgo.ibms.shared.model.Store
 import com.puregoldgo.ibms.shared.model.StoreStatus
@@ -27,4 +28,12 @@ interface StoreRepository {
         cursor: String? = null,
         limit: Int? = null,
     ): Flow<Resource<BaseResponse<CursorPage<Store>>>>
+
+    /**
+     * `POST /stores`.
+     *
+     * The server assigns the store id, status and timestamps, so the caller
+     * only supplies the fields in [CreateStoreRequest].
+     */
+    suspend fun createStore(request: CreateStoreRequest): Resource<BaseResponse<Store>>
 }

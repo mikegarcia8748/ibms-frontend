@@ -1,6 +1,7 @@
 package com.puregoldgo.ibms.ui.screen.sysadmin.registry
 
 import com.puregoldgo.ibms.platform.file.PickedFile
+import com.puregoldgo.ibms.shared.model.StoreType
 
 /**
  * Everything the registry panels can do, bundled so their composables stay free
@@ -11,6 +12,19 @@ data class RegistryCallback(
     val onBranchQueryChange: (String) -> Unit,
     val onBranchLetterSelect: (Char) -> Unit,
     val onBranchProviderSelect: (String?) -> Unit,
+
+    // Register branch.
+    val onRegisterBranchClick: () -> Unit,
+    val onRegisterBranchStoreTypeChange: (StoreType) -> Unit,
+    val onRegisterBranchCodeChange: (String) -> Unit,
+    val onRegisterBranchNameChange: (String) -> Unit,
+    val onRegisterBranchRegionChange: (String) -> Unit,
+    val onRegisterBranchProvinceChange: (String) -> Unit,
+    val onRegisterBranchCityChange: (String) -> Unit,
+    val onRegisterBranchBarangayChange: (String) -> Unit,
+    val onRegisterBranchPostalCodeChange: (String) -> Unit,
+    val onRegisterBranchSubmit: () -> Unit,
+    val onRegisterBranchDismiss: () -> Unit,
 
     // Account filters.
     val onAccountQueryChange: (String) -> Unit,

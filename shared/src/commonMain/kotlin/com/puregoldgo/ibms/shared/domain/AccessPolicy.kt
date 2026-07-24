@@ -16,3 +16,6 @@ import com.puregoldgo.ibms.shared.model.UserStatus
  */
 fun UserProfile.hasOperationalAccess(): Boolean =
     status == UserStatus.ACTIVE && role != Role.PENDING
+
+/** Whether this role may create a new store / branch. */
+fun Role.canCreateStore(): Boolean = this in setOf(Role.SYSADMIN, Role.SECRETARY, Role.MANAGER)

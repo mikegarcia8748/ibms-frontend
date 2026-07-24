@@ -187,6 +187,28 @@
     <string name="console_search_content_description">Search</string>
     <string name="console_clear_search_content_description">Clear search</string>
     <string name="console_retry">Try again</string>
+    <string name="console_add">ADD</string>
+
+    <!-- Register new branch / store dialog (shared across consoles) -->
+    <string name="register_branch_title">Register New Branch</string>
+    <string name="register_branch_subtitle">Add a new store or branch to the directory.</string>
+    <string name="register_branch_store_type_label">Store Type</string>
+    <string name="register_branch_store_type_placeholder">Select store type</string>
+    <string name="register_branch_branch_code_label">Branch Code *</string>
+    <string name="register_branch_branch_name_label">Branch Name *</string>
+    <string name="register_branch_location_section">Location Details</string>
+    <string name="register_branch_region_label">Region</string>
+    <string name="register_branch_province_label">Province</string>
+    <string name="register_branch_city_label">City / Municipality</string>
+    <string name="register_branch_barangay_label">Barangay</string>
+    <string name="register_branch_postal_code_label">Postal Code</string>
+    <string name="register_branch_submit">Register Branch</string>
+    <string name="register_branch_cancel">Cancel</string>
+    <string name="register_branch_close">Close</string>
+
+    <!-- Store types -->
+    <string name="store_type_puregold">Puregold</string>
+    <string name="store_type_puremart">Puremart</string>
 
     <!-- Sysadmin — bulk upload summary -->
     <string name="sysadmin_bulk_upload_title">Master list imported</string>
@@ -404,6 +426,7 @@
     <string name="manager_subtitle">Where the money went this period, and what the team has been doing with it.</string>
     <string name="manager_tab_overview">Overview</string>
     <string name="manager_tab_topsheets">Topsheets</string>
+    <string name="manager_tab_branches">Branches</string>
     <string name="manager_tab_activity">Activity</string>
 
     <!-- Manager — overview -->
@@ -423,6 +446,11 @@
     <string name="manager_topsheets_search_hint">Search invoice, ISP or period…</string>
     <string name="manager_topsheets_empty">No topsheets match your filters.</string>
     <string name="manager_read_only">Read-only. Compilation is the secretary\'s, approval and payment are finance\'s.</string>
+
+    <!-- Manager — branches -->
+    <string name="manager_branches_title">Branches</string>
+    <string name="manager_branches_search_hint">Search store, code or city…</string>
+    <string name="manager_branches_empty">No branches match your filters.</string>
 
     <!-- Manager — activity -->
     <string name="manager_activity_title">Recent Activity</string>

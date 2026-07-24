@@ -106,15 +106,6 @@ data class TopSheetRow(
     val status: TopSheetRecordStatus,
 )
 
-/** The add-branch form. Mirrors what `POST /stores` will take. */
-@Immutable
-data class NewBranchForm(
-    val branchCode: String = "",
-    val name: String = "",
-    val city: String = "",
-    val providerId: String? = null,
-)
-
 /** The add-account form. Mirrors what `POST /accounts` will take. */
 @Immutable
 data class NewAccountForm(

@@ -3,6 +3,7 @@ package com.puregoldgo.ibms.ui.screen.secretary.compile
 import com.puregoldgo.core.network.Resource
 import com.puregoldgo.core.network.dto.BaseResponse
 import com.puregoldgo.ibms.shared.api.BulkImportSummaryResponse
+import com.puregoldgo.ibms.shared.api.CreateStoreRequest
 import com.puregoldgo.ibms.shared.api.CompilePreview
 import com.puregoldgo.ibms.shared.api.TopSheetLine
 import com.puregoldgo.ibms.shared.api.TopSheetSummary
@@ -151,4 +152,7 @@ class FakeCompileStoreRepository(var stores: List<Store> = emptyList()) : StoreR
         emit(Resource.Loading)
         emit(Resource.Success(BaseResponse(data = CursorPage(items = stores, nextCursor = null))))
     }
+
+    override suspend fun createStore(request: CreateStoreRequest): Resource<BaseResponse<Store>> =
+        error("not used by the compile panel")
 }

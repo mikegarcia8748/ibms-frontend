@@ -6,12 +6,16 @@ import com.puregoldgo.core.network.Resource
 import com.puregoldgo.ibms.platform.file.PickedFile
 import com.puregoldgo.ibms.shared.api.BulkImportSummaryResponse
 import com.puregoldgo.ibms.shared.domain.usecase.BulkImportAccountsUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.CreateStoreUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetAccountsUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetProvidersUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetStoresUseCase
+import com.puregoldgo.ibms.ui.screen.store.RegisterBranchForm
 import com.puregoldgo.ibms.ui.screen.sysadmin.activeRows
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.update
@@ -34,6 +38,7 @@ class RegistryViewModel(
     private val getProviders: GetProvidersUseCase,
     private val getStores: GetStoresUseCase,
     private val getAccounts: GetAccountsUseCase,
+    private val createStore: CreateStoreUseCase,
     private val bulkImportAccounts: BulkImportAccountsUseCase,
 ) : ViewModel() {
 
@@ -42,10 +47,17 @@ class RegistryViewModel(
     private val _uiState = MutableStateFlow(RegistryUIState())
     val uiState = _uiState.asStateFlow()
 
-    /** The spreadsheet awaiting upload. Kept out of the state — see [RegistryUIState]. */
-    private var pickedFile: PickedFile? = null
+    // endregion
+
+    // region Events
+
+    private val _uiEvent = MutableSharedFlow<RegistryUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
 
     // endregion
+
+    /** The spreadsheet awaiting upload. Kept out of the state — see [RegistryUIState]. */
+    private var pickedFile: PickedFile? = null
 
     init {
         loadPanel()
@@ -119,6 +131,97 @@ class RegistryViewModel(
 
     fun onBranchProviderSelect(providerId: String?) {
         _uiState.update { it.copy(branchProviderId = providerId) }
+    }
+
+    // endregion
+
+    // region Register branch
+
+    /** Opens the register-branch dialog on a clean slate. */
+    fun onRegisterBranchClick() {
+        _uiState.update { it.copy(registerBranchForm = RegisterBranchForm()) }
+    }
+
+    fun onRegisterBranchStoreTypeChange(storeType: com.puregoldgo.ibms.shared.model.StoreType) =
+        updateRegisterBranchForm { it.copy(storeType = storeType) }
+
+    fun onRegisterBranchCodeChange(code: String) = updateRegisterBranchForm {
+        it.copy(branchCode = code, branchCodeError = null)
+    }
+
+    fun onRegisterBranchNameChange(name: String) = updateRegisterBranchForm {
+        it.copy(branchName = name, branchNameError = null)
+    }
+
+    fun onRegisterBranchRegionChange(region: String) =
+        updateRegisterBranchForm { it.copy(region = region) }
+
+    fun onRegisterBranchProvinceChange(province: String) =
+        updateRegisterBranchForm { it.copy(province = province) }
+
+    fun onRegisterBranchCityChange(city: String) =
+        updateRegisterBranchForm { it.copy(city = city) }
+
+    fun onRegisterBranchBarangayChange(barangay: String) =
+        updateRegisterBranchForm { it.copy(barangay = barangay) }
+
+    fun onRegisterBranchPostalCodeChange(postalCode: String) =
+        updateRegisterBranchForm { it.copy(postalCode = postalCode) }
+
+    /** Submits the form to `POST /stores` and refreshes the registries on success. */
+    fun onRegisterBranchSubmit() {
+        val form = _uiState.value.registerBranchForm ?: return
+        if (!form.canSubmit) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(registerBranchForm = form.copy(isSaving = true)) }
+
+            createStore(
+                storeType = form.storeType,
+                branchCode = form.branchCode,
+                name = form.branchName,
+                region = form.region.takeIf { it.isNotBlank() },
+                province = form.province.takeIf { it.isNotBlank() },
+                city = form.city.takeIf { it.isNotBlank() },
+                barangay = form.barangay.takeIf { it.isNotBlank() },
+                postal = form.postalCode.takeIf { it.isNotBlank() },
+            ).collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> Unit
+                    is Resource.Success -> {
+                        _uiState.update { it.copy(registerBranchForm = null) }
+                        loadPanel(refresh = true)
+                        _uiEvent.emit(RegistryUiEvent.ShowSnackbar("Branch registered."))
+                    }
+                    is Resource.Failed -> {
+                        _uiState.update {
+                            it.copy(registerBranchForm = form.copy(isSaving = false))
+                        }
+                        _uiEvent.emit(
+                            RegistryUiEvent.ShowSnackbar(resource.message ?: "Could not register branch."),
+                        )
+                    }
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(registerBranchForm = form.copy(isSaving = false))
+                        }
+                        _uiEvent.emit(
+                            RegistryUiEvent.ShowSnackbar(resource.error?.message ?: "Could not register branch."),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun onRegisterBranchDismiss() {
+        _uiState.update { it.copy(registerBranchForm = null) }
+    }
+
+    private fun updateRegisterBranchForm(transform: (RegisterBranchForm) -> RegisterBranchForm) {
+        _uiState.update { state ->
+            state.registerBranchForm?.let { state.copy(registerBranchForm = transform(it)) } ?: state
+        }
     }
 
     // endregion

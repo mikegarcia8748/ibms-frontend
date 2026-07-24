@@ -32,6 +32,17 @@ private fun ManagerTopSheetsWidePreview() {
     }
 }
 
+@Preview(name = "Manager — branches", group = "WebApp", device = Devices.DESKTOP)
+@Composable
+private fun ManagerBranchesWidePreview() {
+    AppTheme {
+        ManagerContent(
+            uiState = previewState().copy(selectedTab = ManagerTab.Branches),
+            callback = previewCallback(),
+        )
+    }
+}
+
 @Preview(name = "Manager — activity", group = "WebApp", device = Devices.DESKTOP)
 @Composable
 private fun ManagerActivityWidePreview() {
@@ -78,12 +89,26 @@ private fun previewState() = ManagerUIState(
     userRole = "manager",
     topSheets = ManagerSampleData.topSheets,
     activities = ManagerSampleData.activities,
+    branches = ManagerSampleData.branches,
 )
 
 private fun previewCallback() = ManagerCallback(
     onTabSelect = {},
     onTopSheetQueryChange = {},
     onActivityQueryChange = {},
+    onBranchQueryChange = {},
+    onBranchLetterSelect = {},
+    onRegisterBranchClick = {},
+    onRegisterBranchStoreTypeChange = {},
+    onRegisterBranchCodeChange = {},
+    onRegisterBranchNameChange = {},
+    onRegisterBranchRegionChange = {},
+    onRegisterBranchProvinceChange = {},
+    onRegisterBranchCityChange = {},
+    onRegisterBranchBarangayChange = {},
+    onRegisterBranchPostalCodeChange = {},
+    onRegisterBranchSubmit = {},
+    onRegisterBranchDismiss = {},
     onRetryLoad = {},
     onLogoutClick = {},
 )

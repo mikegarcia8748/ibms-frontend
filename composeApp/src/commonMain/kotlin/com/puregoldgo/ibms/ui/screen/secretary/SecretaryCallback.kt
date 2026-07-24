@@ -1,5 +1,7 @@
 package com.puregoldgo.ibms.ui.screen.secretary
 
+import com.puregoldgo.ibms.shared.model.StoreType
+
 /**
  * Everything the secretary console can do, bundled so the content composables
  * stay free of the ViewModel and remain previewable.
@@ -22,14 +24,18 @@ data class SecretaryCallback(
     // Billing history.
     val onInvoiceQueryChange: (String) -> Unit,
 
-    // Add branch.
-    val onAddBranchClick: () -> Unit,
-    val onNewBranchCodeChange: (String) -> Unit,
-    val onNewBranchNameChange: (String) -> Unit,
-    val onNewBranchCityChange: (String) -> Unit,
-    val onNewBranchProviderChange: (String?) -> Unit,
-    val onAddBranchSubmit: () -> Unit,
-    val onAddBranchDismiss: () -> Unit,
+    // Register branch.
+    val onRegisterBranchClick: () -> Unit,
+    val onRegisterBranchStoreTypeChange: (StoreType) -> Unit,
+    val onRegisterBranchCodeChange: (String) -> Unit,
+    val onRegisterBranchNameChange: (String) -> Unit,
+    val onRegisterBranchRegionChange: (String) -> Unit,
+    val onRegisterBranchProvinceChange: (String) -> Unit,
+    val onRegisterBranchCityChange: (String) -> Unit,
+    val onRegisterBranchBarangayChange: (String) -> Unit,
+    val onRegisterBranchPostalCodeChange: (String) -> Unit,
+    val onRegisterBranchSubmit: () -> Unit,
+    val onRegisterBranchDismiss: () -> Unit,
 
     // Add account.
     val onAddAccountClick: () -> Unit,

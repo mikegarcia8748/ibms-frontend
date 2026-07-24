@@ -1,5 +1,7 @@
 package com.puregoldgo.ibms.ui.screen.manager
 
+import com.puregoldgo.ibms.ui.screen.sysadmin.registry.BranchRow
+
 /**
  * Stand-in data for the oversight console.
  *
@@ -103,6 +105,41 @@ internal object ManagerSampleData {
             actorRole = "sysadmin",
             summary = "Changed role for j.santos from pending to secretary",
             occurredAt = "03 Jul 2026, 10:05",
+        ),
+    )
+
+    val branches: List<BranchRow> = listOf(
+        BranchRow(
+            id = "store-alapan",
+            branchCode = "ALP",
+            name = "Alapan 1B",
+            city = "Imus",
+            providerIds = emptySet(),
+            isActive = true,
+        ),
+        BranchRow(
+            id = "store-aguado",
+            branchCode = "AGD",
+            name = "Aguado",
+            city = "Trece Martires",
+            providerIds = emptySet(),
+            isActive = true,
+        ),
+        BranchRow(
+            id = "store-bacoor",
+            branchCode = "BAC",
+            name = "Bacoor",
+            city = "Bacoor",
+            providerIds = emptySet(),
+            isActive = true,
+        ),
+        BranchRow(
+            id = "store-dasma",
+            branchCode = "DAS",
+            name = "Dasmariñas",
+            city = "Dasmariñas",
+            providerIds = emptySet(),
+            isActive = true,
         ),
     )
 }

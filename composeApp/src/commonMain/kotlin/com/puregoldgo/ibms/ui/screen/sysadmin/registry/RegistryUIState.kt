@@ -2,6 +2,7 @@ package com.puregoldgo.ibms.ui.screen.sysadmin.registry
 
 import androidx.compose.runtime.Immutable
 import com.puregoldgo.ibms.ui.component.LETTER_ALL
+import com.puregoldgo.ibms.ui.screen.store.RegisterBranchForm
 import com.puregoldgo.ibms.ui.screen.sysadmin.IspProviderRow
 
 /**
@@ -38,6 +39,9 @@ data class RegistryUIState(
     // Account filters.
     val accountQuery: String = "",
     val accountProviderId: String? = null,
+
+    // Register new branch.
+    val registerBranchForm: RegisterBranchForm? = null,
 
     // Bulk import. The chosen file's bytes are deliberately absent: a ByteArray
     // compares by identity, so holding one here would make every state copy

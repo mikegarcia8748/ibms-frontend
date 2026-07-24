@@ -1,9 +1,12 @@
 package com.puregoldgo.ibms.ui.screen.manager
 
 import androidx.compose.runtime.Immutable
+import com.puregoldgo.ibms.ui.component.LETTER_ALL
+import com.puregoldgo.ibms.ui.screen.store.RegisterBranchForm
+import com.puregoldgo.ibms.ui.screen.sysadmin.registry.BranchRow
 
-/** Which of the three panels the oversight console is showing. */
-enum class ManagerTab { Overview, TopSheets, Activity }
+/** Which of the four panels the oversight console is showing. */
+enum class ManagerTab { Overview, TopSheets, Branches, Activity }
 
 @Immutable
 data class ManagerUIState(
@@ -13,16 +16,23 @@ data class ManagerUIState(
 
     val selectedTab: ManagerTab = ManagerTab.Overview,
 
-    // Data. Sample-fed this pass; both lists come from the API once wired.
+    // Data. TopSheets and activities are sample-fed this pass; branches come
+    // from the store API because managers can create new stores.
     val topSheets: List<ManagerTopSheetRow> = emptyList(),
     val activities: List<ActivityRow> = emptyList(),
+    val branches: List<BranchRow> = emptyList(),
 
     val isLoading: Boolean = false,
     val loadError: String? = null,
 
-    // Topsheet and activity filters.
+    // Topsheet, activity and branch filters.
     val topSheetQuery: String = "",
     val activityQuery: String = "",
+    val branchQuery: String = "",
+    val branchLetter: Char = LETTER_ALL,
+
+    // Register new branch.
+    val registerBranchForm: RegisterBranchForm? = null,
 ) {
     /**
      * The period the overview reports on — the newest one anything was compiled
@@ -104,6 +114,29 @@ data class ManagerUIState(
                     activity.summary.contains(q, ignoreCase = true)
             }
         }
+
+    /**
+     * The letters the rail offers — only those that actually file a branch, so
+     * the rail never advertises an empty result.
+     */
+    val branchLetters: List<Char>
+        get() = branches.map { it.indexLetter }.distinct().sorted()
+
+    /**
+     * Branch filters compose rather than override: picking `A` and then typing
+     * narrows within `A` instead of silently dropping the letter.
+     */
+    val visibleBranches: List<BranchRow>
+        get() = branches
+            .filter { branchLetter == LETTER_ALL || it.indexLetter == branchLetter }
+            .filter { branch ->
+                branchQuery.isBlank() || branchQuery.trim().let { q ->
+                    branch.name.contains(q, ignoreCase = true) ||
+                        branch.branchCode.contains(q, ignoreCase = true) ||
+                        branch.city?.contains(q, ignoreCase = true) == true
+                }
+            }
+            .sortedBy { it.name }
 }
 
 /**

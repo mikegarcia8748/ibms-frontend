@@ -20,6 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontFamily
+import com.puregoldgo.ibms.shared.domain.canCreateStore
+import com.puregoldgo.ibms.shared.model.roleFromWire
+import com.puregoldgo.ibms.ui.component.AddButton
 import com.puregoldgo.ibms.ui.component.AlphabetRail
 import com.puregoldgo.ibms.ui.component.AppIcons
 import com.puregoldgo.ibms.ui.screen.sysadmin.IspProviderRow
@@ -51,7 +54,9 @@ internal fun StoresTab(
     uiState: RegistryUIState,
     callback: RegistryCallback,
     isCompact: Boolean,
+    userRole: String,
 ) {
+    val canCreateStore = roleFromWire(userRole)?.canCreateStore() == true
     val rail = @Composable {
         AlphabetRail(
             letters = uiState.branchLetters,
@@ -82,6 +87,9 @@ internal fun StoresTab(
                             placeholder = stringResource(Res.string.sysadmin_branch_search_hint),
                             modifier = Modifier.width(Dimensions.viewWidth280),
                         )
+                        if (canCreateStore) {
+                            AddButton(callback.onRegisterBranchClick)
+                        }
                     }
                 }
             },
@@ -102,6 +110,10 @@ internal fun StoresTab(
                     placeholder = stringResource(Res.string.sysadmin_branch_search_hint),
                     modifier = Modifier.fillMaxWidth(),
                 )
+                Spacer(Modifier.height(Dimensions.viewPadding8))
+                if (canCreateStore) {
+                    AddButton(callback.onRegisterBranchClick, Modifier.fillMaxWidth())
+                }
                 Spacer(Modifier.height(Dimensions.viewPadding16))
             }
 

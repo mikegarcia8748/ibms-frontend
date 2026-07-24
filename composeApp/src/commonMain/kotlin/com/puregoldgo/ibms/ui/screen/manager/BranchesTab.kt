@@ -1,4 +1,4 @@
-package com.puregoldgo.ibms.ui.screen.secretary
+package com.puregoldgo.ibms.ui.screen.manager
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,56 +25,57 @@ import com.puregoldgo.ibms.shared.model.roleFromWire
 import com.puregoldgo.ibms.ui.component.AddButton
 import com.puregoldgo.ibms.ui.component.AlphabetRail
 import com.puregoldgo.ibms.ui.component.AppIcons
-import com.puregoldgo.ibms.ui.component.LabeledDropdown
 import com.puregoldgo.ibms.ui.component.SearchField
 import com.puregoldgo.ibms.ui.component.SectionCard
 import com.puregoldgo.ibms.ui.component.SectionEmptyState
 import com.puregoldgo.ibms.ui.component.SectionErrorState
 import com.puregoldgo.ibms.ui.component.SectionLoadingState
+import com.puregoldgo.ibms.ui.component.StatusChip
+import com.puregoldgo.ibms.ui.screen.sysadmin.registry.BranchRow
+import com.puregoldgo.ibms.ui.screen.sysadmin.registry.RecordStatusChip
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_all_isps
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_branches_empty
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_branches_search_hint
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_branches_title
-import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_retry
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.console_retry
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.manager_branches_empty
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.manager_branches_search_hint
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.manager_branches_title
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Every open branch, filtered three ways at once: by initial letter, by ISP, and
- * by free text. Closed ones live in the archive.
+ * Every branch the manager can see, filtered by initial letter and free text.
+ *
+ * The `+ ADD` button is gated by [Role.canCreateStore]: managers are allowed to
+ * create stores, but the same tab is reused in previews with any role.
  */
 @Composable
-internal fun BranchLocationsTab(
-    uiState: SecretaryUIState,
-    callback: SecretaryCallback,
+internal fun BranchesTab(
+    uiState: ManagerUIState,
+    callback: ManagerCallback,
     isCompact: Boolean,
 ) {
     val canCreateStore = roleFromWire(uiState.userRole)?.canCreateStore() == true
-    val allIspsLabel = stringResource(Res.string.console_all_isps)
 
-    val ispFilter = @Composable { modifier: Modifier ->
-        LabeledDropdown(
-            options = uiState.activeProviders.providerFilterOptions(),
-            selectedId = uiState.branchProviderId,
-            onSelect = callback.onBranchProviderSelect,
-            placeholder = allIspsLabel,
-            clearLabel = allIspsLabel,
-            modifier = modifier,
+    val rail = @Composable {
+        AlphabetRail(
+            letters = uiState.branchLetters,
+            selected = uiState.branchLetter,
+            onSelect = callback.onBranchLetterSelect,
+            isCompact = isCompact,
         )
     }
+
     val search = @Composable { modifier: Modifier ->
         SearchField(
             value = uiState.branchQuery,
             onValueChange = callback.onBranchQueryChange,
-            placeholder = stringResource(Res.string.secretary_branches_search_hint),
+            placeholder = stringResource(Res.string.manager_branches_search_hint),
             modifier = modifier,
         )
     }
 
     val card = @Composable { modifier: Modifier ->
         SectionCard(
-            title = stringResource(Res.string.secretary_branches_title),
+            title = stringResource(Res.string.manager_branches_title),
             icon = AppIcons.Domain,
             modifier = modifier,
             trailing = if (isCompact) {
@@ -85,7 +86,6 @@ internal fun BranchLocationsTab(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding12),
                     ) {
-                        ispFilter(Modifier.width(Dimensions.viewWidth180))
                         search(Modifier.width(Dimensions.viewWidth280))
                         if (canCreateStore) {
                             AddButton(callback.onRegisterBranchClick)
@@ -95,10 +95,6 @@ internal fun BranchLocationsTab(
             },
         ) {
             if (isCompact) {
-                // No room for the controls beside the title — give them a row of
-                // their own rather than shrinking them into unusability.
-                ispFilter(Modifier.fillMaxWidth())
-                Spacer(Modifier.height(Dimensions.viewPadding8))
                 search(Modifier.fillMaxWidth())
                 Spacer(Modifier.height(Dimensions.viewPadding8))
                 if (canCreateStore) {
@@ -113,11 +109,11 @@ internal fun BranchLocationsTab(
                 uiState.loadError != null -> SectionErrorState(
                     message = uiState.loadError,
                     onRetry = callback.onRetryLoad,
-                    retryLabel = stringResource(Res.string.secretary_retry),
+                    retryLabel = stringResource(Res.string.console_retry),
                 )
 
                 uiState.visibleBranches.isEmpty() ->
-                    SectionEmptyState(stringResource(Res.string.secretary_branches_empty))
+                    SectionEmptyState(stringResource(Res.string.manager_branches_empty))
 
                 else -> LazyColumn(
                     // Bounded: this list sits inside a scrolling page, so it
@@ -131,15 +127,6 @@ internal fun BranchLocationsTab(
                 }
             }
         }
-    }
-
-    val rail = @Composable {
-        AlphabetRail(
-            letters = uiState.branchLetters,
-            selected = uiState.branchLetter,
-            onSelect = callback.onBranchLetterSelect,
-            isCompact = isCompact,
-        )
     }
 
     if (isCompact) {
@@ -157,7 +144,7 @@ internal fun BranchLocationsTab(
 }
 
 @Composable
-private fun BranchCard(branch: SecretaryBranchRow) {
+private fun BranchCard(branch: BranchRow) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -185,6 +172,10 @@ private fun BranchCard(branch: SecretaryBranchRow) {
 
         Spacer(Modifier.height(Dimensions.viewPadding8))
 
-        BranchStatusChip(branch.status)
+        RecordStatusChip(isActive = branch.isActive)
     }
 }
+
+/** `NAME (City)` when a city is known, plain name otherwise. */
+private val BranchRow.displayName: String
+    get() = if (city.isNullOrBlank()) name else "$name ($city)"

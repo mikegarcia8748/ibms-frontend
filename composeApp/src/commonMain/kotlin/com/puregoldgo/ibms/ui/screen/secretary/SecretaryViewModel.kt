@@ -2,8 +2,11 @@ package com.puregoldgo.ibms.ui.screen.secretary
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.puregoldgo.core.network.Resource
 import com.puregoldgo.core.storage.CurrentUserStore
 import com.puregoldgo.ibms.shared.domain.AuthRepository
+import com.puregoldgo.ibms.shared.domain.usecase.CreateStoreUseCase
+import com.puregoldgo.ibms.ui.screen.store.RegisterBranchForm
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -29,6 +32,7 @@ import kotlinx.coroutines.launch
  */
 class SecretaryViewModel(
     private val authRepository: AuthRepository,
+    private val createStore: CreateStoreUseCase,
 ) : ViewModel() {
 
     // region State
@@ -122,24 +126,84 @@ class SecretaryViewModel(
     // region Add branch
 
     /** Opens on a clean slate — a stale form would submit yesterday's branch. */
-    fun onAddBranchClick() {
-        _uiState.update { it.copy(addBranch = NewBranchForm(), addAccount = null) }
+    fun onRegisterBranchClick() {
+        _uiState.update { it.copy(registerBranchForm = RegisterBranchForm(), addAccount = null) }
     }
 
-    fun onNewBranchCodeChange(code: String) = updateBranchForm { it.copy(branchCode = code) }
+    fun onRegisterBranchStoreTypeChange(storeType: com.puregoldgo.ibms.shared.model.StoreType) =
+        updateRegisterBranchForm { it.copy(storeType = storeType) }
 
-    fun onNewBranchNameChange(name: String) = updateBranchForm { it.copy(name = name) }
+    fun onRegisterBranchCodeChange(code: String) = updateRegisterBranchForm {
+        it.copy(branchCode = code, branchCodeError = null)
+    }
 
-    fun onNewBranchCityChange(city: String) = updateBranchForm { it.copy(city = city) }
+    fun onRegisterBranchNameChange(name: String) = updateRegisterBranchForm {
+        it.copy(branchName = name, branchNameError = null)
+    }
 
-    fun onNewBranchProviderChange(providerId: String?) =
-        updateBranchForm { it.copy(providerId = providerId) }
+    fun onRegisterBranchRegionChange(region: String) =
+        updateRegisterBranchForm { it.copy(region = region) }
 
-    /** TODO: `POST /stores`. Inert until then — see the dialog's own banner. */
-    fun onAddBranchSubmit() = Unit
+    fun onRegisterBranchProvinceChange(province: String) =
+        updateRegisterBranchForm { it.copy(province = province) }
 
-    fun onAddBranchDismiss() {
-        _uiState.update { it.copy(addBranch = null) }
+    fun onRegisterBranchCityChange(city: String) =
+        updateRegisterBranchForm { it.copy(city = city) }
+
+    fun onRegisterBranchBarangayChange(barangay: String) =
+        updateRegisterBranchForm { it.copy(barangay = barangay) }
+
+    fun onRegisterBranchPostalCodeChange(postalCode: String) =
+        updateRegisterBranchForm { it.copy(postalCode = postalCode) }
+
+    /** Submits the form to `POST /stores` and refreshes the panel on success. */
+    fun onRegisterBranchSubmit() {
+        val form = _uiState.value.registerBranchForm ?: return
+        if (!form.canSubmit) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(registerBranchForm = form.copy(isSaving = true)) }
+
+            createStore(
+                storeType = form.storeType,
+                branchCode = form.branchCode,
+                name = form.branchName,
+                region = form.region.takeIf { it.isNotBlank() },
+                province = form.province.takeIf { it.isNotBlank() },
+                city = form.city.takeIf { it.isNotBlank() },
+                barangay = form.barangay.takeIf { it.isNotBlank() },
+                postal = form.postalCode.takeIf { it.isNotBlank() },
+            ).collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> Unit
+                    is Resource.Success -> {
+                        _uiState.update { it.copy(registerBranchForm = null) }
+                        loadPanel()
+                        _uiEvent.emit(SecretaryUiEvent.ShowSnackbar("Branch registered."))
+                    }
+                    is Resource.Failed -> {
+                        _uiState.update {
+                            it.copy(registerBranchForm = form.copy(isSaving = false))
+                        }
+                        _uiEvent.emit(
+                            SecretaryUiEvent.ShowSnackbar(resource.message ?: "Could not register branch."),
+                        )
+                    }
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(registerBranchForm = form.copy(isSaving = false))
+                        }
+                        _uiEvent.emit(
+                            SecretaryUiEvent.ShowSnackbar(resource.error?.message ?: "Could not register branch."),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun onRegisterBranchDismiss() {
+        _uiState.update { it.copy(registerBranchForm = null) }
     }
 
     // endregion
@@ -147,7 +211,7 @@ class SecretaryViewModel(
     // region Add account
 
     fun onAddAccountClick() {
-        _uiState.update { it.copy(addAccount = NewAccountForm(), addBranch = null) }
+        _uiState.update { it.copy(addAccount = NewAccountForm()) }
     }
 
     fun onNewAccountNumberChange(number: String) =
@@ -191,9 +255,9 @@ class SecretaryViewModel(
 
     // region Internals
 
-    private fun updateBranchForm(transform: (NewBranchForm) -> NewBranchForm) {
+    private fun updateRegisterBranchForm(transform: (RegisterBranchForm) -> RegisterBranchForm) {
         _uiState.update { state ->
-            state.addBranch?.let { state.copy(addBranch = transform(it)) } ?: state
+            state.registerBranchForm?.let { state.copy(registerBranchForm = transform(it)) } ?: state
         }
     }
 

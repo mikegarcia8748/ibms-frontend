@@ -3,6 +3,8 @@ package com.puregoldgo.ibms.ui.screen.secretary
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import com.puregoldgo.ibms.shared.model.StoreType
+import com.puregoldgo.ibms.ui.screen.store.RegisterBranchForm
 import com.puregoldgo.ibms.ui.theme.AppTheme
 
 /**
@@ -159,11 +161,11 @@ private fun SecretaryAddBranchPreview() {
         SecretaryContent(
             uiState = previewState().copy(
                 selectedTab = SecretaryTab.BranchLocations,
-                addBranch = NewBranchForm(
+                registerBranchForm = RegisterBranchForm(
+                    storeType = StoreType.PUREGOLD,
                     branchCode = "8231",
-                    name = "BALIBAGO",
+                    branchName = "BALIBAGO",
                     city = "Sta. Rosa Laguna",
-                    providerId = SecretarySampleData.PROVIDER_GLOBE,
                 ),
             ),
             callback = previewCallback(),
@@ -198,7 +200,7 @@ private fun SecretaryAddBranchBlankPreview() {
         SecretaryContent(
             uiState = previewState().copy(
                 selectedTab = SecretaryTab.BranchLocations,
-                addBranch = NewBranchForm(),
+                registerBranchForm = RegisterBranchForm(),
             ),
             callback = previewCallback(),
         )
@@ -258,13 +260,17 @@ private fun previewCallback() = SecretaryCallback(
     onAccountStatusSelect = {},
     onExportAccounts = {},
     onInvoiceQueryChange = {},
-    onAddBranchClick = {},
-    onNewBranchCodeChange = {},
-    onNewBranchNameChange = {},
-    onNewBranchCityChange = {},
-    onNewBranchProviderChange = {},
-    onAddBranchSubmit = {},
-    onAddBranchDismiss = {},
+    onRegisterBranchClick = {},
+    onRegisterBranchStoreTypeChange = {},
+    onRegisterBranchCodeChange = {},
+    onRegisterBranchNameChange = {},
+    onRegisterBranchRegionChange = {},
+    onRegisterBranchProvinceChange = {},
+    onRegisterBranchCityChange = {},
+    onRegisterBranchBarangayChange = {},
+    onRegisterBranchPostalCodeChange = {},
+    onRegisterBranchSubmit = {},
+    onRegisterBranchDismiss = {},
     onAddAccountClick = {},
     onNewAccountNumberChange = {},
     onNewAccountStoreChange = {},

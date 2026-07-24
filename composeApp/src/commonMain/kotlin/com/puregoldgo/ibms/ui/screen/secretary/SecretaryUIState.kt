@@ -2,6 +2,7 @@ package com.puregoldgo.ibms.ui.screen.secretary
 
 import androidx.compose.runtime.Immutable
 import com.puregoldgo.ibms.ui.component.LETTER_ALL
+import com.puregoldgo.ibms.ui.screen.store.RegisterBranchForm
 
 /** Which of the six panels the secretary console is showing. */
 enum class SecretaryTab {
@@ -49,7 +50,7 @@ data class SecretaryUIState(
     val invoiceQuery: String = "",
 
     // The two creation dialogs. Mutually exclusive at the call site.
-    val addBranch: NewBranchForm? = null,
+    val registerBranchForm: RegisterBranchForm? = null,
     val addAccount: NewAccountForm? = null,
 ) {
     /** Only active ISPs are offered as a filter — a dead one matches nothing. */
@@ -148,12 +149,6 @@ data class SecretaryUIState(
             val closedIds = branches.filter { it.isClosed }.map { it.id }.toSet()
             return accounts.filter { it.isLive && it.storeId in closedIds }
         }
-
-    /** A branch code and a name are the minimum `POST /stores` will accept. */
-    val canSubmitBranch: Boolean
-        get() = addBranch?.let {
-            it.branchCode.isNotBlank() && it.name.isNotBlank()
-        } == true
 
     /** Account number, branch and ISP identify the line; the rate is what it bills. */
     val canSubmitAccount: Boolean

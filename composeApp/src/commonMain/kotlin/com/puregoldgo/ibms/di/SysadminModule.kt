@@ -1,10 +1,8 @@
 package com.puregoldgo.ibms.di
 
 import com.puregoldgo.ibms.data.repository.KtorAccountRepository
-import com.puregoldgo.ibms.data.repository.KtorStoreRepository
 import com.puregoldgo.ibms.data.repository.KtorUserRepository
 import com.puregoldgo.ibms.shared.domain.AccountRepository
-import com.puregoldgo.ibms.shared.domain.StoreRepository
 import com.puregoldgo.ibms.shared.domain.UserRepository
 import com.puregoldgo.ibms.shared.domain.usecase.BulkImportAccountsUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetAccountsUseCase
@@ -31,7 +29,6 @@ val sysadminModule = module {
 
     // region Repository
     factory<AccountRepository> { KtorAccountRepository(get()) }
-    factory<StoreRepository> { KtorStoreRepository(get()) }
     factory<UserRepository> { KtorUserRepository(get()) }
     // endregion
 

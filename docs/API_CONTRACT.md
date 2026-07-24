@@ -199,9 +199,39 @@ HTTP status plus the message text.
 | Method | Path | Roles | Description |
 |--------|------|-------|-------------|
 | GET | `/stores` | any | List stores |
-| POST | `/stores` | secretary | Create store |
+| POST | `/stores` | secretary, sysadmin, manager | Create store |
 | PUT | `/stores/{id}` | secretary | Update store |
 | POST | `/stores/{id}/deactivate` | secretary | Deactivate store |
+
+#### POST /stores
+
+Request body:
+
+```json
+{
+  "storeType": "PUREGOLD",
+  "branchCode": "ALP",
+  "name": "Alapan 1B",
+  "region": "Calabarzon",
+  "province": "Cavite",
+  "city": "Imus",
+  "barangay": "Alapan 1-B",
+  "postal": "4103"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `storeType` | `string` | yes | `PUREGOLD` or `PUREMART` |
+| `branchCode` | `string` | yes | Short unique branch code |
+| `name` | `string` | yes | Branch display name |
+| `region` | `string` | no | Region |
+| `province` | `string` | no | Province |
+| `city` | `string` | no | City / municipality |
+| `barangay` | `string` | no | Barangay |
+| `postal` | `string` | no | Postal code |
+
+Success response: `data` contains the created `Store`.
 
 ---
 
@@ -296,21 +326,24 @@ Headers: `Idempotency-Key: <uuid>` (compile only)
 
 ## Role Matrix Summary
 
-| Endpoint Group | Secretary | Finance | Payables | SysAdmin |
-|----------------|-----------|---------|----------|----------|
-| Auth | x | x | x | x |
-| Users (me) | x | x | x | x |
-| Users (manage) | - | - | - | x |
-| Providers (read) | x | x | x | x |
-| Providers (write) | - | - | - | x |
-| Stores | x | - | - | - |
-| Accounts | x | - | x | - |
-| Attachments | x | x | x | x |
-| Topsheets (compile) | x | - | - | - |
-| Topsheets (approve/pay) | - | x | - | - |
-| Topsheets (read) | x | x | x | x |
-| Transfers | x | - | - | - |
-| OCR (extract/batches) | x | - | - | - |
-| OCR (templates) | - | - | - | x |
-| Activities | x | x | x | x |
-| Exports | x | x | - | - |
+| Endpoint Group | Secretary | Finance | Payables | SysAdmin | Manager |
+|----------------|-----------|---------|----------|----------|---------|
+| Auth | x | x | x | x | x |
+| Users (me) | x | x | x | x | x |
+| Users (manage) | - | - | - | x | - |
+| Providers (read) | x | x | x | x | x |
+| Providers (write) | - | - | - | x | - |
+| Stores | x | - | - | x | x |
+| Accounts | x | - | x | - | - |
+| Attachments | x | x | x | x | x |
+| Topsheets (compile) | x | - | - | - | - |
+| Topsheets (approve/pay) | - | x | - | - | - |
+| Topsheets (read) | x | x | x | x | x |
+| Transfers | x | - | - | - | - |
+| OCR (extract/batches) | x | - | - | - | - |
+| OCR (templates) | - | - | - | x | - |
+| Activities | x | x | x | x | x |
+| Exports | x | x | - | - | - |
+
+> **Note:** Managers gain write access to `POST /stores` only — store updates and
+> deactivations remain secretary-only.

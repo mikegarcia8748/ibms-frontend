@@ -68,7 +68,7 @@ fun AppDialog(
     }
 }
 
-/** Badge, title and the close affordance, on a tinted band. */
+/** Badge, title, optional subtitle and the close affordance, on a tinted band. */
 @Composable
 fun AppDialogHeader(
     title: String,
@@ -76,6 +76,7 @@ fun AppDialogHeader(
     onClose: () -> Unit,
     closeDescription: String,
     closeEnabled: Boolean = true,
+    subtitle: String? = null,
 ) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
         Row(
@@ -104,12 +105,21 @@ fun AppDialogHeader(
                 )
             }
 
-            Text(
-                text = title,
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
 
             IconButton(onClick = onClose, enabled = closeEnabled) {
                 Icon(
