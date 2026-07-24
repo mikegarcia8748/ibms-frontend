@@ -44,14 +44,14 @@ object Validation {
     }
 
     fun validateAmount(amount: String): String? {
-        val value = amount.trim().toDoubleOrNull()
+        val value = amount.trim().replace(",", "").toDoubleOrNull()
         if (value == null) return "Amount must be a valid number"
         if (value <= 0) return "Amount must be greater than zero"
         return null
     }
 
     fun validateRate(rate: String): String? {
-        val value = rate.trim().toDoubleOrNull()
+        val value = rate.trim().replace(",", "").toDoubleOrNull()
         if (value == null) return "Rate must be a valid number"
         if (value <= 0) return "Rate must be greater than zero"
         return null

@@ -333,16 +333,39 @@
     <string name="secretary_add_branch_submit">Add Branch</string>
 
     <!-- Secretary — add account dialog -->
-    <string name="secretary_add_account_title">Add ISP Account</string>
+    <string name="secretary_add_account_title">Register ISP Account</string>
+    <string name="secretary_add_account_subtitle">Provide vendor and connectivity details</string>
     <string name="secretary_add_account_close">Close</string>
-    <string name="secretary_add_account_number">Account or circuit ID</string>
-    <string name="secretary_add_account_branch">Branch</string>
-    <string name="secretary_add_account_provider">ISP</string>
-    <string name="secretary_add_account_rate">Monthly rate (₱)</string>
-    <string name="secretary_add_account_submit">Add Account</string>
+    <string name="secretary_add_account_branch">Store / Branch *</string>
+    <string name="secretary_add_account_branch_placeholder">Search to assign branch…</string>
+    <string name="secretary_add_account_provider">ISP Provider *</string>
+    <string name="secretary_add_account_provider_placeholder">Select ISP</string>
+    <string name="secretary_add_account_number">Account Number *</string>
+    <string name="secretary_add_account_number_placeholder">e.g. 5440-123</string>
+    <string name="secretary_add_account_circuit_id">Circuit ID *</string>
+    <string name="secretary_add_account_circuit_id_placeholder">e.g. CRT-987654321</string>
+    <string name="secretary_add_account_plan">Package / Plan</string>
+    <string name="secretary_add_account_plan_placeholder">e.g. 100Mbps Broadband</string>
+    <string name="secretary_add_account_installation_date">Installation Date *</string>
+    <string name="secretary_add_account_installation_date_placeholder">YYYY-MM-DD</string>
+    <string name="secretary_add_account_billing_period">Billing Period</string>
+    <string name="secretary_add_account_billing_period_placeholder">e.g. 1st - 30th</string>
+    <string name="secretary_add_account_rate">Monthly Recurring (MRC) *</string>
+    <string name="secretary_add_account_rate_placeholder">0.00</string>
+    <string name="secretary_add_account_proof_title">Proof of Installation / Contracts *</string>
+    <string name="secretary_add_account_proof_upload">Upload PDF Certificates</string>
+    <string name="secretary_add_account_proof_hint">Max 5MB per PDF. Need official documents.</string>
+    <string name="secretary_add_account_proof_count">%1$d of %2$d</string>
+    <string name="secretary_add_account_proof_remove">Remove</string>
+    <string name="secretary_add_account_submit">Complete Registration</string>
+    <string name="secretary_add_account_section_core">Core Infrastructure</string>
+    <string name="secretary_add_account_section_billing">Billing &amp; Compliance</string>
 
     <!-- Secretary — dialogs, shared -->
     <string name="secretary_dialog_cancel">Cancel</string>
+    <string name="secretary_add_account_store_has_account_title">Store already has an account</string>
+    <string name="secretary_add_account_store_has_account_body">%1$s already has an active ISP account linked to it. Continue registering another account?</string>
+    <string name="secretary_add_account_store_has_account_confirm">Continue</string>
     <string name="secretary_dialog_offline_title">Not connected yet.</string>
     <string name="secretary_dialog_offline_body">This form is the finished layout, but there is no endpoint behind it yet — submitting does nothing. It saves once the backend pass lands.</string>
     <string name="secretary_select_placeholder">Select…</string>

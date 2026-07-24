@@ -134,6 +134,16 @@ class FakeCompileAccountRepository(var accounts: List<Account> = emptyList()) : 
         emit(Resource.Success(BaseResponse(data = CursorPage(items = accounts, nextCursor = null))))
     }
 
+    override fun createAccount(
+        request: com.puregoldgo.ibms.shared.model.CreateAccountRequest,
+    ): Flow<Resource<BaseResponse<Account>>> = error("not used by the compile panel")
+
+    override suspend fun uploadAttachment(
+        fileName: String,
+        mimeType: String,
+        bytes: ByteArray,
+    ): String = error("not used by the compile panel")
+
     override fun bulkImportAccounts(
         fileName: String,
         mimeType: String,

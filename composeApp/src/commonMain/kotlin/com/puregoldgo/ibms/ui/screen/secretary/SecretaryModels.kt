@@ -122,4 +122,11 @@ data class NewAccountForm(
     val storeId: String? = null,
     val providerId: String? = null,
     val monthlyRate: String = "",
+    val installationDate: String = "",
+    val circuitId: String = "",
+    val billingPeriodLabel: String = "",
+    val planName: String = "",
+    val proofAttachmentIds: List<String> = emptyList(),
+    val proofUploadError: String? = null,
+    val isSubmitting: Boolean = false,
 )

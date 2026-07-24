@@ -2,8 +2,14 @@ package com.puregoldgo.ibms.ui.screen.secretary
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.puregoldgo.core.network.Resource
 import com.puregoldgo.core.storage.CurrentUserStore
+import com.puregoldgo.ibms.platform.file.PickedFile
+import com.puregoldgo.ibms.shared.domain.AccountRepository
 import com.puregoldgo.ibms.shared.domain.AuthRepository
+import com.puregoldgo.ibms.shared.domain.usecase.CreateAccountUseCase
+import com.puregoldgo.ibms.shared.model.CreateAccountRequest
+import com.puregoldgo.ibms.shared.validation.Validation
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -14,20 +20,15 @@ import kotlinx.coroutines.launch
 /**
  * MVI ViewModel for the secretary console.
  *
- * **Renders sample data.** The screen is a UI pass: no repositories, no HTTP.
+ * **Renders sample data** for the browse lists; the create-account path is fully
+ * wired to the backend so the new Add ISP Account dialog can actually submit.
  * Filtering already lives in [SecretaryUIState] rather than in the composables,
  * so the rules are testable now and the previews can show a filtered list
- * without running a ViewModel — and swapping [SecretarySampleData] for the API
- * moves nothing in the composables.
- *
- * TODO: the wiring pass replaces [loadPanel] with concurrent calls to
- *  `GET /stores`, `GET /accounts`, `GET /providers` and `GET /topsheets`,
- *  awaited together the way `SysadminViewModel.loadPanel` does — the rows are
- *  cross-joined, so a panel with only some lists in would draw rows that are
- *  quietly wrong. The two submits then call `POST /stores` and `POST /accounts`,
- *  and export calls `GET /exports/topsheet/{id}.xlsx`.
+ * without running a ViewModel.
  */
 class SecretaryViewModel(
+    private val createAccount: CreateAccountUseCase,
+    private val accountRepository: AccountRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
@@ -45,7 +46,7 @@ class SecretaryViewModel(
 
     // region Events
 
-    private val _uiEvent = MutableSharedFlow<SecretaryUiEvent>()
+    private val _uiEvent = MutableSharedFlow<SecretaryUiEvent>(extraBufferCapacity = 1)
     val uiEvent = _uiEvent.asSharedFlow()
 
     // endregion
@@ -172,8 +173,87 @@ class SecretaryViewModel(
         )
     }
 
-    /** TODO: `POST /accounts`. Inert until then — see the dialog's own banner. */
-    fun onAddAccountSubmit() = Unit
+    fun onNewAccountInstallationDateChange(date: String) =
+        updateAccountForm { it.copy(installationDate = date) }
+
+    fun onNewAccountCircuitIdChange(circuitId: String) =
+        updateAccountForm { it.copy(circuitId = circuitId) }
+
+    fun onNewAccountBillingPeriodChange(billingPeriod: String) =
+        updateAccountForm { it.copy(billingPeriodLabel = billingPeriod) }
+
+    fun onNewAccountPlanChange(plan: String) =
+        updateAccountForm { it.copy(planName = plan) }
+
+    /**
+     * Uploads a proof file as soon as it is picked, then stores only the
+     * attachment id. Holding the bytes in Compose state would recompose on
+     * every equality check because ByteArray compares by identity.
+     */
+    fun onNewAccountProofPicked(file: PickedFile) {
+        viewModelScope.launch {
+            updateAccountForm { it.copy(proofUploadError = null) }
+            try {
+                val attachmentId = accountRepository.uploadAttachment(
+                    fileName = file.name,
+                    mimeType = file.mimeType,
+                    bytes = file.bytes,
+                )
+                updateAccountForm { form ->
+                    form.copy(proofAttachmentIds = form.proofAttachmentIds + attachmentId)
+                }
+            } catch (e: Exception) {
+                updateAccountForm { it.copy(proofUploadError = e.message ?: "Upload failed") }
+                _uiEvent.emit(
+                    SecretaryUiEvent.ShowSnackbar(
+                        e.message ?: "Proof upload failed. Please try again.",
+                    ),
+                )
+            }
+        }
+    }
+
+    fun onNewAccountProofRemove(attachmentId: String) {
+        updateAccountForm { form ->
+            form.copy(proofAttachmentIds = form.proofAttachmentIds - attachmentId)
+        }
+    }
+
+    /**
+     * Validates the form and either proceeds directly or asks for confirmation
+     * when the selected store already has an active account.
+     */
+    fun onAddAccountSubmit() {
+        val form = _uiState.value.addAccount ?: return
+        val validationError = validateAccountForm(form)
+        if (validationError != null) {
+            viewModelScope.launch {
+                _uiEvent.emit(SecretaryUiEvent.ShowSnackbar(validationError))
+            }
+            return
+        }
+
+        val storeId = form.storeId ?: return
+        val storeHasAccount = _uiState.value.accounts.any {
+            it.storeId == storeId && it.isLive
+        }
+
+        if (storeHasAccount) {
+            val storeName = _uiState.value.branches.find { it.id == storeId }?.displayName ?: storeId
+            viewModelScope.launch {
+                _uiEvent.emit(SecretaryUiEvent.ShowStoreHasAccountConfirmation(storeName))
+            }
+            return
+        }
+
+        createAccount(form)
+    }
+
+    /** Called after the user confirms they want to add another account to the store. */
+    fun onAddAccountSubmitConfirmed() {
+        val form = _uiState.value.addAccount ?: return
+        createAccount(form)
+    }
 
     fun onAddAccountDismiss() {
         _uiState.update { it.copy(addAccount = null) }
@@ -200,6 +280,64 @@ class SecretaryViewModel(
     private fun updateAccountForm(transform: (NewAccountForm) -> NewAccountForm) {
         _uiState.update { state ->
             state.addAccount?.let { state.copy(addAccount = transform(it)) } ?: state
+        }
+    }
+
+    private fun validateAccountForm(form: NewAccountForm): String? {
+        if (form.accountNumber.isBlank()) return "Account number is required"
+        Validation.validateAccountNumber(form.accountNumber)?.let { return it }
+        if (form.storeId == null) return "Store is required"
+        if (form.providerId == null) return "ISP provider is required"
+        Validation.validateRate(form.monthlyRate)?.let { return it }
+        if (form.installationDate.isBlank()) return "Installation date is required"
+        if (form.circuitId.isBlank()) return "Circuit ID is required"
+        if (form.proofAttachmentIds.isEmpty()) return "At least one proof of installation is required"
+        return null
+    }
+
+    private fun createAccount(form: NewAccountForm) {
+        val request = CreateAccountRequest(
+            accountNumber = form.accountNumber.trim(),
+            providerId = form.providerId.orEmpty(),
+            storeId = form.storeId.orEmpty(),
+            rate = form.monthlyRate.trim().replace(",", ""),
+            installationDate = form.installationDate.trim(),
+            circuitId = form.circuitId.trim(),
+            billingPeriodLabel = form.billingPeriodLabel.trim().takeIf { it.isNotBlank() },
+            planName = form.planName.trim().takeIf { it.isNotBlank() },
+            subscriptionProofIds = form.proofAttachmentIds,
+        )
+
+        viewModelScope.launch {
+            updateAccountForm { it.copy(isSubmitting = true) }
+
+            createAccount(request).collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> Unit
+                    is Resource.Success -> {
+                        updateAccountForm { it.copy(isSubmitting = false) }
+                        _uiState.update { it.copy(addAccount = null) }
+                        loadPanel()
+                        _uiEvent.emit(SecretaryUiEvent.ShowSnackbar("Account registered successfully"))
+                    }
+                    is Resource.Failed -> {
+                        updateAccountForm { it.copy(isSubmitting = false) }
+                        _uiEvent.emit(
+                            SecretaryUiEvent.ShowSnackbar(
+                                resource.message ?: "Failed to register account",
+                            ),
+                        )
+                    }
+                    is Resource.Error -> {
+                        updateAccountForm { it.copy(isSubmitting = false) }
+                        _uiEvent.emit(
+                            SecretaryUiEvent.ShowSnackbar(
+                                resource.error?.message ?: "Failed to register account",
+                            ),
+                        )
+                    }
+                }
+            }
         }
     }
 

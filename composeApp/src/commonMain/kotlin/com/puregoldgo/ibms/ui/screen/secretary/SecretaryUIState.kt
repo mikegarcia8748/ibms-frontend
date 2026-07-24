@@ -155,12 +155,16 @@ data class SecretaryUIState(
             it.branchCode.isNotBlank() && it.name.isNotBlank()
         } == true
 
-    /** Account number, branch and ISP identify the line; the rate is what it bills. */
+    /** All required account fields plus at least one proof attachment. */
     val canSubmitAccount: Boolean
         get() = addAccount?.let {
             it.accountNumber.isNotBlank() &&
                 it.storeId != null &&
                 it.providerId != null &&
-                it.monthlyRate.isNotBlank()
+                it.monthlyRate.isNotBlank() &&
+                it.installationDate.isNotBlank() &&
+                it.circuitId.isNotBlank() &&
+                it.proofAttachmentIds.isNotEmpty() &&
+                !it.isSubmitting
         } == true
 }
