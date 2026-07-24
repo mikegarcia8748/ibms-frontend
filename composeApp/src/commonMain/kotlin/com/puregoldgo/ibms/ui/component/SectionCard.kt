@@ -35,6 +35,7 @@ fun SectionCard(
     title: String,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
+    headerBusy: Boolean = false,
     trailing: (@Composable RowScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -71,6 +72,16 @@ fun SectionCard(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
+
+                // A quiet spinner beside the title while the section silently
+                // re-fetches — the rows below stay put, so this is the only sign
+                // the list is being brought up to date.
+                if (headerBusy) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(Dimensions.viewSize16),
+                        strokeWidth = Dimensions.viewStroke2,
+                    )
+                }
 
                 if (trailing != null) {
                     // Pushes the controls to the far edge whatever the title's width.

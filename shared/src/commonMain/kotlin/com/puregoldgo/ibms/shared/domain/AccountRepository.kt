@@ -5,6 +5,7 @@ import com.puregoldgo.core.network.dto.BaseResponse
 import com.puregoldgo.ibms.shared.api.BulkImportSummaryResponse
 import com.puregoldgo.ibms.shared.model.Account
 import com.puregoldgo.ibms.shared.model.AccountStatus
+import com.puregoldgo.ibms.shared.model.CreateAccountRequest
 import com.puregoldgo.ibms.shared.model.CursorPage
 import kotlinx.coroutines.flow.Flow
 
@@ -28,6 +29,27 @@ interface AccountRepository {
         cursor: String? = null,
         limit: Int? = null,
     ): Flow<Resource<BaseResponse<CursorPage<Account>>>>
+
+    /**
+     * Creates a single account at `POST /accounts`.
+     *
+     * Attachment ids must already exist; upload proofs first via the attachment
+     * presign flow and collect the returned ids before calling this.
+     */
+    fun createAccount(
+        request: CreateAccountRequest,
+    ): Flow<Resource<BaseResponse<Account>>>
+
+    /**
+     * Uploads a proof file through the presigned URL flow.
+     *
+     * Returns the attachment id on success.
+     */
+    suspend fun uploadAttachment(
+        fileName: String,
+        mimeType: String,
+        bytes: ByteArray,
+    ): String
 
     /**
      * Uploads a master list to `POST /accounts/bulk-import`.

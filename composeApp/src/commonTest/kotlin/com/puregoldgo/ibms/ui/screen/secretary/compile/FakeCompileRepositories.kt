@@ -18,6 +18,7 @@ import com.puregoldgo.ibms.shared.model.Provider
 import com.puregoldgo.ibms.shared.model.ProviderStatus
 import com.puregoldgo.ibms.shared.model.Store
 import com.puregoldgo.ibms.shared.model.StoreStatus
+import com.puregoldgo.ibms.shared.model.TopsheetStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -37,6 +38,25 @@ class FakeTopSheetRepository : TopSheetRepository {
     val patchedRfp: MutableList<Pair<String, String?>> = mutableListOf()
     val removedLines: MutableList<String> = mutableListOf()
     val assignedRanges: MutableList<Pair<String, String>> = mutableListOf()
+
+    var topSheets: List<TopSheetSummary> = emptyList()
+
+    override fun listTopSheets(
+        providerId: String?,
+        billingPeriod: String?,
+        status: TopsheetStatus?,
+        cursor: String?,
+        limit: Int?,
+    ): Flow<Resource<BaseResponse<CursorPage<TopSheetSummary>>>> = flow {
+        emit(Resource.Loading)
+        // Honors the filters the way the backend does, so a status=DRAFT query
+        // returns only drafts — the resume-draft flow depends on it.
+        val filtered = topSheets
+            .filter { status == null || it.status == status }
+            .filter { providerId == null || it.providerId == providerId }
+            .filter { billingPeriod == null || it.billingPeriod == billingPeriod }
+        emit(Resource.Success(BaseResponse(data = CursorPage(items = filtered, nextCursor = null))))
+    }
 
     override fun preview(providerId: String, billingPeriod: String): Flow<Resource<BaseResponse<CompilePreview>>> = flow {
         emit(Resource.Loading)
@@ -134,6 +154,16 @@ class FakeCompileAccountRepository(var accounts: List<Account> = emptyList()) : 
         emit(Resource.Loading)
         emit(Resource.Success(BaseResponse(data = CursorPage(items = accounts, nextCursor = null))))
     }
+
+    override fun createAccount(
+        request: com.puregoldgo.ibms.shared.model.CreateAccountRequest,
+    ): Flow<Resource<BaseResponse<Account>>> = error("not used by the compile panel")
+
+    override suspend fun uploadAttachment(
+        fileName: String,
+        mimeType: String,
+        bytes: ByteArray,
+    ): String = error("not used by the compile panel")
 
     override fun bulkImportAccounts(
         fileName: String,

@@ -27,11 +27,15 @@ fun SearchField(
     modifier: Modifier = Modifier,
 ) {
     OutlinedTextField(
+        modifier = modifier,
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier,
         placeholder = {
-            Text(text = placeholder, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = placeholder,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1
+            )
         },
         leadingIcon = {
             Icon(

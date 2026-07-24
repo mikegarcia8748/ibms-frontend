@@ -87,6 +87,7 @@ fun ConsoleScaffold(
                 actions = appBarActions,
             )
         },
+        snackbarHost = { snackbarHostState?.let { SnackbarHost(it) } },
     ) { padding ->
         BoxWithConstraints(
             modifier = Modifier

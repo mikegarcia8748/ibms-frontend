@@ -2,13 +2,22 @@ package com.puregoldgo.ibms.ui.screen.secretary
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.puregoldgo.ibms.ui.component.AppDialog
+import com.puregoldgo.ibms.ui.component.AppDialogFooter
+import com.puregoldgo.ibms.ui.component.AppDialogHeader
+import com.puregoldgo.ibms.ui.component.AppIcons
 import com.puregoldgo.ibms.ui.component.ConsoleHeader
 import com.puregoldgo.ibms.ui.component.ConsoleScaffold
 import com.puregoldgo.ibms.ui.component.SegmentedTabRow
@@ -21,6 +30,11 @@ import com.puregoldgo.ibms.ui.screen.secretary.compile.CompileViewModel
 import com.puregoldgo.ibms.ui.screen.secretary.compile.NoOpCompileCallback
 import com.puregoldgo.ibms.ui.theme.Dimensions
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.Res
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_add_account_close
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_add_account_store_has_account_body
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_add_account_store_has_account_confirm
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_add_account_store_has_account_title
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_dialog_cancel
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_subtitle
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_tab_accounts
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_tab_archive
@@ -42,24 +56,31 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun SecretaryScreen(
     onSignedOut: () -> Unit,
+    onNavigateToTopSheetDetail: (String) -> Unit,
     viewModel: SecretaryViewModel = koinViewModel(),
     compileViewModel: CompileViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val compileState by compileViewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    var storeAccountConfirmation by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is SecretaryUiEvent.NavigateToLogin -> onSignedOut()
+                is SecretaryUiEvent.NavigateToTopSheetDetail -> onNavigateToTopSheetDetail(event.topSheetId)
                 is SecretaryUiEvent.ShowSnackbar -> snackbarHostState.showSnackbar(event.message)
+                is SecretaryUiEvent.ShowStoreHasAccountConfirmation -> {
+                    storeAccountConfirmation = event.storeName
+                }
             }
         }
     }
 
     SecretaryContent(
         uiState = uiState,
+        snackbarHostState = snackbarHostState,
         compileState = compileState,
         compileCallback = CompileCallback(
             onPreviousMonth = compileViewModel::onPreviousMonth,
@@ -82,6 +103,9 @@ fun SecretaryScreen(
             onLinesLetterSelect = compileViewModel::onLinesLetterSelect,
             onLinesSortSelect = compileViewModel::onLinesSortSelect,
             onStartNew = compileViewModel::onStartNew,
+            onResumeDraftClick = compileViewModel::onResumeDraftClick,
+            onResumeDraft = compileViewModel::onResumeDraft,
+            onResumeDraftDismiss = compileViewModel::onResumeDraftDismiss,
         ),
         callback = SecretaryCallback(
             onTabSelect = viewModel::onTabSelect,
@@ -94,6 +118,14 @@ fun SecretaryScreen(
             onAccountStatusSelect = viewModel::onAccountStatusSelect,
             onExportAccounts = viewModel::onExportAccounts,
             onInvoiceQueryChange = viewModel::onInvoiceQueryChange,
+            onTopSheetClick = viewModel::onTopSheetClick,
+            onAddBranchClick = viewModel::onAddBranchClick,
+            onNewBranchCodeChange = viewModel::onNewBranchCodeChange,
+            onNewBranchNameChange = viewModel::onNewBranchNameChange,
+            onNewBranchCityChange = viewModel::onNewBranchCityChange,
+            onNewBranchProviderChange = viewModel::onNewBranchProviderChange,
+            onAddBranchSubmit = viewModel::onAddBranchSubmit,
+            onAddBranchDismiss = viewModel::onAddBranchDismiss,
             onRegisterBranchClick = viewModel::onRegisterBranchClick,
             onRegisterBranchStoreTypeChange = viewModel::onRegisterBranchStoreTypeChange,
             onRegisterBranchCodeChange = viewModel::onRegisterBranchCodeChange,
@@ -110,12 +142,38 @@ fun SecretaryScreen(
             onNewAccountStoreChange = viewModel::onNewAccountStoreChange,
             onNewAccountProviderChange = viewModel::onNewAccountProviderChange,
             onNewAccountRateChange = viewModel::onNewAccountRateChange,
+            onNewAccountInstallationDateChange = viewModel::onNewAccountInstallationDateChange,
+            onNewAccountCircuitIdChange = viewModel::onNewAccountCircuitIdChange,
+            onNewAccountBillingPeriodChange = viewModel::onNewAccountBillingPeriodChange,
+            onNewAccountPlanChange = viewModel::onNewAccountPlanChange,
+            onNewAccountProofPicked = viewModel::onNewAccountProofPicked,
+            onNewAccountProofRemove = viewModel::onNewAccountProofRemove,
             onAddAccountSubmit = viewModel::onAddAccountSubmit,
+            onAddAccountSubmitConfirmed = viewModel::onAddAccountSubmitConfirmed,
             onAddAccountDismiss = viewModel::onAddAccountDismiss,
             onRetryLoad = viewModel::loadPanel,
             onLogoutClick = viewModel::onLogout,
+            onBranchClick = viewModel::onBranchClick,
+            onStoreDetailDismiss = viewModel::onStoreDetailDismiss,
+            onAccountClick = viewModel::onAccountClick,
+            onAccountDetailDismiss = viewModel::onAccountDetailDismiss,
+            onDeactivateAccountClick = viewModel::onDeactivateAccountClick,
+            onDeactivateAccountDismiss = viewModel::onDeactivateAccountDismiss,
+            onDeactivateAccountFilePicked = viewModel::onDeactivateAccountFilePicked,
+            onDeactivateAccountConfirm = viewModel::onDeactivateAccountConfirm,
         ),
     )
+
+    storeAccountConfirmation?.let { storeName ->
+        StoreAccountConfirmationDialog(
+            storeName = storeName,
+            onConfirm = {
+                storeAccountConfirmation = null
+                viewModel.onAddAccountSubmitConfirmed()
+            },
+            onDismiss = { storeAccountConfirmation = null },
+        )
+    }
 }
 
 /**
@@ -127,6 +185,7 @@ fun SecretaryScreen(
 internal fun SecretaryContent(
     uiState: SecretaryUIState,
     callback: SecretaryCallback,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     compileState: CompileUIState = CompileUIState(),
     compileCallback: CompileCallback = NoOpCompileCallback,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -206,8 +265,50 @@ internal fun SecretaryContent(
                 canSubmit = uiState.canSubmitAccount,
                 branches = uiState.visibleBranches,
                 providers = uiState.activeProviders,
+                isCompact = isCompact,
                 callback = callback,
             )
+        }
+        // Ordered before the store/account modals so those overlay on top: an
+        // account row inside this dialog opens AccountDetailsDialog above it.
+        uiState.storeDetail?.let { detail ->
+            StoreDetailsDialog(detail = detail, callback = callback)
+        }
+        uiState.accountDetail?.let { detail ->
+            AccountDetailsDialog(
+                detail = detail,
+                onDismiss = callback.onAccountDetailDismiss,
+                onDeactivateClick = callback.onDeactivateAccountClick,
+            )
+        }
+        uiState.deactivateAccount?.let { form ->
+            DeactivateAccountDialog(form = form, callback = callback)
+        }
+    }
+}
+
+@Composable
+private fun StoreAccountConfirmationDialog(
+    storeName: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AppDialog(onDismissRequest = onDismiss) {
+        AppDialogHeader(
+            title = stringResource(Res.string.secretary_add_account_store_has_account_title),
+            subtitle = stringResource(Res.string.secretary_add_account_store_has_account_body, storeName),
+            icon = AppIcons.Warning,
+            onClose = onDismiss,
+            closeDescription = stringResource(Res.string.secretary_add_account_close),
+        )
+
+        AppDialogFooter {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(Res.string.secretary_dialog_cancel))
+            }
+            Button(onClick = onConfirm) {
+                Text(stringResource(Res.string.secretary_add_account_store_has_account_confirm))
+            }
         }
     }
 }

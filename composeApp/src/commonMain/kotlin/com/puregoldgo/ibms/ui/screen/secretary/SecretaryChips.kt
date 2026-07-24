@@ -9,6 +9,7 @@ import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_s
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_status_approved
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_status_closed
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_status_compiled
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_status_draft
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_status_for_deactivation
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_status_inactive
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_status_paid
@@ -62,6 +63,7 @@ internal fun TopSheetStatusChip(status: TopSheetRecordStatus) {
     StatusChip(
         label = stringResource(
             when (status) {
+                TopSheetRecordStatus.Draft -> Res.string.secretary_status_draft
                 TopSheetRecordStatus.Compiled -> Res.string.secretary_status_compiled
                 TopSheetRecordStatus.Approved -> Res.string.secretary_status_approved
                 TopSheetRecordStatus.Paid -> Res.string.secretary_status_paid

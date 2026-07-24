@@ -5,6 +5,8 @@ import com.puregoldgo.core.network.dto.BaseResponse
 import com.puregoldgo.ibms.shared.api.CompilePreview
 import com.puregoldgo.ibms.shared.api.TopSheetLine
 import com.puregoldgo.ibms.shared.api.TopSheetSummary
+import com.puregoldgo.ibms.shared.model.CursorPage
+import com.puregoldgo.ibms.shared.model.TopsheetStatus
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -16,6 +18,23 @@ import kotlinx.coroutines.flow.Flow
  * `Idempotency-Key` because a double-submit would bill an ISP twice.
  */
 interface TopSheetRepository {
+
+    /**
+     * One page of `GET /topsheets` — the compiled billing history.
+     *
+     * A page, not the whole list: the endpoint is cursor-paginated and caps
+     * `limit` at 100 server-side. Callers that need everything loop on
+     * [CursorPage.nextCursor] — see [usecase.GetTopSheetsUseCase]. Omitting the
+     * filters returns every topsheet (all providers, periods and statuses, DRAFT
+     * included), which is what Billing History lists.
+     */
+    fun listTopSheets(
+        providerId: String? = null,
+        billingPeriod: String? = null,
+        status: TopsheetStatus? = null,
+        cursor: String? = null,
+        limit: Int? = null,
+    ): Flow<Resource<BaseResponse<CursorPage<TopSheetSummary>>>>
 
     /** `POST /topsheets/preview` — eligible accounts + total for a provider/period, no persistence. */
     fun preview(

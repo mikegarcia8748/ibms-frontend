@@ -1,6 +1,7 @@
 package com.puregoldgo.ibms.ui.screen.secretary
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -113,17 +114,16 @@ internal fun IspAccountsTab(
             },
         ) {
             if (isCompact) {
-                ispFilter(Modifier.fillMaxWidth())
-                Spacer(Modifier.height(Dimensions.viewPadding8))
-                statusFilter(Modifier.fillMaxWidth())
-                Spacer(Modifier.height(Dimensions.viewPadding8))
-                search(Modifier.fillMaxWidth())
-                Spacer(Modifier.height(Dimensions.viewPadding8))
-                Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8)) {
-                    ExportButton(callback.onExportAccounts, Modifier.weight(1f))
-                    AddButton(callback.onAddAccountClick, Modifier.weight(1f))
+                Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding4)){
+                    ispFilter(Modifier.fillMaxWidth())
+                    statusFilter(Modifier.fillMaxWidth())
+                    search(Modifier.fillMaxWidth())
+                    Row(horizontalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8)) {
+                        ExportButton(callback.onExportAccounts, Modifier.weight(1f))
+                        AddButton(callback.onAddAccountClick, Modifier.weight(1f))
+                    }
+                    Spacer(Modifier.height(Dimensions.viewPadding16))
                 }
-                Spacer(Modifier.height(Dimensions.viewPadding16))
             }
 
             when {
@@ -143,7 +143,7 @@ internal fun IspAccountsTab(
                     verticalArrangement = Arrangement.spacedBy(Dimensions.viewPadding8),
                 ) {
                     items(uiState.visibleAccounts, key = { it.id }) { account ->
-                        AccountCard(account)
+                        AccountCard(account) { callback.onAccountClick(account.id) }
                     }
                 }
             }
@@ -174,11 +174,12 @@ internal fun IspAccountsTab(
 }
 
 @Composable
-private fun AccountCard(account: SecretaryAccountRow) {
+private fun AccountCard(account: SecretaryAccountRow, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(Dimensions.viewRadius12))
+            .clickable { onClick() }
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .padding(Dimensions.viewPadding16),
     ) {

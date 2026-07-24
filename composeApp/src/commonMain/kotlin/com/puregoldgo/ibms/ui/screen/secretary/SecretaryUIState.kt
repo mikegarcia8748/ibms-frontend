@@ -52,6 +52,13 @@ data class SecretaryUIState(
     // The two creation dialogs. Mutually exclusive at the call site.
     val registerBranchForm: RegisterBranchForm? = null,
     val addAccount: NewAccountForm? = null,
+
+    // Detail modals. Independent of add-dialogs — these overlay.
+    val storeDetail: StoreDetail? = null,
+    val accountDetail: AccountDetail? = null,
+
+    // Deactivation confirmation. Opens above the account detail modal.
+    val deactivateAccount: DeactivateAccountForm? = null,
 ) {
     /** Only active ISPs are offered as a filter — a dead one matches nothing. */
     val activeProviders: List<SecretaryProviderRow>
@@ -117,11 +124,18 @@ data class SecretaryUIState(
 
     // endregion
 
-    /** Topsheets are few and already dated; only the invoice number is searched. */
+    /**
+     * Topsheets filtered by the billing-history search. Matches the reference an
+     * operator would type — invoice or batch number — and the provider, so DRAFT
+     * rows (which have no invoice yet) stay findable too.
+     */
     val visibleTopSheets: List<TopSheetRow>
         get() = topSheets.filter { sheet ->
-            invoiceQuery.isBlank() ||
-                sheet.invoiceNumber.contains(invoiceQuery.trim(), ignoreCase = true)
+            invoiceQuery.isBlank() || invoiceQuery.trim().let { q ->
+                sheet.invoiceNumber?.contains(q, ignoreCase = true) == true ||
+                    sheet.batchNumber?.contains(q, ignoreCase = true) == true ||
+                    sheet.providerName.contains(q, ignoreCase = true)
+            }
         }
 
     // region Archive
@@ -150,12 +164,27 @@ data class SecretaryUIState(
             return accounts.filter { it.isLive && it.storeId in closedIds }
         }
 
+    /** A branch code and a name are the minimum `POST /stores` will accept. */
+    val canSubmitBranch: Boolean
+        get() = addBranch?.let {
+            it.branchCode.isNotBlank() && it.name.isNotBlank()
+        } == true
+
+    /** All required account fields plus at least one proof attachment. */
     /** Account number, branch and ISP identify the line; the rate is what it bills. */
     val canSubmitAccount: Boolean
         get() = addAccount?.let {
             it.accountNumber.isNotBlank() &&
                 it.storeId != null &&
                 it.providerId != null &&
-                it.monthlyRate.isNotBlank()
+                it.monthlyRate.isNotBlank() &&
+                it.installationDate.isNotBlank() &&
+                it.circuitId.isNotBlank() &&
+                it.proofAttachmentIds.isNotEmpty() &&
+                !it.isSubmitting
         } == true
+
+    /** A proof PDF is required before the deactivation request can be submitted. */
+    val canSubmitDeactivateAccount: Boolean
+        get() = deactivateAccount?.proofFile != null
 }

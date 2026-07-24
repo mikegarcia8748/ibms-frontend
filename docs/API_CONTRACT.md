@@ -240,9 +240,65 @@ Success response: `data` contains the created `Store`.
 | Method | Path | Roles | Description |
 |--------|------|-------|-------------|
 | GET | `/accounts` | any | List accounts (filter: storeId, providerId, status) |
-| POST | `/accounts` | secretary, payables | Create account |
+| POST | `/accounts` | secretary | Create account |
 | PUT | `/accounts/{id}` | secretary, payables | Update account |
 | POST | `/accounts/{id}/deactivate` | secretary | Request deactivation (30-day grace) |
+
+#### POST /accounts
+
+Request:
+```json
+{
+  "accountNumber": "5440-123",
+  "providerId": "<uuid>",
+  "storeId": "<uuid>",
+  "rate": "1500.00",
+  "installationDate": "2026-07-15",
+  "circuitId": "CRT-987654321",
+  "billingPeriodLabel": "1st - 30th",
+  "planName": "100Mbps Broadband",
+  "subscriptionProofIds": ["<attachment-uuid>"]
+}
+```
+
+| Field | Required | Type | Description |
+|-------|----------|------|-------------|
+| `accountNumber` | yes | `string` | 3-50 alphanumeric characters, hyphens allowed |
+| `providerId` | yes | `uuid` | Existing ISP provider |
+| `storeId` | yes | `uuid` | Existing store/branch |
+| `rate` | yes | `decimal-string` | Monthly recurring charge, e.g. `1500.00` |
+| `installationDate` | yes | `ISO-date` | `YYYY-MM-DD` |
+| `circuitId` | yes | `string` | Provider circuit identifier |
+| `billingPeriodLabel` | no | `string` | Human-readable billing period, e.g. `1st - 30th` |
+| `planName` | no | `string` | Package/plan name |
+| `subscriptionProofIds` | yes | `string[]` | At least one attachment id; upload via `/attachments/presign/upload` first |
+
+Response `201 Created`:
+```json
+{
+  "result": "success",
+  "message": "Account created",
+  "status": "201",
+  "data": {
+    "id": "<uuid>",
+    "accountNumber": "5440-123",
+    "circuitId": "CRT-987654321",
+    "providerId": "<uuid>",
+    "storeId": "<uuid>",
+    "planName": "100Mbps Broadband",
+    "rate": "1500.00",
+    "installationDate": "2026-07-15",
+    "billingPeriodLabel": "1st - 30th",
+    "isProrated": false,
+    "status": "active",
+    "subscriptionProofIds": ["<attachment-uuid>"],
+    "createdAt": "2026-07-23T00:00:00Z",
+    "updatedAt": "2026-07-23T00:00:00Z"
+  }
+}
+```
+
+Note: `isProrated` is not accepted on create. The backend derives it from `installationDate` and the topsheet processing date.
 
 ---
 

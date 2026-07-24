@@ -154,6 +154,16 @@ object AppIcons {
         )
     }
 
+    /** Deactivate an account — the termination request dialog. */
+    val PowerSettingsNew: ImageVector by lazy {
+        materialIcon(
+            name = "PowerSettingsNew",
+            pathData = "M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 " +
+                "3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 " +
+                "3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z",
+        )
+    }
+
     /** Confirms a destructive-ish action — the import commit. */
     val CheckCircle: ImageVector by lazy {
         materialIcon(
@@ -218,6 +228,44 @@ object AppIcons {
         materialIcon(
             name = "ArrowBack",
             pathData = "M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z",
+        )
+    }
+
+    /** A map pin — location data sections. */
+    val LocationOn: ImageVector by lazy {
+        materialIcon(
+            name = "LocationOn",
+            pathData = "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" +
+                "m0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 " +
+                "2.5-2.5 2.5z",
+        )
+    }
+
+    /** Calendar — date-related sections. */
+    val CalendarToday: ImageVector by lazy {
+        materialIcon(
+            name = "CalendarToday",
+            pathData = "M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 " +
+                "2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z",
+        )
+    }
+
+    /** A hash / number sign — technical info sections. */
+    val Tag: ImageVector by lazy {
+        materialIcon(
+            name = "Tag",
+            pathData = "M20 10V8h-4V4h-2v4h-4V4H8v4H4v2h4v4H4v2h4v4h2v-4h4v4h2v-4h4v-2h-4v-4h4z" +
+                "M14 14h-4v-4h4v4z",
+        )
+    }
+
+    /** Currency / payments — billing sections. */
+    val Payments: ImageVector by lazy {
+        materialIcon(
+            name = "Payments",
+            pathData = "M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 " +
+                "2-.9 2-2zm-2 0H3V6h14v8zm-7-1c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3" +
+                "-1.34 3-3 3zm13-6v11c0 1.1-.9 2-2 2H4v-2h17V7h2z",
         )
     }
 }

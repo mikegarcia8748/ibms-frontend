@@ -1,12 +1,17 @@
 package com.puregoldgo.ibms.ui.screen.secretary
 
+import com.puregoldgo.ibms.platform.file.PickedFile
+
 import com.puregoldgo.ibms.shared.model.StoreType
 
 /**
  * Everything the secretary console can do, bundled so the content composables
  * stay free of the ViewModel and remain previewable.
+ *
+ * Deliberately a plain class rather than a data class: storing lambdas in a
+ * data class invites unwanted equals/hashCode behaviour on recompositions.
  */
-data class SecretaryCallback(
+class SecretaryCallback(
     val onTabSelect: (SecretaryTab) -> Unit,
 
     // Branch locations.
@@ -23,6 +28,7 @@ data class SecretaryCallback(
 
     // Billing history.
     val onInvoiceQueryChange: (String) -> Unit,
+    val onTopSheetClick: (String) -> Unit,
 
     // Register branch.
     val onRegisterBranchClick: () -> Unit,
@@ -43,9 +49,28 @@ data class SecretaryCallback(
     val onNewAccountStoreChange: (String?) -> Unit,
     val onNewAccountProviderChange: (String?) -> Unit,
     val onNewAccountRateChange: (String) -> Unit,
+    val onNewAccountInstallationDateChange: (String) -> Unit,
+    val onNewAccountCircuitIdChange: (String) -> Unit,
+    val onNewAccountBillingPeriodChange: (String) -> Unit,
+    val onNewAccountPlanChange: (String) -> Unit,
+    val onNewAccountProofPicked: (PickedFile) -> Unit,
+    val onNewAccountProofRemove: (String) -> Unit,
     val onAddAccountSubmit: () -> Unit,
+    val onAddAccountSubmitConfirmed: () -> Unit,
     val onAddAccountDismiss: () -> Unit,
 
     val onRetryLoad: () -> Unit,
     val onLogoutClick: () -> Unit,
+
+    // Detail modals.
+    val onBranchClick: (String) -> Unit,
+    val onStoreDetailDismiss: () -> Unit,
+    val onAccountClick: (String) -> Unit,
+    val onAccountDetailDismiss: () -> Unit,
+
+    // Deactivate account.
+    val onDeactivateAccountClick: () -> Unit,
+    val onDeactivateAccountDismiss: () -> Unit,
+    val onDeactivateAccountFilePicked: (PickedFile) -> Unit,
+    val onDeactivateAccountConfirm: () -> Unit,
 )
