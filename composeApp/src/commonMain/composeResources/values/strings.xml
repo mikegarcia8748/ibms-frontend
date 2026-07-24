@@ -276,6 +276,13 @@
     <string name="secretary_compile_done_summary">%1$d accounts • ₱%2$s</string>
     <string name="secretary_compile_start_new">Compile another</string>
 
+    <!-- Secretary — compile topsheet, resume draft -->
+    <string name="secretary_compile_resume_drafts">Resume Draft</string>
+    <string name="secretary_compile_resume_title">Drafted TopSheets</string>
+    <string name="secretary_compile_resume_subtitle">Pick a draft to continue assigning RFP numbers and confirm.</string>
+    <string name="secretary_compile_resume_empty">No drafted topsheets to resume.</string>
+    <string name="secretary_compile_resume_close">Close</string>
+
     <!-- Secretary — branch locations -->
     <string name="secretary_branches_title">Branch Locations</string>
     <string name="secretary_branches_search_hint">Search store, code or city…</string>
@@ -359,6 +366,24 @@
     <string name="secretary_add_account_provider">ISP</string>
     <string name="secretary_add_account_rate">Monthly rate (₱)</string>
     <string name="secretary_add_account_submit">Add Account</string>
+
+    <!-- Secretary — deactivate account dialog -->
+    <string name="secretary_deactivate_title">Deactivate Account</string>
+    <string name="secretary_deactivate_subtitle">Initiate termination process</string>
+    <string name="secretary_deactivate_close">Close</string>
+    <string name="secretary_deactivate_warning">Are you sure you want to request termination for this account? This will mark it for deactivation.</string>
+    <string name="secretary_deactivate_account_label">Account:</string>
+    <string name="secretary_deactivate_circuit_id_label">Circuit ID:</string>
+    <string name="secretary_deactivate_branch_label">Branch:</string>
+    <string name="secretary_deactivate_proof_label">PROOF OF DEACTIVATION (PDF) *</string>
+    <string name="secretary_deactivate_drop_title">Click or drag PDF here</string>
+    <string name="secretary_deactivate_drop_subtitle">Max size 5MB</string>
+    <string name="secretary_deactivate_change_file">Choose a different file</string>
+    <string name="secretary_deactivate_cancel">Cancel</string>
+    <string name="secretary_deactivate_confirm">Confirm Deactivation</string>
+    <string name="secretary_deactivate_request">Request deactivation</string>
+    <string name="secretary_deactivate_oversize">PDF must be 5MB or smaller.</string>
+    <string name="secretary_deactivate_wrong_type">Only PDF files are accepted.</string>
 
     <!-- Secretary — dialogs, shared -->
     <string name="secretary_dialog_cancel">Cancel</string>

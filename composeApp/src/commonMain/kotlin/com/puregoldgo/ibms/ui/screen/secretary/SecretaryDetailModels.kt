@@ -55,6 +55,7 @@ enum class TopSheetLineSortKey { StoreCode, Amount, RfpNumber }
 
 @Immutable
 data class AccountDetail(
+    val accountId: String,
     val accountNumber: String,
     val providerName: String,
     val planName: String?,

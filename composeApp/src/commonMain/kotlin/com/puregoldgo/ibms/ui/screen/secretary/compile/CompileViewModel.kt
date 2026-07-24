@@ -13,10 +13,12 @@ import com.puregoldgo.ibms.shared.domain.usecase.GetAccountsUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetProvidersUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetStoresUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetTopSheetLinesUseCase
+import com.puregoldgo.ibms.shared.domain.usecase.GetTopSheetsUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.PreviewTopSheetUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.UpdateTopSheetLineUseCase
 import com.puregoldgo.ibms.shared.model.Provider
 import com.puregoldgo.ibms.shared.model.ProviderStatus
+import com.puregoldgo.ibms.shared.model.TopsheetStatus
 import com.puregoldgo.ibms.ui.screen.secretary.SecretaryProviderRow
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,6 +48,7 @@ class CompileViewModel(
     private val assignRfp: AssignRfpUseCase,
     private val deleteLine: DeleteTopSheetLineUseCase,
     private val confirm: ConfirmTopSheetUseCase,
+    private val getDrafts: GetTopSheetsUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CompileUIState(billingPeriod = BillingPeriod.current()))
@@ -461,6 +464,72 @@ class CompileViewModel(
 
     // endregion
 
+    // region Resume draft
+
+    /**
+     * Opens the resume-draft dialog and fetches the DRAFT topsheets. A draft
+     * persists server-side after the secretary leaves; this is the way back into
+     * the RFP-entry/confirm flow.
+     */
+    fun onResumeDraftClick() {
+        _uiState.update {
+            it.copy(showResumeDialog = true, isLoadingDrafts = true, draftsError = null)
+        }
+        viewModelScope.launch {
+            getDrafts(status = TopsheetStatus.DRAFT).collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> Unit // flag set above
+
+                    is Resource.Success -> _uiState.update {
+                        it.copy(isLoadingDrafts = false, draftsError = null, drafts = resource.data.orEmpty())
+                    }
+
+                    is Resource.Failed -> _uiState.update {
+                        it.copy(isLoadingDrafts = false, draftsError = resource.message ?: DEFAULT_DRAFTS_ERROR)
+                    }
+
+                    is Resource.Error -> _uiState.update {
+                        it.copy(isLoadingDrafts = false, draftsError = resource.error?.message ?: DEFAULT_DRAFTS_ERROR)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Resumes a drafted topsheet: adopts it as the active [draft], moves to RFP
+     * entry, and loads its lines. The review context is refreshed to the draft's
+     * provider/period so backing out lands on the right accounts.
+     */
+    fun onResumeDraft(topSheetId: String) {
+        val draft = _uiState.value.drafts.firstOrNull { it.id == topSheetId } ?: return
+        _uiState.update {
+            it.copy(
+                showResumeDialog = false,
+                draft = draft,
+                selectedProviderId = draft.providerId,
+                billingPeriod = draft.billingPeriod,
+                phase = CompilePhase.RfpEntry,
+                compileError = null,
+                linesError = null,
+                linesQuery = "",
+                linesLetter = LETTER_ALL,
+                linesSort = LineSortOrder.StoreCode,
+                rfpRangeStart = "",
+                rfpRangeEnd = "",
+                assignRfpError = null,
+            )
+        }
+        loadLines(draft.id)
+        loadContext()
+    }
+
+    fun onResumeDraftDismiss() {
+        _uiState.update { it.copy(showResumeDialog = false) }
+    }
+
+    // endregion
+
     // region Internals
 
     private fun updateLineState(lineId: String, transform: (CompileLineRow) -> CompileLineRow) {
@@ -498,3 +567,4 @@ private const val DEFAULT_LINE_SAVE_ERROR = "The RFP number could not be saved."
 private const val DEFAULT_ASSIGN_RFP_ERROR = "The RFP numbers could not be assigned."
 private const val DEFAULT_LINE_REMOVE_ERROR = "The line could not be removed."
 private const val DEFAULT_CONFIRM_ERROR = "The topsheet could not be confirmed."
+private const val DEFAULT_DRAFTS_ERROR = "Drafted topsheets could not be loaded."

@@ -48,7 +48,13 @@ class FakeTopSheetRepository : TopSheetRepository {
         limit: Int?,
     ): Flow<Resource<BaseResponse<CursorPage<TopSheetSummary>>>> = flow {
         emit(Resource.Loading)
-        emit(Resource.Success(BaseResponse(data = CursorPage(items = topSheets, nextCursor = null))))
+        // Honors the filters the way the backend does, so a status=DRAFT query
+        // returns only drafts — the resume-draft flow depends on it.
+        val filtered = topSheets
+            .filter { status == null || it.status == status }
+            .filter { providerId == null || it.providerId == providerId }
+            .filter { billingPeriod == null || it.billingPeriod == billingPeriod }
+        emit(Resource.Success(BaseResponse(data = CursorPage(items = filtered, nextCursor = null))))
     }
 
     override fun preview(providerId: String, billingPeriod: String): Flow<Resource<BaseResponse<CompilePreview>>> = flow {

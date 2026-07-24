@@ -13,12 +13,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import com.puregoldgo.ibms.ui.component.AppDialog
+import com.puregoldgo.ibms.ui.component.AppDialogFooter
 import com.puregoldgo.ibms.ui.component.AppDialogHeader
 import com.puregoldgo.ibms.ui.component.AppIcons
 import com.puregoldgo.ibms.ui.format.formatDate
@@ -31,6 +33,7 @@ import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_d
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_detail_bandwidth
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_detail_billing_details
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_detail_circuit_id
+import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_deactivate_request
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_detail_close
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_detail_end_date
 import ibmsispbillingmanagementsystem.composeapp.generated.resources.secretary_detail_created_at
@@ -56,6 +59,7 @@ import org.jetbrains.compose.resources.stringResource
 internal fun AccountDetailsDialog(
     detail: AccountDetail,
     onDismiss: () -> Unit,
+    onDeactivateClick: (() -> Unit)? = null,
 ) {
     val na = stringResource(Res.string.secretary_detail_not_available)
 
@@ -246,6 +250,19 @@ internal fun AccountDetailsDialog(
                     LabelAboveValue(
                         label = stringResource(Res.string.secretary_detail_end_date),
                         value = detail.contractEndDate?.let(::formatDate) ?: na,
+                    )
+                }
+            }
+        }
+
+        if (onDeactivateClick != null &&
+            (detail.status == AccountRecordStatus.Active || detail.status == AccountRecordStatus.Pending)
+        ) {
+            AppDialogFooter {
+                TextButton(onClick = onDeactivateClick) {
+                    Text(
+                        text = stringResource(Res.string.secretary_deactivate_request),
+                        color = MaterialTheme.colorScheme.error,
                     )
                 }
             }

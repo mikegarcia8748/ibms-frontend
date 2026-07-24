@@ -55,6 +55,9 @@ data class SecretaryUIState(
     // Detail modals. Independent of add-dialogs — these overlay.
     val storeDetail: StoreDetail? = null,
     val accountDetail: AccountDetail? = null,
+
+    // Deactivation confirmation. Opens above the account detail modal.
+    val deactivateAccount: DeactivateAccountForm? = null,
 ) {
     /** Only active ISPs are offered as a filter — a dead one matches nothing. */
     val activeProviders: List<SecretaryProviderRow>
@@ -174,4 +177,8 @@ data class SecretaryUIState(
                 it.providerId != null &&
                 it.monthlyRate.isNotBlank()
         } == true
+
+    /** A proof PDF is required before the deactivation request can be submitted. */
+    val canSubmitDeactivateAccount: Boolean
+        get() = deactivateAccount?.proofFile != null
 }

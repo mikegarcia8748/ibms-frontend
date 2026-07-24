@@ -9,6 +9,7 @@ import com.puregoldgo.ibms.shared.domain.usecase.GetAccountsUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetProvidersUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetStoresUseCase
 import com.puregoldgo.ibms.shared.domain.usecase.GetTopSheetsUseCase
+import com.puregoldgo.ibms.platform.file.PickedFile
 import com.puregoldgo.ibms.shared.model.Account
 import com.puregoldgo.ibms.shared.model.Provider
 import com.puregoldgo.ibms.shared.model.Store
@@ -267,6 +268,44 @@ class SecretaryViewModel(
 
     fun onAccountDetailDismiss() {
         _uiState.update { it.copy(accountDetail = null) }
+    }
+
+    // endregion
+
+    // region Deactivate account
+
+    /** Opens the deactivation dialog seeded from the currently shown account detail. */
+    fun onDeactivateAccountClick() {
+        val detail = _uiState.value.accountDetail ?: return
+        _uiState.update {
+            it.copy(
+                deactivateAccount = DeactivateAccountForm(
+                    accountId = detail.accountId,
+                    accountNumber = detail.accountNumber,
+                    circuitId = detail.circuitId,
+                    branchLabel = "${detail.branchCode} (${detail.storeName})",
+                ),
+            )
+        }
+    }
+
+    fun onDeactivateAccountFilePicked(file: PickedFile) {
+        updateDeactivateForm { it.copy(proofFile = file, errorMessage = null) }
+    }
+
+    /** TODO: `POST /accounts/{id}/deactivate` once the backend contract is ready. */
+    fun onDeactivateAccountConfirm() {
+        updateDeactivateForm { it.copy(isSubmitting = true, errorMessage = null) }
+    }
+
+    fun onDeactivateAccountDismiss() {
+        _uiState.update { it.copy(deactivateAccount = null) }
+    }
+
+    private fun updateDeactivateForm(transform: (DeactivateAccountForm) -> DeactivateAccountForm) {
+        _uiState.update { state ->
+            state.deactivateAccount?.let { state.copy(deactivateAccount = transform(it)) } ?: state
+        }
     }
 
     // endregion

@@ -78,6 +78,9 @@ fun SecretaryScreen(
             onLinesLetterSelect = compileViewModel::onLinesLetterSelect,
             onLinesSortSelect = compileViewModel::onLinesSortSelect,
             onStartNew = compileViewModel::onStartNew,
+            onResumeDraftClick = compileViewModel::onResumeDraftClick,
+            onResumeDraft = compileViewModel::onResumeDraft,
+            onResumeDraftDismiss = compileViewModel::onResumeDraftDismiss,
         ),
         callback = SecretaryCallback(
             onTabSelect = viewModel::onTabSelect,
@@ -111,6 +114,10 @@ fun SecretaryScreen(
             onStoreDetailDismiss = viewModel::onStoreDetailDismiss,
             onAccountClick = viewModel::onAccountClick,
             onAccountDetailDismiss = viewModel::onAccountDetailDismiss,
+            onDeactivateAccountClick = viewModel::onDeactivateAccountClick,
+            onDeactivateAccountDismiss = viewModel::onDeactivateAccountDismiss,
+            onDeactivateAccountFilePicked = viewModel::onDeactivateAccountFilePicked,
+            onDeactivateAccountConfirm = viewModel::onDeactivateAccountConfirm,
         ),
     )
 }
@@ -200,7 +207,14 @@ internal fun SecretaryContent(
             StoreDetailsDialog(detail = detail, callback = callback)
         }
         uiState.accountDetail?.let { detail ->
-            AccountDetailsDialog(detail = detail, onDismiss = callback.onAccountDetailDismiss)
+            AccountDetailsDialog(
+                detail = detail,
+                onDismiss = callback.onAccountDetailDismiss,
+                onDeactivateClick = callback.onDeactivateAccountClick,
+            )
+        }
+        uiState.deactivateAccount?.let { form ->
+            DeactivateAccountDialog(form = form, callback = callback)
         }
     }
 }

@@ -133,6 +133,7 @@ internal fun buildAccountDetail(
     store: Store?,
     provider: Provider?,
 ): AccountDetail = AccountDetail(
+    accountId = account.id,
     accountNumber = account.accountNumber,
     providerName = provider?.name ?: EM_DASH,
     planName = account.planName,

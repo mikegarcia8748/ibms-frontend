@@ -1,6 +1,7 @@
 package com.puregoldgo.ibms.ui.screen.secretary
 
 import androidx.compose.runtime.Immutable
+import com.puregoldgo.ibms.platform.file.PickedFile
 
 /**
  * The rows the secretary panel draws.
@@ -135,4 +136,22 @@ data class NewAccountForm(
     val storeId: String? = null,
     val providerId: String? = null,
     val monthlyRate: String = "",
+)
+
+/**
+ * The deactivate-account confirmation form.
+ *
+ * Holds the account to terminate and the proof PDF the secretary selected.
+ * The file is kept in memory only this pass; the actual upload and
+ * deactivation request are TODO.
+ */
+@Immutable
+data class DeactivateAccountForm(
+    val accountId: String,
+    val accountNumber: String,
+    val circuitId: String?,
+    val branchLabel: String,
+    val proofFile: PickedFile? = null,
+    val isSubmitting: Boolean = false,
+    val errorMessage: String? = null,
 )
