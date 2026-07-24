@@ -74,11 +74,6 @@ fun ConsoleScaffold(
     content: @Composable ColumnScope.(ConsoleLayout) -> Unit,
 ) {
     Scaffold(
-        snackbarHost = {
-            if (snackbarHostState != null) {
-                SnackbarHost(hostState = snackbarHostState)
-            }
-        },
         topBar = {
             ConsoleAppBar(
                 userName = userName,

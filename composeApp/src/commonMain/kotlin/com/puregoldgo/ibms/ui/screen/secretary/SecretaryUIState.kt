@@ -164,12 +164,6 @@ data class SecretaryUIState(
             return accounts.filter { it.isLive && it.storeId in closedIds }
         }
 
-    /** A branch code and a name are the minimum `POST /stores` will accept. */
-    val canSubmitBranch: Boolean
-        get() = addBranch?.let {
-            it.branchCode.isNotBlank() && it.name.isNotBlank()
-        } == true
-
     /** All required account fields plus at least one proof attachment. */
     /** Account number, branch and ISP identify the line; the rate is what it bills. */
     val canSubmitAccount: Boolean

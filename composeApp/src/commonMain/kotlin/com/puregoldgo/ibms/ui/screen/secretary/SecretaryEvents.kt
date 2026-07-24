@@ -10,7 +10,6 @@ sealed class SecretaryUiEvent {
     data class NavigateToTopSheetDetail(val topSheetId: String) : SecretaryUiEvent()
 
     /** Show a transient message for validation or server errors. */
-    data class ShowSnackbar(val message: String) : SecretaryUiEvent()
 
     /**
      * The selected store already has an active account.
